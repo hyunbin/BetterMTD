@@ -48,13 +48,18 @@ public class StopActivity extends ActionBarActivity {
     private static final String TAG_VEHICLEID = "vehicle_id";
     private static final String TAG_ISISTOP = "is_istop";
     private static final String TAG_EXPECTEDMINS = "expected_mins";
+    private static final String TAG_TRIP = "trip";
+    private static final String TAG_TRIPHEADSIGN = "trip_headsign";
 
     public ListView list;
     JSONArray departures = null;
+
     ArrayList<HashMap<String, String>> departureList;
     public RecyclerView recyclerView;
     public Context context;
     public SwipeRefreshLayout swipeLayout;
+    public RecyclerViewAdapter adapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +75,7 @@ public class StopActivity extends ActionBarActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        departureList = new ArrayList<HashMap<String, String>>();
+
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
 
@@ -153,6 +158,7 @@ public class StopActivity extends ActionBarActivity {
         protected void onPreExecute()
         {
             super.onPreExecute();
+            departureList = new ArrayList<HashMap<String, String>>();
             // TODO perhaps add some UI element to indicate task is in progress?
         }
 
@@ -172,19 +178,28 @@ public class StopActivity extends ActionBarActivity {
                     for (int i = 0; i < departures.length(); i++) {
                         JSONObject c = departures.getJSONObject(i);
 
+                        JSONObject t = c.getJSONObject(TAG_TRIP);
+                        String tripHeadSign = t.getString(TAG_TRIPHEADSIGN);
+
+                        JSONObject r = c.getJSONObject(TAG_ROUTE);
+                        String routeColor = r.getString(TAG_ROUTECOLOR);
+                        String routeTextColor = r.getString(TAG_ROUTETEXTCOLOR);
                         String stopID = c.getString(TAG_STOPID);
                         String headSign = c.getString(TAG_HEADSIGN);
 
                         String vehicleID = c.getString(TAG_VEHICLEID);
                         String expectedMins = c.getString(TAG_EXPECTEDMINS);
-                        //String routeColor = c.getString(TAG_ROUTECOLOR);
+
                         HashMap<String, String> departure = new HashMap<String, String>();
 
                         departure.put(TAG_STOPID, stopID);
                         departure.put(TAG_HEADSIGN, headSign);
                         departure.put(TAG_VEHICLEID, vehicleID);
                         departure.put(TAG_EXPECTEDMINS, expectedMins);
-                        //departure.put(TAG_ROUTECOLOR, routeColor);
+                        departure.put(TAG_ROUTECOLOR, routeColor);
+                        departure.put(TAG_TRIPHEADSIGN, tripHeadSign);
+                        departure.put(TAG_ROUTETEXTCOLOR, routeTextColor);
+
                         departureList.add(departure);
                     }
                 }
@@ -199,8 +214,13 @@ public class StopActivity extends ActionBarActivity {
             // TODO populate UI with data when done
             super.onPostExecute(result);
 
-            RecyclerView.Adapter adapter = new RecyclerViewAdapter(context, departureList);
-            recyclerView.setAdapter(adapter);
+            if(adapter!=null) {
+                adapter.removeAllItems();
+            }
+
+            adapter = new RecyclerViewAdapter(context, departureList);
+            //recyclerView.setAdapter(adapter);
+            recyclerView.swapAdapter(adapter, false);
         }
 
     }
