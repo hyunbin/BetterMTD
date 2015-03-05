@@ -1,6 +1,7 @@
 package cashpa.bettermtd;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,7 +48,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
         HashMap<String, String> model = items.get(position);
         viewHolder.headSign.setText(model.get("headsign"));
         viewHolder.expectedMins.setText(model.get("expected_mins"));
-        //viewHolder.listItem.setBackgroundColor(Integer.parseInt(model.get("route_color")) + 0xFF000000);
+        viewHolder.subText.setText("To " + model.get("trip_headsign"));
+        //int c = Color.parseColor("route_color");
+        viewHolder.listItem.setBackgroundColor(Color.parseColor("#" + model.get("route_color"))- 0x2F000000);
+        viewHolder.headSign.setTextColor(Color.parseColor("#" + model.get("route_text_color")));
+        viewHolder.expectedMins.setTextColor(Color.parseColor("#" + model.get("route_text_color")));
+        viewHolder.subText.setTextColor(Color.parseColor("#" + model.get("route_text_color")) - 0x5F000000);
+        viewHolder.minsLabel.setTextColor(Color.parseColor("#" + model.get("route_text_color")) - 0x5F000000);
     }
 
     @Override
@@ -55,9 +62,19 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
         return items.size();
     }
 
+    public void removeAllItems() {
+        final int size = items.size();
+        for(int i = size-1; i >= 0 ; i--) {
+            items.remove(i);
+            notifyItemRemoved(i);
+        }
+    }
+
     public final static class ListItemViewHolder extends RecyclerView.ViewHolder {
         TextView headSign;
         TextView expectedMins;
+        TextView subText;
+        TextView minsLabel;
         RelativeLayout listItem;
         public ListItemViewHolder(View itemView) {
             super(itemView);
@@ -65,6 +82,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
             listItem = (RelativeLayout) itemView.findViewById(R.id.listitem);
             headSign = (TextView) itemView.findViewById(R.id.headsign);
             expectedMins = (TextView) itemView.findViewById(R.id.expectedmins);
+            subText = (TextView) itemView.findViewById(R.id.subtext);
+            minsLabel = (TextView) itemView.findViewById(R.id.minslabel);
         }
     }
 }

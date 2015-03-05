@@ -7,8 +7,6 @@
     android:orientation="horizontal"
     android:padding="10dp"
     android:paddingTop="10dp"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
     android:paddingBottom="10dp" >
 
     <!-- Bus headsign label -->
@@ -18,35 +16,58 @@
         android:layout_height="wrap_content"
         android:paddingBottom="2dip"
         android:paddingTop="6dip"
-        android:paddingLeft="6dip"
         android:textSize="16sp"
-        android:textStyle="bold"
-        android:layout_centerVertical="true"
+        android:paddingLeft="6dp"
+        android:layout_centerVertical="false"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
-    <!-- Bus expected time label -->
+    <!-- subtext label -->
     <TextView
-        android:id="@+id/expectedmins"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingRight="6dip"
-        android:textColor="#acacac"
-        android:textSize="22sp"
-        android:layout_above="@+id/minslabel" />
-
-    <!-- mins text label -->
-    <TextView
-        android:id="@+id/minslabel"
+        android:id="@+id/subtext"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="6dip"
-        android:paddingRight="6dip"
-        android:text="mins"
+        android:text="min"
         android:textColor="#acacac"
         android:textSize="12sp"
-        android:layout_below="@+id/headsign"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:paddingLeft="6dp"
+        />
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentRight="true" >
+
+        <!-- Bus expected time label -->
+        <TextView
+            android:id="@+id/expectedmins"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#acacac"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_centerHorizontal="true"
+            android:paddingRight="6dp"
+            />
+
+        <!-- mins text label -->
+        <TextView
+            android:id="@+id/minslabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="6dip"
+            android:text="min"
+            android:textColor="#acacac"
+            android:textSize="12sp"
+            android:layout_below="@+id/expectedmins"
+            android:layout_centerHorizontal="true"
+            android:paddingRight="6dp"
+            />
+
+        </RelativeLayout>
+
 
 </RelativeLayout>
