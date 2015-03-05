@@ -4,7 +4,7 @@
     <color name="primary">#00BCD4</color>
     <color name="primary_dark">#0097A7</color>
     <color name="accent">#ff4081</color>
-    <color name="text_icons">#FFFFFF</color>
+    <color name="icons">#FFFFFF</color>
 
 
 </resources>

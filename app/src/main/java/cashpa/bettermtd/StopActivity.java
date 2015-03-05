@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +17,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -52,7 +54,7 @@ public class StopActivity extends ActionBarActivity {
     ArrayList<HashMap<String, String>> departureList;
     public RecyclerView recyclerView;
     public Context context;
-
+    public SwipeRefreshLayout swipeLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,14 +66,21 @@ public class StopActivity extends ActionBarActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         toolbar.setTitle(stop);
-        toolbar.setTitleTextColor(-1);
+
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         departureList = new ArrayList<HashMap<String, String>>();
 
-        //list = (ListView) this.findViewById(R.id.list);
-
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+
+        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
+        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshItems();
+            }
+        });
 
         // Uses linear layout manager for simplicity
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
@@ -84,7 +93,59 @@ public class StopActivity extends ActionBarActivity {
         params.add(new BasicNameValuePair("stop_id", stop));
 
         new HTTPStopRequest().execute();
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_stop, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_favorite) {
+            // Pops a toast as pacifier, then refreshes.
+            CharSequence text = "Stop added to favorite";
+            int duration = Toast.LENGTH_SHORT;
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+
+            // TODO implement adding to favorite
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    void setFeedAdapter() {
+        RecyclerView.Adapter adapter = new RecyclerViewAdapter(context, departureList);
+        recyclerView.setAdapter(adapter);
+    }
+
+    void refreshItems() {
+        // Pops a toast as pacifier, then refreshes.
+        CharSequence text = "Updating schedule";
+        int duration = Toast.LENGTH_SHORT;
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+
+        new HTTPStopRequest().execute();
+        onItemsLoadComplete();
+    }
+
+    void onItemsLoadComplete() {
+        // Update the adapter and notify data set changed
+        // ...
+
+        // Stop refresh animation
+        swipeLayout.setRefreshing(false);
     }
 
     private class HTTPStopRequest extends AsyncTask<Void, Void, Void>
@@ -116,14 +177,14 @@ public class StopActivity extends ActionBarActivity {
 
                         String vehicleID = c.getString(TAG_VEHICLEID);
                         String expectedMins = c.getString(TAG_EXPECTEDMINS);
-
+                        //String routeColor = c.getString(TAG_ROUTECOLOR);
                         HashMap<String, String> departure = new HashMap<String, String>();
 
                         departure.put(TAG_STOPID, stopID);
                         departure.put(TAG_HEADSIGN, headSign);
                         departure.put(TAG_VEHICLEID, vehicleID);
                         departure.put(TAG_EXPECTEDMINS, expectedMins);
-
+                        //departure.put(TAG_ROUTECOLOR, routeColor);
                         departureList.add(departure);
                     }
                 }
@@ -138,22 +199,8 @@ public class StopActivity extends ActionBarActivity {
             // TODO populate UI with data when done
             super.onPostExecute(result);
 
-            /**
-             * Updating parsed JSON data into ListView
-             *
-            ListAdapter adapter = new SimpleAdapter(
-                    getApplicationContext(), departureList,
-                    R.layout.list_item, new String[] { TAG_HEADSIGN, TAG_EXPECTEDMINS
-            }, new int[] { R.id.headsign,
-                    R.id.expectedmins });
-
-            list.setAdapter(adapter);
-            */
-
-            // Passes data to adapter to set content
             RecyclerView.Adapter adapter = new RecyclerViewAdapter(context, departureList);
             recyclerView.setAdapter(adapter);
-
         }
 
     }
