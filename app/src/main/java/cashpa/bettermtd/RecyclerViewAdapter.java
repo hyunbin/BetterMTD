@@ -48,9 +48,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
         HashMap<String, String> model = items.get(position);
         viewHolder.headSign.setText(model.get("headsign"));
         viewHolder.expectedMins.setText(model.get("expected_mins"));
-        viewHolder.subText.setText("To " + model.get("trip_headsign"));
-        //int c = Color.parseColor("route_color");
-        viewHolder.listItem.setBackgroundColor(Color.parseColor("#" + model.get("route_color"))- 0x2F000000);
+        String headSignFrag = "";
+        if(model.get("trip_headsign")=="") {
+            headSignFrag = "";
+        }
+        else{
+            headSignFrag = "To " + model.get("trip_headsign");
+        }
+        viewHolder.subText.setText(headSignFrag);
+        viewHolder.listItem.setBackgroundColor(Color.parseColor("#" + model.get("route_color"))- 0x48000000);
         viewHolder.headSign.setTextColor(Color.parseColor("#" + model.get("route_text_color")));
         viewHolder.expectedMins.setTextColor(Color.parseColor("#" + model.get("route_text_color")));
         viewHolder.subText.setTextColor(Color.parseColor("#" + model.get("route_text_color")) - 0x5F000000);
@@ -68,6 +74,18 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
             items.remove(i);
             notifyItemRemoved(i);
         }
+    }
+
+    public void addAllItems(ArrayList<HashMap<String, String>> newItems){
+        for(int n = 0 ; n < newItems.size() ; n++) {
+            items.add(newItems.get(n));
+            notifyItemInserted(items.size() - 1);
+        }
+    }
+
+    public void addOneItem(HashMap<String, String> newItem){
+        items.add(newItem);
+        notifyItemInserted(items.size() - 1);
     }
 
     public final static class ListItemViewHolder extends RecyclerView.ViewHolder {

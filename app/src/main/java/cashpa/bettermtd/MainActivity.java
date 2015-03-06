@@ -2,35 +2,23 @@ package cashpa.bettermtd;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.ActivityOptions;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
-
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
     public final static String ARG_STOPID = "cashpa.bettermtd.STOPID";
+    View myView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +28,7 @@ public class MainActivity extends ActionBarActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Bus Stops");
         setSupportActionBar(toolbar);
+
     }
 
     @Override
@@ -61,7 +50,6 @@ public class MainActivity extends ActionBarActivity {
             return true;
         }
         else if (id == R.id.action_search) {
-            return true;
         }
 
         return super.onOptionsItemSelected(item);
