@@ -25,6 +25,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
+
 public class StopActivity extends ActionBarActivity {
 
     private static String baseURL = "https://developer.cumtd.com/api/v2.2/json/GetDeparturesByStop";
@@ -67,19 +70,28 @@ public class StopActivity extends ActionBarActivity {
         setContentView(R.layout.activity_stop);
 
         String stop = intent.getStringExtra(MainActivity.ARG_STOPID);
+        String stopName = intent.getStringExtra(MainActivity.ARG_STOPNAME);
+
         context = getApplicationContext();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(stop);
+        toolbar.setTitle(stopName);
 
+        // Sets and styles the toolbar to enable hierarchy button
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        // Sets a handler to refresh the RecyclerView periodically
         updateInterval = 60000;
         handler = new Handler();
         handler.postDelayed(updateTask,updateInterval);
 
+        // Sets animator to RecyclerView
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView.setItemAnimator(new FadeInAnimator());
+        recyclerView.getItemAnimator().setAddDuration(200);
+        recyclerView.getItemAnimator().setRemoveDuration(100);
 
+        // Sets SwipeRefreshLayout to enable the swipe-to-refresh gesture
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -103,10 +115,25 @@ public class StopActivity extends ActionBarActivity {
     }
 
     @Override
-    public void onDestroy()
-    {
+    public void onDestroy() {
+        // Stops refreshing automatically again when activity is destroyed
         super.onDestroy();
         handler.removeCallbacks(updateTask);
+    }
+
+    @Override
+    public void onStop(){
+        // Stops refreshing automatically again when activity is stopped
+        super.onStop();
+        handler.removeCallbacks(updateTask);
+    }
+
+    @Override
+    public void onRestart(){
+        // Starts refreshing automatically again when activity is resumed
+        super.onRestart();
+        handler = new Handler();
+        handler.postDelayed(updateTask,1000);
     }
 
     @Override
@@ -140,29 +167,36 @@ public class StopActivity extends ActionBarActivity {
     }
 
     void refreshAdapter() {
+        // Either sets an adapter if none has been initialized, or makes appropriate calls to
+        // enable animations in the RecyclerView.
+
         if(adapter==null)
         {
             adapter = new RecyclerViewAdapter(context, departureList);
             recyclerView.setAdapter(adapter);
             adapter.notifyItemRangeInserted(0,adapter.getItemCount()-1);
+            /*
+            for(int n = 0 ; n < adapter.getItemCount(); n++){
+                adapter.notifyItemInserted(n);
+            }
+            */
         }
-
         else if(adapter!=null) {
-            adapter.removeAllItems();
             adapter.addAllItems(departureList);
-                /*
+            /*
                 for(int i = 0 ; i < departureList.size(); i++) {
                     HashMap<String, String> newItem = departureList.get(i);
                     adapter.addOneItem(newItem);
                 }
-                */
+            */
+
         }
     }
 
     void refreshItems() {
         if(System.currentTimeMillis() - lastRefreshTime < 20000){
-            // Pops a toast as pacifier
-            CharSequence text = "Your schedule is already up-to-date";
+            // Pops a toast as pacifier if cached data will be used
+            CharSequence text = "Your schedule is up-to-date";
             int duration = Toast.LENGTH_SHORT;
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
@@ -190,6 +224,7 @@ public class StopActivity extends ActionBarActivity {
     final Runnable updateTask=new Runnable() {
         @Override
         public void run() {
+            // A runnable task to refresh items at a predetermined interval
             refreshItems();
             handler.postDelayed(updateTask, updateInterval);
         }
@@ -200,6 +235,11 @@ public class StopActivity extends ActionBarActivity {
         protected void onPreExecute()
         {
             super.onPreExecute();
+            // Removes all items to display the proper animations
+            if(adapter!=null){
+                adapter.removeAllItems();
+            }
+            // Re-initializes the arraylist to clear any previously stored information
             departureList = new ArrayList<HashMap<String, String>>();
         }
 
@@ -217,6 +257,7 @@ public class StopActivity extends ActionBarActivity {
 
                     departures = jsonObj.getJSONArray(TAG_DEPARTURES);
 
+                    // Parses through JSON array to populate HashMap / ArrayLists
                     for (int i = 0; i < departures.length(); i++) {
                         JSONObject c = departures.getJSONObject(i);
 
@@ -261,6 +302,7 @@ public class StopActivity extends ActionBarActivity {
 
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
+            // Resets the refresh time once new data is populated
             lastRefreshTime = System.currentTimeMillis();
             refreshAdapter();
         }
