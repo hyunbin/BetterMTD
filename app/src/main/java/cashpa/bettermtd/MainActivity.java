@@ -2,6 +2,7 @@ package cashpa.bettermtd;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -10,6 +11,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -31,6 +34,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.astuetz.PagerSlidingTabStrip;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,6 +68,11 @@ public class MainActivity extends ActionBarActivity {
     LinearLayout searchContainer;
     ImageView searchClearButton;
     MenuItem searchItem;
+    RecentStopsCard recentStopsCard;
+
+    Toolbar toolbar;
+    ViewPager pager;
+    ViewPagerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +111,8 @@ public class MainActivity extends ActionBarActivity {
         Point size = new Point();
         display.getSize(size);
         int width = size.x;
-        textView.setDropDownWidth(width - width/10);
+        //textView.setDropDownWidth(width - width/12);
+        textView.setDropDownWidth(width);
 
         // Setup display
         textView.setBackgroundColor(Color.TRANSPARENT);
@@ -166,14 +177,26 @@ public class MainActivity extends ActionBarActivity {
         searchContainer.setVisibility(View.GONE);
         toolbar.addView(searchContainer);
 
+        /*
         //Create a Card
-        Card card = new Card(this);
-        CardViewNative cardView = (CardViewNative) this.findViewById(R.id.carddemo);
-        CardHeader header = new CardHeader(this);
-        header.setTitle("Recent Stops");
-        card.addCardHeader(header);
-        card.setTitle("Recent Stops");
-        cardView.setCard(card);
+        CardViewNative recentCardView = (CardViewNative) this.findViewById(R.id.recentstopscard);
+        recentStopsCard = new RecentStopsCard(context);
+        recentStopsCard.init();
+        recentCardView.setCard(recentStopsCard);
+        */
+
+        // Initialize the ViewPager and set an adapter
+        ViewPager pager = (ViewPager) findViewById(R.id.viewpager);
+        pager.setAdapter(new ViewPagerAdapter(context, getSupportFragmentManager()));
+
+        // Bind the tabs to the ViewPager
+        PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+
+        // Make the ViewPager look pretty
+        tabs.setShouldExpand(true);
+        tabs.setIndicatorColorResource(R.color.accent_alternative);
+        //tabs.setTextColorResource(R.color.abc_primary_text_material_dark);
+        tabs.setViewPager(pager);
 
     }
 
@@ -262,6 +285,7 @@ public class MainActivity extends ActionBarActivity {
                     textView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, 0, 0, 0));
                 }
             }, 200);
+
         } else {
             // Hide the EditText and put the search button back on the Toolbar.
             // This sometimes fails when it isn't postDelayed(), don't know why.

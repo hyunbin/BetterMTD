@@ -6,5 +6,11 @@
     <color name="accent">#ff4081</color>
     <color name="icons">#FFFFFF</color>
 
+    <color name="textPrimaryColor">#FFFFFF</color>
+    <color name="accent_alternative">#FFEB3B</color>
+
+    <!-- Used by card with list -->
+    <color name="card_native_base_cardwithlist_background_list_color">#10000000</color>
+
 
 </resources>

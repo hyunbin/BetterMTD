@@ -10,14 +10,19 @@
         layout="@layout/toolbar"
         ></include>
 
-    <it.gmariotti.cardslib.library.view.CardViewNative
-        android:id="@+id/carddemo"
+
+    <com.astuetz.PagerSlidingTabStrip
+        android:id="@+id/tabs"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="12dp"
-        android:layout_marginRight="12dp"
-        android:layout_marginTop="12dp"
-        card:card_layout_resourceID="@layout/native_card_layout"/>
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:textColorPrimary="@color/textPrimaryColor"/>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewpager"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
 
 
 </LinearLayout>

@@ -10,4 +10,7 @@
     <string name="search_hint">Search stops...</string>
     <string name="title_activity_search">SearchActivity</string>
     <string name="title_activity_searchable">SearchableActivity</string>
+    <string name="card_empty_cardwithlist_text">Start a search to display recent stops.</string>
+
+    <string name="subtextrecentstops">Shows your most recent three stops.</string>
 </resources>
