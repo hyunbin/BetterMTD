@@ -33,8 +33,12 @@ dependencies {
     compile 'com.android.support:cardview-v7:21.0.+'
     compile 'com.android.support:recyclerview-v7:21.0.+'
 
+    compile 'com.jpardogo.materialtabstrip:library:1.0.9'
+    compile 'com.balysv:material-ripple:1.0.1'
+
     compile 'jp.wasabeef:recyclerview-animators:1.1.0@aar'
     compile 'com.github.ozodrukh:CircularReveal:1.0.4@aar'
+
     // Cards library
     compile 'com.github.gabrielemariotti.cards:cardslib-core:2.0.1'
     compile 'com.github.gabrielemariotti.cards:cardslib-cards:2.0.1'

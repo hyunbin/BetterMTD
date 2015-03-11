@@ -2,6 +2,7 @@ package cashpa.bettermtd;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,6 +14,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
@@ -56,12 +59,19 @@ public class StopActivity extends ActionBarActivity {
     ArrayList<HashMap<String, String>> departureList;
     public RecyclerView recyclerView;
     public Context context;
+    SharedPreferences favorites;
+    SharedPreferences.Editor edit;
     public SwipeRefreshLayout swipeLayout;
     public RecyclerViewAdapter adapter;
+    public MenuItem faveMenu;
+    public TextView nothingHere;
 
     private Handler handler;
     private int updateInterval;
     long lastRefreshTime;
+
+    String stop;
+    String stopName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,14 +79,17 @@ public class StopActivity extends ActionBarActivity {
         Intent intent = getIntent();
         setContentView(R.layout.activity_stop);
 
-        String stop = intent.getStringExtra(MainActivity.ARG_STOPID);
-        String stopName = intent.getStringExtra(MainActivity.ARG_STOPNAME);
+        stop = intent.getStringExtra(MainActivity.ARG_STOPID);
+        stopName = intent.getStringExtra(MainActivity.ARG_STOPNAME);
 
         context = getApplicationContext();
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle(stopName);
+
+        // Grabs preferences for favorite stops
+        favorites = context.getSharedPreferences("favorites",0);
 
         // Sets and styles the toolbar to enable hierarchy button
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle(stopName);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -99,6 +112,13 @@ public class StopActivity extends ActionBarActivity {
                 refreshItems();
             }
         });
+
+        // TODO Loads the nothing here screen, then hides it
+        /*
+        nothingHere = (TextView) findViewById(R.id.nothinghere);
+        nothingHere.setText("There are no buses scheduled :c");
+        nothingHere.setVisibility(View.GONE);
+        */
 
         // Uses linear layout manager for simplicity
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
@@ -140,6 +160,13 @@ public class StopActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_stop, menu);
+        // Updates favorites icon based on state (either filled or outline)
+        if(favorites.getString(stop, "nope") == "nope"){
+            menu.getItem(0).setIcon(R.drawable.ic_notfavorite);
+        }
+        else{
+            menu.getItem(0).setIcon(R.drawable.ic_favorite);
+        }
         return true;
     }
 
@@ -153,13 +180,25 @@ public class StopActivity extends ActionBarActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_favorite) {
             // Pops a toast as pacifier, then refreshes.
-            CharSequence text = "Stop added to favorite";
             int duration = Toast.LENGTH_SHORT;
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
 
-            // TODO implement adding to favorite
-            new HTTPStopRequest().execute();
+            // Updates favorites based on whether the stop is already stored in favorites
+            edit = favorites.edit();
+            if(favorites.getString(stop, "nope") == "nope"){
+                edit.putString(stop, stopName);
+                edit.commit();
+                CharSequence text = "Stop added to favorites";
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+            }
+            else{
+                edit.remove(stop);
+                edit.commit();
+                CharSequence text = "Stop removed from favorites";
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+            }
+            invalidateOptionsMenu();
             return true;
         }
 
@@ -189,7 +228,6 @@ public class StopActivity extends ActionBarActivity {
                     adapter.addOneItem(newItem);
                 }
             */
-
         }
     }
 
@@ -215,7 +253,20 @@ public class StopActivity extends ActionBarActivity {
         }
 
     }
-
+    /*
+    public void setNothingHere(boolean b){
+        if(b==true){
+            // Disables recyclerView and shows the nothing here text
+            recyclerView.setVisibility(View.GONE);
+            nothingHere.setVisibility(View.VISIBLE);
+        }
+        else{
+            // Disables nothing here text and shows recyclerView
+            recyclerView.setVisibility(View.VISIBLE);
+            nothingHere.setVisibility(View.GONE);
+        }
+    }
+    */
     void onItemsLoadComplete() {
         // Stop refresh animation
         swipeLayout.setRefreshing(false);
@@ -254,7 +305,6 @@ public class StopActivity extends ActionBarActivity {
 
                     // Get JSON Object from string in ServiceHandler response
                     JSONObject jsonObj = new JSONObject(jsonStr);
-
                     departures = jsonObj.getJSONArray(TAG_DEPARTURES);
 
                     // Parses through JSON array to populate HashMap / ArrayLists
@@ -291,6 +341,20 @@ public class StopActivity extends ActionBarActivity {
                         departure.put(TAG_ROUTETEXTCOLOR, routeTextColor);
 
                         departureList.add(departure);
+                        /*
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if(departures.length() == 0 ){
+                                    setNothingHere(true);
+                                }
+                                else{
+                                    setNothingHere(false);
+                                }
+                            }
+                        });
+                        */
+
                     }
                 }
             } catch (JSONException e) {
