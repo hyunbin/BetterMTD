@@ -33,6 +33,18 @@
             android:textColor="#FF000000"
             android:gravity="center_vertical"
             />
-g
+
+        <!-- DISTANCE AWAY label -->
+        <TextView
+            android:id="@+id/distanceView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:paddingRight="6dp"
+            android:textColor="#A0000000"
+            android:gravity="center_vertical"
+            android:layout_alignParentRight="true"
+            />
+
     </RelativeLayout>
 </com.balysv.materialripple.MaterialRippleLayout>

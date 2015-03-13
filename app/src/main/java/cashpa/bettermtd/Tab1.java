@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +31,7 @@ public class Tab1 extends Fragment {
     Context context;
     Map favoritesData;
     FavoritesAdapter adapter;
-
+    TextView textView;
     ArrayList<HashMap<String, String>> favoritesList;
 
     @Override
@@ -44,8 +45,9 @@ public class Tab1 extends Fragment {
         favoritesView.getItemAnimator().setAddDuration(200);
         favoritesView.getItemAnimator().setRemoveDuration(100);
 
-        // Sets item decoration that introduces dividers
-        //favoritesView.addItemDecoration(new DividerItemDecoration(getResources().getDrawable(R.drawable.abc_list_divider_mtrl_alpha)));
+        // Hides no favorites view by default
+        textView = (TextView) v.findViewById(R.id.textView);
+        textView.setVisibility(View.GONE);
 
         // Uses linear layout manager for simplicity
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
@@ -70,7 +72,6 @@ public class Tab1 extends Fragment {
             adapter.addAllItems(favoritesList);
         }
     }
-
 
     private static Comparator<HashMap<String, String>> ALPHABETICAL_ORDER = new Comparator<HashMap<String, String>>() {
     // Sorts HashMaps based on comparing their stop_name strings
@@ -113,6 +114,9 @@ public class Tab1 extends Fragment {
             super.onPostExecute(result);
             if(favoritesList.size() != 0){
                 refreshAdapter();
+            }
+            else{
+                textView.setVisibility(View.VISIBLE);
             }
         }
     }

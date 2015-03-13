@@ -47,11 +47,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import io.codetail.animation.SupportAnimator;
-import io.codetail.animation.ViewAnimationUtils;
-import it.gmariotti.cardslib.library.internal.Card;
-import it.gmariotti.cardslib.library.internal.CardHeader;
-import it.gmariotti.cardslib.library.view.CardViewNative;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -68,7 +63,6 @@ public class MainActivity extends ActionBarActivity {
     LinearLayout searchContainer;
     ImageView searchClearButton;
     MenuItem searchItem;
-    RecentStopsCard recentStopsCard;
 
     Toolbar toolbar;
     ViewPager pager;
@@ -84,6 +78,7 @@ public class MainActivity extends ActionBarActivity {
         // Sets the toolbar as ActionBar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("Bus Stops");
+        toolbar.setTitleTextColor(-1);
         setSupportActionBar(toolbar);
 
         // Setup search container view
@@ -187,6 +182,7 @@ public class MainActivity extends ActionBarActivity {
 
         // Initialize the ViewPager and set an adapter
         ViewPager pager = (ViewPager) findViewById(R.id.viewpager);
+        pager.setOffscreenPageLimit(2);
         pager.setAdapter(new ViewPagerAdapter(context, getSupportFragmentManager()));
 
         // Bind the tabs to the ViewPager
