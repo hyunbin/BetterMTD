@@ -14,9 +14,4 @@
     <style name="SearchViewStyle" parent="Widget.AppCompat.SearchView">
     </style>
 
-    <!-- Style for card with list -->
-    <style name="cardwithlist">
-        <item name="android:background">@color/card_base_cardwithlist_background_list_color</item>
-    </style>
-
 </resources>

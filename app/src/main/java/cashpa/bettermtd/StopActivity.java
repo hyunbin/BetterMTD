@@ -3,6 +3,7 @@ package cashpa.bettermtd;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +28,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
 import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
@@ -60,10 +65,13 @@ public class StopActivity extends ActionBarActivity {
     public RecyclerView recyclerView;
     public Context context;
     SharedPreferences favorites;
+    SharedPreferences recents;
+    SharedPreferences.Editor recentsEdit;
     SharedPreferences.Editor edit;
+
     public SwipeRefreshLayout swipeLayout;
+    public SwipeRefreshLayout emptySwipeLayout;
     public RecyclerViewAdapter adapter;
-    public MenuItem faveMenu;
     public TextView nothingHere;
 
     private Handler handler;
@@ -84,14 +92,27 @@ public class StopActivity extends ActionBarActivity {
 
         context = getApplicationContext();
 
-        // Grabs preferences for favorite stops
+        // Grabs preferences for favorite stops and recents, adds this stop to recents
         favorites = context.getSharedPreferences("favorites",0);
+        recents = context.getSharedPreferences("recents",0);
+        int max = recents.getAll().size();
+
+        // This set is the information pertaining to this stop
+        Set recentStop = new LinkedHashSet();
+        recentStop.add(stop);
+        recentStop.add(stopName);
+
+        recentsEdit = recents.edit();
+        recentsEdit.putStringSet(Integer.toString(max), recentStop);
+        recentsEdit.commit();
 
         // Sets and styles the toolbar to enable hierarchy button
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(stopName);
+        toolbar.setTitleTextColor(-1);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
 
         // Sets a handler to refresh the RecyclerView periodically
         updateInterval = 60000;
@@ -113,12 +134,26 @@ public class StopActivity extends ActionBarActivity {
             }
         });
 
-        // TODO Loads the nothing here screen, then hides it
-        /*
-        nothingHere = (TextView) findViewById(R.id.nothinghere);
+        // The following code looks ugly and unnecessary, but this is to circumvent a
+        // SwipeRefreshLayout bug that doesn't show refresh when refresh is called.
+        final boolean refreshing = true;
+        swipeLayout.post(new Runnable() {
+            @Override public void run() {
+                swipeLayout.setRefreshing(refreshing);
+            }
+        });
+
+        emptySwipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout_emptyView);
+        emptySwipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshItems();
+            }
+        });
+        emptySwipeLayout.setVisibility(View.GONE);
+
+        nothingHere = (TextView) findViewById(R.id.textView);
         nothingHere.setText("There are no buses scheduled :c");
-        nothingHere.setVisibility(View.GONE);
-        */
 
         // Uses linear layout manager for simplicity
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
@@ -201,7 +236,6 @@ public class StopActivity extends ActionBarActivity {
             invalidateOptionsMenu();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -238,38 +272,40 @@ public class StopActivity extends ActionBarActivity {
             int duration = Toast.LENGTH_SHORT;
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
-
             onItemsLoadComplete();
         }
         else {
-            // Pops a toast as pacifier, then refreshes.
-            CharSequence text = "Refreshed schedule";
-            int duration = Toast.LENGTH_SHORT;
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
-
+            // The following code looks ugly and unnecessary, but this is to circumvent a
+            // SwipeRefreshLayout bug that doesn't show refresh when refresh is called.
+            final boolean refreshing = true;
+            swipeLayout.post(new Runnable() {
+                @Override public void run() {
+                    swipeLayout.setRefreshing(refreshing);
+                }
+            });
             new HTTPStopRequest().execute();
-            onItemsLoadComplete();
         }
 
     }
-    /*
+
     public void setNothingHere(boolean b){
         if(b==true){
             // Disables recyclerView and shows the nothing here text
-            recyclerView.setVisibility(View.GONE);
-            nothingHere.setVisibility(View.VISIBLE);
+            swipeLayout.setVisibility(View.GONE);
+            emptySwipeLayout.setVisibility(View.VISIBLE);
         }
         else{
             // Disables nothing here text and shows recyclerView
-            recyclerView.setVisibility(View.VISIBLE);
-            nothingHere.setVisibility(View.GONE);
+            emptySwipeLayout.setVisibility(View.GONE);
+            swipeLayout.setVisibility(View.VISIBLE);
         }
     }
-    */
+
+
     void onItemsLoadComplete() {
         // Stop refresh animation
         swipeLayout.setRefreshing(false);
+        emptySwipeLayout.setRefreshing(false);
     }
 
     final Runnable updateTask=new Runnable() {
@@ -354,7 +390,6 @@ public class StopActivity extends ActionBarActivity {
                             }
                         });
                         */
-
                     }
                 }
             } catch (JSONException e) {
@@ -366,9 +401,25 @@ public class StopActivity extends ActionBarActivity {
 
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
+
+            if(departures == null) {
+                nothingHere.setText("Network error. :c");
+                setNothingHere(true);
+            }
+            else if(departures.length() == 0 ){
+                setNothingHere(true);
+            }
+            else{
+                setNothingHere(false);
+            }
+
+            // Relieves animation
+            onItemsLoadComplete();
+
             // Resets the refresh time once new data is populated
             lastRefreshTime = System.currentTimeMillis();
             refreshAdapter();
+
         }
     }
 
