@@ -1,4 +1,4 @@
-package cashpa.bettermtd;
+package me.hyunbin;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

@@ -3,9 +3,8 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
-
     defaultConfig {
-        applicationId "cashpa.bettermtd"
+        applicationId 'me.hyunbin.transit'
         minSdkVersion 16
         targetSdkVersion 21
         versionCode 1
@@ -20,6 +19,8 @@ android {
     compileOptions {
         targetCompatibility JavaVersion.VERSION_1_7
     }
+    productFlavors {
+    }
 }
 
 repositories {
@@ -28,11 +29,10 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile "com.android.support:appcompat-v7:21.0.+"
+    compile 'com.android.support:appcompat-v7:21.0.+'
     compile 'com.android.support:cardview-v7:21.0.+'
     compile 'com.android.support:recyclerview-v7:21.0.+'
     compile 'com.google.android.gms:play-services:6.5.87'
-
     compile 'com.jpardogo.materialtabstrip:library:1.0.9'
     compile 'com.balysv:material-ripple:1.0.1'
     compile 'jp.wasabeef:recyclerview-animators:1.1.0@aar'

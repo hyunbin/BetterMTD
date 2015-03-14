@@ -1,6 +1,4 @@
-package cashpa.bettermtd;
-
-import android.util.Log;
+package me.hyunbin.transit;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

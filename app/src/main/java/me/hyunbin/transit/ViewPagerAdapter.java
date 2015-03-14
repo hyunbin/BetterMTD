@@ -1,14 +1,8 @@
-package cashpa.bettermtd;
+package me.hyunbin.transit;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
-
-import com.astuetz.PagerSlidingTabStrip;
 
 /**
  * Created by Hyunbin on 3/9/15.
@@ -17,7 +11,7 @@ import com.astuetz.PagerSlidingTabStrip;
 
 public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
-    CharSequence Titles[] = {"Favorites","Recent","Near Me"}; // This will Store the Titles of the Tabs which are Going to be passed when ViewPagerAdapter is created
+    CharSequence Titles[] = {"Favorites","Near Me"}; // This will Store the Titles of the Tabs which are Going to be passed when ViewPagerAdapter is created
     int NumbOfTabs; // Store the number of tabs, this will also be passed when the ViewPagerAdapter is created
     Context context;
 
@@ -25,7 +19,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     public ViewPagerAdapter(Context c, FragmentManager fm) {
         super(fm);
         this.context = c;
-        this.NumbOfTabs = 3;
+        this.NumbOfTabs = 2;
 
     }
 
@@ -38,11 +32,6 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
             return tab1;
         }
         else if(position==1)            // As we are having 2 tabs if the position is now 0 it must be 1 so we are returning second tab
-        {
-            Tab2 tab2 = new Tab2();
-            return tab2;
-        }
-        else if (position==2)
         {
             Tab3 tab3 = new Tab3();
             return tab3;

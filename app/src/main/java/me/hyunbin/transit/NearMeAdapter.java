@@ -1,4 +1,4 @@
-package cashpa.bettermtd;
+package me.hyunbin.transit;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,17 +7,17 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import me.hyunbin.transit.R;
+
 /**
  * Created by Hyunbin on 3/10/15.
  */
+
 public class NearMeAdapter extends RecyclerView.Adapter
         <NearMeAdapter.ListItemViewHolder> {
 

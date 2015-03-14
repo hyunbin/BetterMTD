@@ -1,17 +1,13 @@
-package cashpa.bettermtd;
+package me.hyunbin.transit;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,21 +23,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Stack;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+import me.hyunbin.transit.R;
 
 /**
  * Created by Hyunbin on 3/9/15.
  */
+
 public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener  {
 
@@ -167,7 +159,7 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
             ServiceHandler sh = new ServiceHandler();
             String jsonStr = sh.makeServiceCall(baseURL, params);
 
-            Log.d("Response: ", "> " + jsonStr);
+            //Log.d("Response: ", "> " + jsonStr);
 
             try {
                 if (jsonStr != null) {
@@ -202,6 +194,10 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             refreshAdapter();
+            if(stops == null) {
+                textView.setText("Network error :c");
+                textView.setVisibility(View.VISIBLE);
+            }
         }
     }
 }
