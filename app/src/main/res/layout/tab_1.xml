@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/textView"
-        android:text="You have no favorites... yet."
+        android:text="@string/no_favorites_msg"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
 

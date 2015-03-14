@@ -1,4 +1,4 @@
-package cashpa.bettermtd;
+package me.hyunbin.transit;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,20 +10,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.Stack;
+
+import me.hyunbin.transit.R;
 
 /**
  * Created by Hyunbin on 3/9/15.
  */
+
 public class Tab2 extends Fragment {
 
     Context context;

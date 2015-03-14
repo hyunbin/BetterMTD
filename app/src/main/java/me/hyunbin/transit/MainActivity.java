@@ -1,8 +1,7 @@
-package cashpa.bettermtd;
+package me.hyunbin.transit;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -11,11 +10,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
@@ -24,8 +21,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -33,7 +28,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.astuetz.PagerSlidingTabStrip;
 
@@ -47,6 +41,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import me.hyunbin.transit.R;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -63,10 +58,6 @@ public class MainActivity extends ActionBarActivity {
     LinearLayout searchContainer;
     ImageView searchClearButton;
     MenuItem searchItem;
-
-    Toolbar toolbar;
-    ViewPager pager;
-    ViewPagerAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,14 +162,6 @@ public class MainActivity extends ActionBarActivity {
         // Add search view to toolbar and hide it
         searchContainer.setVisibility(View.GONE);
         toolbar.addView(searchContainer);
-
-        /*
-        //Create a Card
-        CardViewNative recentCardView = (CardViewNative) this.findViewById(R.id.recentstopscard);
-        recentStopsCard = new RecentStopsCard(context);
-        recentStopsCard.init();
-        recentCardView.setCard(recentStopsCard);
-        */
 
         // Initialize the ViewPager and set an adapter
         ViewPager pager = (ViewPager) findViewById(R.id.viewpager);

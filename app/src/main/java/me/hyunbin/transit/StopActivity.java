@@ -1,9 +1,8 @@
-package cashpa.bettermtd;
+package me.hyunbin.transit;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Point;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,8 +11,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -28,13 +25,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
-import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
+import me.hyunbin.transit.R;
 
 public class StopActivity extends ActionBarActivity {
 
@@ -65,8 +59,6 @@ public class StopActivity extends ActionBarActivity {
     public RecyclerView recyclerView;
     public Context context;
     SharedPreferences favorites;
-    SharedPreferences recents;
-    SharedPreferences.Editor recentsEdit;
     SharedPreferences.Editor edit;
 
     public SwipeRefreshLayout swipeLayout;
@@ -94,17 +86,6 @@ public class StopActivity extends ActionBarActivity {
 
         // Grabs preferences for favorite stops and recents, adds this stop to recents
         favorites = context.getSharedPreferences("favorites",0);
-        recents = context.getSharedPreferences("recents",0);
-        int max = recents.getAll().size();
-
-        // This set is the information pertaining to this stop
-        Set recentStop = new LinkedHashSet();
-        recentStop.add(stop);
-        recentStop.add(stopName);
-
-        recentsEdit = recents.edit();
-        recentsEdit.putStringSet(Integer.toString(max), recentStop);
-        recentsEdit.commit();
 
         // Sets and styles the toolbar to enable hierarchy button
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -153,7 +134,7 @@ public class StopActivity extends ActionBarActivity {
         emptySwipeLayout.setVisibility(View.GONE);
 
         nothingHere = (TextView) findViewById(R.id.textView);
-        nothingHere.setText("There are no buses scheduled :c");
+        nothingHere.setText("There are no buses scheduled :c \nData provided by CUMTD");
 
         // Uses linear layout manager for simplicity
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
@@ -334,7 +315,7 @@ public class StopActivity extends ActionBarActivity {
             ServiceHandler sh = new ServiceHandler();
             String jsonStr = sh.makeServiceCall(baseURL, params);
 
-            Log.d("Response: ", "> " + jsonStr);
+            //Log.d("Response: ", "> " + jsonStr);
 
             try {
                 if (jsonStr != null) {
@@ -403,7 +384,7 @@ public class StopActivity extends ActionBarActivity {
             super.onPostExecute(result);
 
             if(departures == null) {
-                nothingHere.setText("Network error. :c");
+                nothingHere.setText("Network error :c\nData provided by CUMTD");
                 setNothingHere(true);
             }
             else if(departures.length() == 0 ){
