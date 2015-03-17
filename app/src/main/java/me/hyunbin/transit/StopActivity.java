@@ -96,7 +96,7 @@ public class StopActivity extends ActionBarActivity {
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
 
         // Sets a handler to refresh the RecyclerView periodically
-        updateInterval = 60000;
+        updateInterval = 90000;
         handler = new Handler();
         handler.postDelayed(updateTask,updateInterval);
 
@@ -282,7 +282,6 @@ public class StopActivity extends ActionBarActivity {
         }
     }
 
-
     void onItemsLoadComplete() {
         // Stop refresh animation
         swipeLayout.setRefreshing(false);
@@ -358,19 +357,6 @@ public class StopActivity extends ActionBarActivity {
                         departure.put(TAG_ROUTETEXTCOLOR, routeTextColor);
 
                         departureList.add(departure);
-                        /*
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if(departures.length() == 0 ){
-                                    setNothingHere(true);
-                                }
-                                else{
-                                    setNothingHere(false);
-                                }
-                            }
-                        });
-                        */
                     }
                 }
             } catch (JSONException e) {
