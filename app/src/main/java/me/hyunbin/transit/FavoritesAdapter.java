@@ -75,6 +75,15 @@ public class FavoritesAdapter extends RecyclerView.Adapter
         }
     }
 
+    public void removeAllItems() {
+        final int size = items.size();
+        for(int i = size-1; i >= 0 ; i--) {
+            items.remove(i);
+            notifyItemRemoved(i);
+        }
+    }
+
+
     public final static class ListItemViewHolder extends RecyclerView.ViewHolder {
         TextView stopName;
         View mRootView;

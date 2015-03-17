@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,7 +56,6 @@ public class Tab1 extends Fragment {
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         favoritesView.setLayoutManager(layoutManager);
 
-        new ParseFavoritesRequest().execute();
         return v;
     }
 
@@ -85,12 +85,22 @@ public class Tab1 extends Fragment {
         }
     };
 
+    @Override
+    public void onStart(){
+        //Log.d("EVENT", "> Start happened");
+        super.onStart();
+        new ParseFavoritesRequest().execute();
+    }
+
     private class ParseFavoritesRequest extends AsyncTask<Void, Void, Void>
     {
         SharedPreferences favorites;
         protected void onPreExecute()
         {
             super.onPreExecute();
+            if(adapter!=null){
+                adapter.removeAllItems();
+            }
             // Grab shared preferences and data
             favorites = context.getSharedPreferences("favorites",0);
             favoritesData = favorites.getAll();
