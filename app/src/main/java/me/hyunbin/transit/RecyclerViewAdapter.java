@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,7 +32,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
     private static Context sContext;
     Handler handler;
     int updateInterval;
-    int counter = 0;
 
     RecyclerViewAdapter(Context context, ArrayList<HashMap<String, String>> modelData) {
         if (modelData == null) {
@@ -72,14 +72,39 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
         viewHolder.expectedMins.setTextColor(Color.parseColor("#" + model.get("route_text_color")));
         viewHolder.subText.setTextColor(Color.parseColor("#" + model.get("route_text_color")) - 0x5F000000);
         viewHolder.minsLabel.setTextColor(Color.parseColor("#" + model.get("route_text_color")) - 0x5F000000);
+
+        // Special adjustment for ugly red
+        if(model.get("route_color").equals("ff0000")){
+            viewHolder.listItem.setBackgroundColor(Color.parseColor("#" + model.get("route_color"))- 0x62000000);
+            viewHolder.headSign.setTextColor(Color.parseColor("#ffffff"));
+            viewHolder.expectedMins.setTextColor(Color.parseColor("#ffffff"));
+            viewHolder.subText.setTextColor(Color.parseColor("#ffffff") - 0x5F000000);
+            viewHolder.minsLabel.setTextColor(Color.parseColor("#ffffff") - 0x5F000000);
+        }
+
+        if(model.get("is_istop") == "true"){
+            if(model.get("route_text_color").equals("ffffff")){
+                viewHolder.iStopView.setImageResource(R.drawable.ic_istop_light);
+            }
+            else {
+                viewHolder.iStopView.setImageResource(R.drawable.ic_istop_dark);
+            }
+            viewHolder.iStopView.setScaleType(ImageView.ScaleType.FIT_XY);
+        }
+        else{
+            viewHolder.iStopView.setVisibility(View.GONE);
+        }
+
+        final String time = model.get("expected_mins");
+        final String route = model.get("headsign");
         viewHolder.mRootView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                CharSequence text = "Added stop to notifications";
+                CharSequence text = "Added trip to notifications";
                 Toast toast = Toast.makeText(sContext, text, Toast.LENGTH_SHORT);
                 toast.show();
 
-                setNotification();
+                setNotification(route, time);
                 // Sets a handler to refresh the notification periodically
                 updateInterval = 5000;
                 handler = new Handler();
@@ -114,39 +139,28 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
         notifyItemInserted(items.size() - 1);
     }
 
-    public void setNotification(){
-
+    public void setNotification(String route, String time){
         int mNotificationId = 001;
-
-        /*
-        //Create an Intent for the BroadcastReceiver
-        Intent buttonIntent = new Intent(sContext, ButtonReceiver.class);
-        buttonIntent.putExtra("notificationId",mNotificationId);
-
-        //Create the PendingIntent
-        PendingIntent dismissIntent = PendingIntent.getBroadcast(sContext.getApplicationContext(), 0, buttonIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-        */
-
+        // Specify the action to perform when dismiss button is clicked
         PendingIntent dismissIntent = NotificationActivity.getDismissIntent(mNotificationId, sContext);
 
-        //Create the notification
+        // Create the notification and populate its parameters
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(sContext)
                         .setSmallIcon(R.drawable.ic_notification)
-                        .setContentTitle("My notification")
-                        .setContentText("Hello world!" + counter)
+                        .setContentTitle(route)
+                        .setContentText(time + " min remaining")
                         .setOngoing(true)
                         .addAction(R.drawable.ic_close, "Dismiss now", dismissIntent)
                         .setPriority(2);
 
-        counter++;
-
+        // Push the notification to the user
         NotificationManager mNotifyMgr =
                 (NotificationManager) sContext.getSystemService(Context.NOTIFICATION_SERVICE);
-
         mNotifyMgr.notify(mNotificationId, mBuilder.build());
     }
 
+    /*
     final Runnable updateTask=new Runnable() {
         @Override
         public void run() {
@@ -155,6 +169,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
             handler.postDelayed(updateTask, updateInterval);
         }
     };
+    */
 
     public final static class ListItemViewHolder extends RecyclerView.ViewHolder {
         TextView headSign;
@@ -163,6 +178,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
         TextView minsLabel;
         RelativeLayout listItem;
         View mRootView;
+        ImageView iStopView;
 
         public ListItemViewHolder(View itemView) {
             super(itemView);
@@ -172,6 +188,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
             subText = (TextView) itemView.findViewById(R.id.subtext);
             minsLabel = (TextView) itemView.findViewById(R.id.minslabel);
             mRootView = itemView.findViewById(R.id.ripple);
+            iStopView = (ImageView) itemView.findViewById(R.id.iStopView);
         }
     }
 }
