@@ -96,7 +96,7 @@ public class StopActivity extends ActionBarActivity {
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
 
         // Sets a handler to refresh the RecyclerView periodically
-        updateInterval = 90000;
+        updateInterval = 80000;
         handler = new Handler();
         handler.postDelayed(updateTask,updateInterval);
 
@@ -345,6 +345,7 @@ public class StopActivity extends ActionBarActivity {
 
                         String vehicleID = c.getString(TAG_VEHICLEID);
                         String expectedMins = c.getString(TAG_EXPECTEDMINS);
+                        String iStop = c.getString(TAG_ISISTOP);
 
                         HashMap<String, String> departure = new HashMap<String, String>();
 
@@ -355,6 +356,7 @@ public class StopActivity extends ActionBarActivity {
                         departure.put(TAG_ROUTECOLOR, routeColor);
                         departure.put(TAG_TRIPHEADSIGN, tripDest);
                         departure.put(TAG_ROUTETEXTCOLOR, routeTextColor);
+                        departure.put(TAG_ISISTOP, iStop);
 
                         departureList.add(departure);
                     }

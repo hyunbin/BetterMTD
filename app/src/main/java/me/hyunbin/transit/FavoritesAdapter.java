@@ -83,7 +83,6 @@ public class FavoritesAdapter extends RecyclerView.Adapter
         }
     }
 
-
     public final static class ListItemViewHolder extends RecyclerView.ViewHolder {
         TextView stopName;
         View mRootView;
