@@ -3,9 +3,7 @@ package me.hyunbin.transit;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
-import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -30,8 +28,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
 
     ArrayList<HashMap<String, String>> items;
     private static Context sContext;
-    Handler handler;
-    int updateInterval;
+
 
     RecyclerViewAdapter(Context context, ArrayList<HashMap<String, String>> modelData) {
         if (modelData == null) {
@@ -66,15 +63,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
         else{
             headSignFrag = "To " + model.get("trip_headsign");
         }
-        viewHolder.subText.setText(headSignFrag);
+
         viewHolder.listItem.setBackgroundColor(Color.parseColor("#" + model.get("route_color"))- 0x48000000);
+        viewHolder.subText.setText(headSignFrag);
         viewHolder.headSign.setTextColor(Color.parseColor("#" + model.get("route_text_color")));
         viewHolder.expectedMins.setTextColor(Color.parseColor("#" + model.get("route_text_color")));
         viewHolder.subText.setTextColor(Color.parseColor("#" + model.get("route_text_color")) - 0x5F000000);
         viewHolder.minsLabel.setTextColor(Color.parseColor("#" + model.get("route_text_color")) - 0x5F000000);
 
         // Special adjustment for ugly red
-        if(model.get("route_color").equals("ff0000")){
+        if(model.get("route_color").equals("ff0000") || model.get("route_color").equals("ed1c24")){
             viewHolder.listItem.setBackgroundColor(Color.parseColor("#" + model.get("route_color"))- 0x62000000);
             viewHolder.headSign.setTextColor(Color.parseColor("#ffffff"));
             viewHolder.expectedMins.setTextColor(Color.parseColor("#ffffff"));
@@ -97,6 +95,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
 
         final String time = model.get("expected_mins");
         final String route = model.get("headsign");
+        final String vehicleID = model.get("vehicle_id");
+        final String stopID = model.get("stop_id");
+
         viewHolder.mRootView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -104,11 +105,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
                 Toast toast = Toast.makeText(sContext, text, Toast.LENGTH_SHORT);
                 toast.show();
 
+                //Log.d("DEBUG > ", "vehicleID is " + vehicleID);
                 setNotification(route, time);
-                // Sets a handler to refresh the notification periodically
-                updateInterval = 5000;
-                handler = new Handler();
-                //handler.postDelayed(updateTask,updateInterval);
+                scheduleAlarm(vehicleID, stopID);
+
                 return true;
             }
         });
@@ -149,7 +149,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
                 new NotificationCompat.Builder(sContext)
                         .setSmallIcon(R.drawable.ic_notification)
                         .setContentTitle(route)
-                        .setContentText(time + " min remaining")
+                        .setContentText("Arriving in " + time + " min")
                         .setOngoing(true)
                         .addAction(R.drawable.ic_close, "Dismiss now", dismissIntent)
                         .setPriority(2);
@@ -160,16 +160,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
         mNotifyMgr.notify(mNotificationId, mBuilder.build());
     }
 
-    /*
-    final Runnable updateTask=new Runnable() {
-        @Override
-        public void run() {
-            // A runnable task to refresh items at a predetermined interval
-            setNotification();
-            handler.postDelayed(updateTask, updateInterval);
-        }
-    };
-    */
+    public void scheduleAlarm(String vehicleID, String stopID){
+        AlarmHandler alarmHandler = new AlarmHandler(sContext, vehicleID, stopID);
+    }
 
     public final static class ListItemViewHolder extends RecyclerView.ViewHolder {
         TextView headSign;
