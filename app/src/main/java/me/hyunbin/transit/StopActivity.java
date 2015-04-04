@@ -229,20 +229,9 @@ public class StopActivity extends ActionBarActivity {
             adapter = new RecyclerViewAdapter(context, departureList);
             recyclerView.setAdapter(adapter);
             adapter.notifyItemRangeInserted(0,adapter.getItemCount()-1);
-            /*
-            for(int n = 0 ; n < adapter.getItemCount(); n++){
-                adapter.notifyItemInserted(n);
-            }
-            */
         }
         else if(adapter!=null) {
             adapter.addAllItems(departureList);
-            /*
-                for(int i = 0 ; i < departureList.size(); i++) {
-                    HashMap<String, String> newItem = departureList.get(i);
-                    adapter.addOneItem(newItem);
-                }
-            */
         }
     }
 
@@ -266,7 +255,6 @@ public class StopActivity extends ActionBarActivity {
             });
             new HTTPStopRequest().execute();
         }
-
     }
 
     public void setNothingHere(boolean b){

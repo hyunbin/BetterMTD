@@ -1,6 +1,7 @@
 package me.hyunbin.transit;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -22,6 +23,10 @@ public class NotificationActivity extends Activity {
         super.onCreate(savedInstanceState);
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         manager.cancel(getIntent().getIntExtra(NOTIFICATION_ID, -1));
+
+        // Cancels existing alarms
+        AlarmHandler alarmHandler = new AlarmHandler(getApplicationContext());
+
         finish(); // since finish() is called in onCreate(), onDestroy() will be called immediately
     }
 
