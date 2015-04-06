@@ -66,15 +66,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
         else{
             headSignFrag = "To " + model.get("trip_headsign");
         }
-        viewHolder.subText.setText(headSignFrag);
+
         viewHolder.listItem.setBackgroundColor(Color.parseColor("#" + model.get("route_color"))- 0x48000000);
+        viewHolder.subText.setText(headSignFrag);
         viewHolder.headSign.setTextColor(Color.parseColor("#" + model.get("route_text_color")));
         viewHolder.expectedMins.setTextColor(Color.parseColor("#" + model.get("route_text_color")));
         viewHolder.subText.setTextColor(Color.parseColor("#" + model.get("route_text_color")) - 0x5F000000);
         viewHolder.minsLabel.setTextColor(Color.parseColor("#" + model.get("route_text_color")) - 0x5F000000);
 
         // Special adjustment for ugly red
-        if(model.get("route_color").equals("ff0000")){
+        if(model.get("route_color").equals("ff0000") || model.get("route_color").equals("ed1c24")){
             viewHolder.listItem.setBackgroundColor(Color.parseColor("#" + model.get("route_color"))- 0x62000000);
             viewHolder.headSign.setTextColor(Color.parseColor("#ffffff"));
             viewHolder.expectedMins.setTextColor(Color.parseColor("#ffffff"));
@@ -94,24 +95,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
         else{
             viewHolder.iStopView.setVisibility(View.GONE);
         }
-
-        final String time = model.get("expected_mins");
-        final String route = model.get("headsign");
-        viewHolder.mRootView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                CharSequence text = "Added trip to notifications";
-                Toast toast = Toast.makeText(sContext, text, Toast.LENGTH_SHORT);
-                toast.show();
-
-                setNotification(route, time);
-                // Sets a handler to refresh the notification periodically
-                updateInterval = 5000;
-                handler = new Handler();
-                //handler.postDelayed(updateTask,updateInterval);
-                return true;
-            }
-        });
     }
 
     @Override
