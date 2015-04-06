@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -53,7 +54,16 @@ public class NearMeAdapter extends RecyclerView.Adapter
             ListItemViewHolder viewHolder, int position) {
         final HashMap<String, String> model = items.get(position);
         viewHolder.stopName.setText(model.get("stop_name"));
-        viewHolder.distanceView.setText(model.get("distance").split("\\.",2)[0] + " ft");
+
+        String dist = model.get("distance").split("\\.",2)[0];
+        double test = Double.parseDouble(dist) * 0.000189394;
+        if(test >= 0.11){
+            dist = new DecimalFormat("#0.00").format(test);
+            viewHolder.distanceView.setText(dist + " mi");
+        }
+        else{
+            viewHolder.distanceView.setText(dist + " ft");
+        }
         viewHolder.mRootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,7 +75,6 @@ public class NearMeAdapter extends RecyclerView.Adapter
             }
         });
     }
-
     @Override
     public int getItemCount() {
         return items.size();
