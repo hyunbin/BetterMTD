@@ -36,22 +36,22 @@ public class StopActivity extends ActionBarActivity {
     public List<NameValuePair> params;
 
     // JSON Node names
-    private static final String TAG_TIME = "time";
-    private static final String TAG_DEPARTURES = "departures";
-    private static final String TAG_STOPID = "stop_id";
-    private static final String TAG_HEADSIGN = "headsign";
-    private static final String TAG_ROUTE = "route";
-    private static final String TAG_ROUTECOLOR = "route_color";
-    private static final String TAG_ROUTEID = "route_id";
-    private static final String TAG_ROUTELONGNAME = "route_long_name";
-    private static final String TAG_ROUTESHORTNAME = "route_short_name";
-    private static final String TAG_ROUTETEXTCOLOR = "route_text_color";
-    private static final String TAG_VEHICLEID = "vehicle_id";
-    private static final String TAG_ISISTOP = "is_istop";
-    private static final String TAG_EXPECTEDMINS = "expected_mins";
-    private static final String TAG_TRIP = "trip";
-    private static final String TAG_TRIPHEADSIGN = "trip_headsign";
-    private static final String TAG_DESTINATION = "destination";
+    private final String TAG_TIME = "time";
+    private final String TAG_DEPARTURES = "departures";
+    private final String TAG_STOPID = "stop_id";
+    private final String TAG_HEADSIGN = "headsign";
+    private final String TAG_ROUTE = "route";
+    private final String TAG_ROUTECOLOR = "route_color";
+    private final String TAG_ROUTEID = "route_id";
+    private final String TAG_ROUTELONGNAME = "route_long_name";
+    private final String TAG_ROUTESHORTNAME = "route_short_name";
+    private final String TAG_ROUTETEXTCOLOR = "route_text_color";
+    private final String TAG_VEHICLEID = "vehicle_id";
+    private final String TAG_ISISTOP = "is_istop";
+    private final String TAG_EXPECTEDMINS = "expected_mins";
+    private final String TAG_TRIP = "trip";
+    private final String TAG_TRIPHEADSIGN = "trip_headsign";
+    private final String TAG_DESTINATION = "destination";
 
     JSONArray departures = null;
 

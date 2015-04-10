@@ -71,8 +71,8 @@ public class FavoritesAdapter extends RecyclerView.Adapter
     public void addAllItems(ArrayList<HashMap<String, String>> newItems){
         for(int n = 0 ; n < newItems.size() ; n++) {
             items.add(newItems.get(n));
-            notifyItemInserted(items.size() - 1);
         }
+        notifyItemRangeInserted(0, newItems.size() - 1);
     }
 
     public void removeAllItems() {
