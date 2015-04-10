@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+import jp.wasabeef.recyclerview.animators.FadeInUpAnimator;
 import me.hyunbin.transit.R;
 
 /**
@@ -29,22 +29,24 @@ import me.hyunbin.transit.R;
 
 public class Tab1 extends Fragment {
 
-    RecyclerView favoritesView;
-    Context context;
-    Map favoritesData;
-    FavoritesAdapter adapter;
-    TextView textView;
-    ArrayList<HashMap<String, String>> favoritesList;
+    private static RecyclerView favoritesView;
+    private static Context context;
+    private static TextView textView;
+
+    private FavoritesAdapter adapter;
+    private Map favoritesData;
+    private ArrayList<HashMap<String, String>> favoritesList;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View v =inflater.inflate(R.layout.tab_1,container,false);
         context = getActivity().getApplicationContext();
 
         // Sets animator to RecyclerView
         favoritesView = (RecyclerView) v.findViewById(R.id.favoritesView);
-        favoritesView.setItemAnimator(new FadeInAnimator());
-        favoritesView.getItemAnimator().setAddDuration(200);
+        favoritesView.setItemAnimator(new FadeInUpAnimator());
+        favoritesView.getItemAnimator().setAddDuration(300);
         favoritesView.getItemAnimator().setRemoveDuration(100);
 
         // Hides no favorites view by default
@@ -60,9 +62,8 @@ public class Tab1 extends Fragment {
     }
 
     public void refreshAdapter(){
-        // Either sets an adapter if none has been initialized, or makes appropriate calls to
-        // enable animations in the RecyclerView.
-
+        /* Either sets an adapter if none has been initialized, or makes appropriate calls to
+        enable animations in the RecyclerView. */
         if(adapter==null)
         {
             adapter = new FavoritesAdapter(context, favoritesList);
@@ -87,7 +88,6 @@ public class Tab1 extends Fragment {
 
     @Override
     public void onStart(){
-        //Log.d("EVENT", "> Start happened");
         super.onStart();
         new ParseFavoritesRequest().execute();
     }
