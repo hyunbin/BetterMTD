@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
@@ -29,30 +31,30 @@ import java.util.HashMap;
 import java.util.List;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
-import me.hyunbin.transit.R;
 
 /**
  * Created by Hyunbin on 3/9/15.
  */
 
 public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener  {
+        GoogleApiClient.OnConnectionFailedListener {
 
-    private static final String TAG_STOPS = "stops";
-    private static final String TAG_STOPID = "stop_id";
-    private static final String TAG_STOPNAME = "stop_name";
-    private static final String TAG_DISTANCE = "distance";
+    private final String TAG_STOPS = "stops";
+    private final String TAG_STOPID = "stop_id";
+    private final String TAG_STOPNAME = "stop_name";
+    private final String TAG_DISTANCE = "distance";
 
-    RecyclerView nearmeView;
-    GoogleApiClient mGoogleApiClient;
-    Context context;
-    Location mLastLocation;
-    TextView textView;
-    NearMeAdapter adapter;
+    private RecyclerView nearMeView;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    private Context context;
+    private Location mLastLocation;
+    private TextView textView;
+    private NearMeAdapter adapter;
 
     ArrayList<HashMap<String, String>> stopsList;
 
-    private static String baseURL = "https://developer.cumtd.com/api/v2.2/json/GetStopsByLatLon";
+    private String baseURL = "https://developer.cumtd.com/api/v2.2/json/GetStopsByLatLon";
     public List<NameValuePair> params;
     JSONArray stops = null;
 
@@ -61,10 +63,10 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         View v =inflater.inflate(R.layout.tab_3,container,false);
 
         context = getActivity().getApplicationContext();
-        nearmeView = (RecyclerView) v.findViewById(R.id.nearmeView);
-        nearmeView.setItemAnimator(new FadeInAnimator());
-        nearmeView.getItemAnimator().setAddDuration(200);
-        nearmeView.getItemAnimator().setRemoveDuration(100);
+        nearMeView = (RecyclerView) v.findViewById(R.id.nearmeView);
+        nearMeView.setItemAnimator(new FadeInAnimator());
+        nearMeView.getItemAnimator().setAddDuration(200);
+        nearMeView.getItemAnimator().setRemoveDuration(100);
 
         textView = (TextView) v.findViewById(R.id.textView);
         textView.setVisibility(View.GONE);
@@ -72,7 +74,7 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         // Uses linear layout manager for simplicity
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        nearmeView.setLayoutManager(layoutManager);
+        nearMeView.setLayoutManager(layoutManager);
 
         mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
                 .addConnectionCallbacks(this)
@@ -118,33 +120,30 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         if (savedInstanceState != null) {
             //probably orientation change
             stopsList = (ArrayList<HashMap<String, String>>) savedInstanceState.getSerializable("list");
-        } else {
-            if (stopsList != null) {
-                //returning from backstack, data is fine, do nothing
-            } else {
-                //newly created, compute data
-
-            }
         }
     }
 
     public void refreshAdapter(){
         // Either sets an adapter if none has been initialized, or makes appropriate calls to
         // enable animations in the RecyclerView.
-
         if(adapter==null)
         {
             adapter = new NearMeAdapter(context, stopsList);
-            nearmeView.setAdapter(adapter);
+            nearMeView.setAdapter(adapter);
             adapter.notifyItemRangeInserted(0,adapter.getItemCount()-1);
         }
         else if(adapter!=null) {
             adapter.addAllItems(stopsList);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mGoogleApiClient.disconnect();
     }
 
     private class ParseLocationRequest extends AsyncTask<Void, Void, Void>

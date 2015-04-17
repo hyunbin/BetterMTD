@@ -38,6 +38,14 @@ public class NearMeAdapter extends RecyclerView.Adapter
         this.items = modelData;
     }
 
+    public void removeAllItems() {
+        final int size = items.size();
+        for(int i = size-1; i >= 0 ; i--) {
+            items.remove(i);
+            notifyItemRemoved(i);
+        }
+    }
+
     @Override
     public ListItemViewHolder onCreateViewHolder(
             ViewGroup viewGroup, int viewType) {
