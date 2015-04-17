@@ -13,6 +13,7 @@ import android.os.SystemClock;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
@@ -120,9 +121,7 @@ public class MainActivity extends ActionBarActivity {
         new ParseBusStops().execute();
         mTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View arg1, int pos,
-                                    long id) {
-                //Toast.makeText(context, parent.getItemAtPosition(pos)+ " selected", Toast.LENGTH_SHORT).show();
+            public void onItemClick(AdapterView<?> parent, View arg1, int pos, long id) {
                 String searchFor = parent.getItemAtPosition(pos).toString();
                 for(HashMap<String,String> curItem : mHash)
                 {
@@ -206,9 +205,6 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_search) {
-            //Starts a new intent
-            //Intent intent = new Intent(this, SearchActivity.class);
-            //startActivity(intent);
             displaySearchView(true);
         }
 

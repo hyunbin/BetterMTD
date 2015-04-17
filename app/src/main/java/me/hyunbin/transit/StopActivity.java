@@ -32,7 +32,7 @@ import me.hyunbin.transit.R;
 
 public class StopActivity extends ActionBarActivity {
 
-    private static String baseURL = "https://developer.cumtd.com/api/v2.2/json/GetDeparturesByStop";
+    private String baseURL = "https://developer.cumtd.com/api/v2.2/json/GetDeparturesByStop";
     public List<NameValuePair> params;
 
     // JSON Node names

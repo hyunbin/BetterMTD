@@ -29,9 +29,9 @@ import me.hyunbin.transit.R;
 
 public class Tab1 extends Fragment {
 
-    private static RecyclerView favoritesView;
-    private static Context context;
-    private static TextView textView;
+    private RecyclerView favoritesView;
+    private Context context;
+    private TextView textView;
 
     private FavoritesAdapter adapter;
     private Map favoritesData;
@@ -75,7 +75,7 @@ public class Tab1 extends Fragment {
         }
     }
 
-    private static Comparator<HashMap<String, String>> ALPHABETICAL_ORDER = new Comparator<HashMap<String, String>>() {
+    private Comparator<HashMap<String, String>> ALPHABETICAL_ORDER = new Comparator<HashMap<String, String>>() {
     // Sorts HashMaps based on comparing their stop_name strings
         public int compare(HashMap<String, String> obj1, HashMap<String, String> obj2) {
             int res = String.CASE_INSENSITIVE_ORDER.compare(obj1.get("stop_name"), obj2.get("stop_name"));
