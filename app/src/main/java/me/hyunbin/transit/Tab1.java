@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import jp.wasabeef.recyclerview.animators.FadeInUpAnimator;
+import jp.wasabeef.recyclerview.animators.FadeInAnimator;
 import me.hyunbin.transit.R;
 
 /**
@@ -45,8 +45,8 @@ public class Tab1 extends Fragment {
 
         // Sets animator to RecyclerView
         favoritesView = (RecyclerView) v.findViewById(R.id.favoritesView);
-        favoritesView.setItemAnimator(new FadeInUpAnimator());
-        favoritesView.getItemAnimator().setAddDuration(300);
+        favoritesView.setItemAnimator(new FadeInAnimator());
+        favoritesView.getItemAnimator().setAddDuration(200);
         favoritesView.getItemAnimator().setRemoveDuration(100);
 
         // Hides no favorites view by default
