@@ -4,11 +4,13 @@ import android.content.Context;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,6 +41,7 @@ import jp.wasabeef.recyclerview.animators.FadeInAnimator;
 public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
 
+    private final String TAG = "Tab3";
     private final String TAG_STOPS = "stops";
     private final String TAG_STOPID = "stop_id";
     private final String TAG_STOPNAME = "stop_name";
@@ -58,8 +61,13 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
     public List<NameValuePair> params;
     JSONArray stops = null;
 
+    private Handler handler;
+    private int updateInterval;
+    long lastRefreshTime;
+
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View v =inflater.inflate(R.layout.tab_3,container,false);
 
         context = getActivity().getApplicationContext();
@@ -87,23 +95,41 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("key","107516afa39d442fb728498a32e43e35"));
 
+        // Sets handler refresh parameter to refresh the RecyclerView periodically
+        updateInterval = 90000;
+        handler = new Handler();
+
         return v;
     }
 
     @Override
-    public void onConnected(Bundle connectionHint) {
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
-        if (mLastLocation != null) {
+    public void onStart(){
+        super.onStart();
+        Log.d(TAG, "onStart called");
+    }
+
+    private void startParsing(Location location) {
+        // Re-initalize parameters
+        params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("key", "107516afa39d442fb728498a32e43e35"));
+
+        if (location != null) {
+            textView.setVisibility(View.GONE);
             // Populates parameters with lat/lon information
-            params.add(new BasicNameValuePair("lat", String.valueOf(mLastLocation.getLatitude())));
-            params.add(new BasicNameValuePair("lon", String.valueOf(mLastLocation.getLongitude())));
+            params.add(new BasicNameValuePair("lat", String.valueOf(location.getLatitude())));
+            params.add(new BasicNameValuePair("lon", String.valueOf(location.getLongitude())));
             new ParseLocationRequest().execute();
         }
-        else {
+        else{
             textView.setVisibility(View.VISIBLE);
             textView.setText("Failed to get location :c");
         }
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        startParsing(mLastLocation);
     }
 
     @Override
@@ -115,15 +141,6 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
     @Override
     public void onConnectionSuspended(int i) {
 
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (savedInstanceState != null) {
-            //probably orientation change
-            stopsList = (ArrayList<HashMap<String, String>>) savedInstanceState.getSerializable("list");
-        }
     }
 
     public void refreshAdapter(){
@@ -141,10 +158,55 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause called");
+        handler.removeCallbacks(updateTask);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume called");
+        handler.postDelayed(updateTask, updateInterval);
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestroy called");
         mGoogleApiClient.disconnect();
+        handler.removeCallbacks(updateTask);
     }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser){
+            Log.d(TAG, "is reported as visible");
+            handler.removeCallbacks(updateTask);
+            handler.postDelayed(updateTask, updateInterval);
+        }
+        else{
+            Log.d(TAG, "is reported as NOT visible");
+            if(updateTask != null && handler != null){
+                handler.removeCallbacks(updateTask);
+            }
+        }
+    }
+
+    final Runnable updateTask=new Runnable() {
+        @Override
+        public void run() {
+            // A runnable task to refresh items at a predetermined interval
+            Log.d(TAG, "Runnable is running");
+            if(mGoogleApiClient.isConnected()) {
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                startParsing(mLastLocation);
+                handler.postDelayed(updateTask, updateInterval);
+            }
+        }
+    };
 
     private class ParseLocationRequest extends AsyncTask<Void, Void, Void>
     {
@@ -153,13 +215,14 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
             super.onPreExecute();
             // Re-initializes the arraylist to clear any previously stored information
             stopsList = new ArrayList<HashMap<String, String>>();
+            if(adapter != null){
+                adapter.removeAllItems();
+            }
         }
 
         protected Void doInBackground(Void ... arg0) {
             ServiceHandler sh = new ServiceHandler();
             String jsonStr = sh.makeServiceCall(baseURL, params);
-
-            //Log.d("Response: ", "> " + jsonStr);
 
             try {
                 if (jsonStr != null) {
