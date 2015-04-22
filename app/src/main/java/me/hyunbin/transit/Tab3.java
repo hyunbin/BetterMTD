@@ -99,6 +99,7 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         updateInterval = 90000;
         handler = new Handler();
 
+        lastRefreshTime = System.currentTimeMillis() - 60000;
         return v;
     }
 
@@ -113,16 +114,18 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("key", "107516afa39d442fb728498a32e43e35"));
 
-        if (location != null) {
-            textView.setVisibility(View.GONE);
-            // Populates parameters with lat/lon information
-            params.add(new BasicNameValuePair("lat", String.valueOf(location.getLatitude())));
-            params.add(new BasicNameValuePair("lon", String.valueOf(location.getLongitude())));
-            new ParseLocationRequest().execute();
-        }
-        else{
-            textView.setVisibility(View.VISIBLE);
-            textView.setText("Failed to get location :c");
+        if(System.currentTimeMillis() - lastRefreshTime > 50000){
+            if (location != null) {
+                textView.setVisibility(View.GONE);
+                // Populates parameters with lat/lon information
+                params.add(new BasicNameValuePair("lat", String.valueOf(location.getLatitude())));
+                params.add(new BasicNameValuePair("lon", String.valueOf(location.getLongitude())));
+                new ParseLocationRequest().execute();
+            }
+            else{
+                textView.setVisibility(View.VISIBLE);
+                textView.setText("Failed to get location :c");
+            }
         }
     }
 
@@ -168,6 +171,10 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume called");
+        if(mGoogleApiClient.isConnected()) {
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            startParsing(mLastLocation);
+        }
         handler.postDelayed(updateTask, updateInterval);
     }
 
@@ -256,6 +263,7 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
 
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
+            lastRefreshTime = System.currentTimeMillis();
             refreshAdapter();
             if(stops == null) {
                 textView.setText("Network error :c");

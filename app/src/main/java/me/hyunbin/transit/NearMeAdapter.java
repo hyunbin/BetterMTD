@@ -22,8 +22,8 @@ import me.hyunbin.transit.R;
 public class NearMeAdapter extends RecyclerView.Adapter
         <NearMeAdapter.ListItemViewHolder> {
 
-    public final static String ARG_STOPID = "cashpa.bettermtd.STOPID";
-    public final static String ARG_STOPNAME = "cashpa.bettermtd.STOPNAME";
+    public final String ARG_STOPID = "cashpa.bettermtd.STOPID";
+    public final String ARG_STOPNAME = "cashpa.bettermtd.STOPNAME";
 
     ArrayList<HashMap<String, String>> items;
     private static Context sContext;
