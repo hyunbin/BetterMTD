@@ -14,12 +14,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import me.hyunbin.transit.R;
 
 /**
  * Created by Hyunbin on 3/3/15.
@@ -28,17 +25,18 @@ import me.hyunbin.transit.R;
 public class RecyclerViewAdapter extends RecyclerView.Adapter
         <RecyclerViewAdapter.ListItemViewHolder> {
 
+    private final String ARG_TRIPID = "trip_id";
+    private final String ARG_HEADSIGN = "headsign";
+
     ArrayList<HashMap<String, String>> items;
-    private static Context sContext;
-    Handler handler;
-    int updateInterval;
+    private Context context;
 
     RecyclerViewAdapter(Context context, ArrayList<HashMap<String, String>> modelData) {
         if (modelData == null) {
             throw new IllegalArgumentException(
                     "modelData must not be null");
         }
-        this.sContext = context;
+        this.context = context;
         this.items = modelData;
     }
 
@@ -95,6 +93,20 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
         else{
             viewHolder.iStopView.setVisibility(View.GONE);
         }
+
+        // Sets an onClickListener to open up a new activity with details
+        final String trip = model.get(ARG_TRIPID);
+        final String title = model.get(ARG_HEADSIGN);
+
+        viewHolder.mRootView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), DetailActivity.class);
+                intent.putExtra(ARG_TRIPID, trip);
+                intent.putExtra(ARG_HEADSIGN, title);
+                v.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -125,11 +137,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
     public void setNotification(String route, String time){
         int mNotificationId = 001;
         // Specify the action to perform when dismiss button is clicked
-        PendingIntent dismissIntent = NotificationActivity.getDismissIntent(mNotificationId, sContext);
+        PendingIntent dismissIntent = NotificationActivity.getDismissIntent(mNotificationId, context);
 
         // Create the notification and populate its parameters
         NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(sContext)
+                new NotificationCompat.Builder(context)
                         .setSmallIcon(R.drawable.ic_notification)
                         .setContentTitle(route)
                         .setContentText(time + " min remaining")
@@ -139,20 +151,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
 
         // Push the notification to the user
         NotificationManager mNotifyMgr =
-                (NotificationManager) sContext.getSystemService(Context.NOTIFICATION_SERVICE);
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotifyMgr.notify(mNotificationId, mBuilder.build());
     }
-
-    /*
-    final Runnable updateTask=new Runnable() {
-        @Override
-        public void run() {
-            // A runnable task to refresh items at a predetermined interval
-            setNotification();
-            handler.postDelayed(updateTask, updateInterval);
-        }
-    };
-    */
 
     public final static class ListItemViewHolder extends RecyclerView.ViewHolder {
         TextView headSign;

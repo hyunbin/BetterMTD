@@ -17,6 +17,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nispok.snackbar.Snackbar;
+import com.nispok.snackbar.SnackbarManager;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -50,6 +53,7 @@ public class StopActivity extends ActionBarActivity {
     private final String TAG_ISISTOP = "is_istop";
     private final String TAG_EXPECTEDMINS = "expected_mins";
     private final String TAG_TRIP = "trip";
+    private final String TAG_TRIPID = "trip_id";
     private final String TAG_TRIPHEADSIGN = "trip_headsign";
     private final String TAG_DESTINATION = "destination";
 
@@ -203,21 +207,24 @@ public class StopActivity extends ActionBarActivity {
             if(favorites.getString(stop, "nope") == "nope"){
                 edit.putString(stop, stopName);
                 edit.commit();
-                CharSequence text = "Stop added to favorites";
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();
+                showSnack("Stop added to favorites");
             }
             else{
                 edit.remove(stop);
                 edit.commit();
-                CharSequence text = "Stop removed from favorites";
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();
+                showSnack("Stop removed from favorites");
             }
             invalidateOptionsMenu();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    void showSnack(String message){
+        // Dismisses the Snackbar being shown, if any, and displays the new one
+        SnackbarManager.show(Snackbar.with(this)
+                .duration(Snackbar.SnackbarDuration.LENGTH_SHORT)
+                .text(message));
     }
 
     void refreshAdapter() {
@@ -248,11 +255,16 @@ public class StopActivity extends ActionBarActivity {
 
     void refreshItems() {
         if(System.currentTimeMillis() - lastRefreshTime < 20000){
+
+            /*
             // Pops a toast as pacifier if cached data will be used
             CharSequence text = "Your schedule is up-to-date";
             int duration = Toast.LENGTH_SHORT;
             Toast toast = Toast.makeText(context, text, duration);
             toast.show();
+            */
+
+            showSnack("Your schedule is up-to-date");
             onItemsLoadComplete();
         }
         else {
@@ -328,13 +340,16 @@ public class StopActivity extends ActionBarActivity {
                         JSONObject c = departures.getJSONObject(i);
 
                         String tripDest;
+                        String tripId;
                         try {
                             JSONObject t = c.getJSONObject(TAG_TRIP);
                             tripDest = t.getString(TAG_TRIPHEADSIGN);
+                            tripId = t.getString(TAG_TRIPID);
                         }
                         catch (JSONException e)
                         {
                             tripDest = "";
+                            tripId = "";
                         }
 
                         JSONObject r = c.getJSONObject(TAG_ROUTE);
@@ -346,7 +361,6 @@ public class StopActivity extends ActionBarActivity {
                         String vehicleID = c.getString(TAG_VEHICLEID);
                         String expectedMins = c.getString(TAG_EXPECTEDMINS);
                         String iStop = c.getString(TAG_ISISTOP);
-
                         HashMap<String, String> departure = new HashMap<String, String>();
 
                         departure.put(TAG_STOPID, stopID);
@@ -357,7 +371,7 @@ public class StopActivity extends ActionBarActivity {
                         departure.put(TAG_TRIPHEADSIGN, tripDest);
                         departure.put(TAG_ROUTETEXTCOLOR, routeTextColor);
                         departure.put(TAG_ISISTOP, iStop);
-
+                        departure.put(TAG_TRIPID, tripId);
                         departureList.add(departure);
                     }
                 }
