@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -16,6 +17,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.nispok.snackbar.Snackbar;
+import com.nispok.snackbar.SnackbarManager;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -28,30 +32,33 @@ import java.util.HashMap;
 import java.util.List;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
+import jp.wasabeef.recyclerview.animators.adapters.AlphaInAnimationAdapter;
 import me.hyunbin.transit.R;
 
-public class StopActivity extends ActionBarActivity {
+public class StopActivity extends AppCompatActivity {
 
-    private static String baseURL = "https://developer.cumtd.com/api/v2.2/json/GetDeparturesByStop";
+    private String baseURL = "https://developer.cumtd.com/api/v2.2/json/GetDeparturesByStop";
     public List<NameValuePair> params;
 
     // JSON Node names
-    private static final String TAG_TIME = "time";
-    private static final String TAG_DEPARTURES = "departures";
-    private static final String TAG_STOPID = "stop_id";
-    private static final String TAG_HEADSIGN = "headsign";
-    private static final String TAG_ROUTE = "route";
-    private static final String TAG_ROUTECOLOR = "route_color";
-    private static final String TAG_ROUTEID = "route_id";
-    private static final String TAG_ROUTELONGNAME = "route_long_name";
-    private static final String TAG_ROUTESHORTNAME = "route_short_name";
-    private static final String TAG_ROUTETEXTCOLOR = "route_text_color";
-    private static final String TAG_VEHICLEID = "vehicle_id";
-    private static final String TAG_ISISTOP = "is_istop";
-    private static final String TAG_EXPECTEDMINS = "expected_mins";
-    private static final String TAG_TRIP = "trip";
-    private static final String TAG_TRIPHEADSIGN = "trip_headsign";
-    private static final String TAG_DESTINATION = "destination";
+    private final String TAG_TIME = "time";
+    private final String TAG_DEPARTURES = "departures";
+    private final String TAG_STOPID = "stop_id";
+    private final String TAG_HEADSIGN = "headsign";
+    private final String TAG_ROUTE = "route";
+    private final String TAG_ROUTECOLOR = "route_color";
+    private final String TAG_ROUTEID = "route_id";
+    private final String TAG_ROUTELONGNAME = "route_long_name";
+    private final String TAG_ROUTESHORTNAME = "route_short_name";
+    private final String TAG_ROUTETEXTCOLOR = "route_text_color";
+    private final String TAG_VEHICLEID = "vehicle_id";
+    private final String TAG_ISISTOP = "is_istop";
+    private final String TAG_EXPECTEDMINS = "expected_mins";
+    private final String TAG_TRIP = "trip";
+    private final String TAG_TRIPID = "trip_id";
+    private final String TAG_TRIPHEADSIGN = "trip_headsign";
+    private final String TAG_DESTINATION = "destination";
 
     JSONArray departures = null;
 
@@ -103,8 +110,8 @@ public class StopActivity extends ActionBarActivity {
         // Sets animator to RecyclerView
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setItemAnimator(new FadeInAnimator());
-        recyclerView.getItemAnimator().setAddDuration(200);
-        recyclerView.getItemAnimator().setRemoveDuration(100);
+        recyclerView.getItemAnimator().setAddDuration(400);
+        recyclerView.getItemAnimator().setRemoveDuration(400);
 
         // Sets SwipeRefreshLayout to enable the swipe-to-refresh gesture
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
@@ -169,7 +176,7 @@ public class StopActivity extends ActionBarActivity {
         // Starts refreshing automatically again when activity is resumed
         super.onRestart();
         handler = new Handler();
-        handler.postDelayed(updateTask,1000);
+        handler.postDelayed(updateTask, 1000);
     }
 
     @Override
@@ -203,21 +210,24 @@ public class StopActivity extends ActionBarActivity {
             if(favorites.getString(stop, "nope") == "nope"){
                 edit.putString(stop, stopName);
                 edit.commit();
-                CharSequence text = "Stop added to favorites";
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();
+                showSnack("Stop added to favorites");
             }
             else{
                 edit.remove(stop);
                 edit.commit();
-                CharSequence text = "Stop removed from favorites";
-                Toast toast = Toast.makeText(context, text, duration);
-                toast.show();
+                showSnack("Stop removed from favorites");
             }
             invalidateOptionsMenu();
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    void showSnack(String message){
+        // Dismisses the Snackbar being shown, if any, and displays the new one
+        SnackbarManager.show(Snackbar.with(this)
+                .duration(Snackbar.SnackbarDuration.LENGTH_SHORT)
+                .text(message));
     }
 
     void refreshAdapter() {
@@ -226,22 +236,19 @@ public class StopActivity extends ActionBarActivity {
 
         if(adapter==null)
         {
-            adapter = new RecyclerViewAdapter(context, departureList);
+            adapter = new RecyclerViewAdapter(context, departureList, stop);
             recyclerView.setAdapter(adapter);
             adapter.notifyItemRangeInserted(0,adapter.getItemCount()-1);
         }
         else if(adapter!=null) {
-            adapter.addAllItems(departureList);
+            adapter = new RecyclerViewAdapter(context, departureList, stop);
+            recyclerView.swapAdapter(adapter, false);
         }
     }
 
     void refreshItems() {
         if(System.currentTimeMillis() - lastRefreshTime < 20000){
-            // Pops a toast as pacifier if cached data will be used
-            CharSequence text = "Your schedule is up-to-date";
-            int duration = Toast.LENGTH_SHORT;
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
+            showSnack("Your schedule is up-to-date");
             onItemsLoadComplete();
         }
         else {
@@ -290,10 +297,7 @@ public class StopActivity extends ActionBarActivity {
         protected void onPreExecute()
         {
             super.onPreExecute();
-            // Removes all items to display the proper animations
-            if(adapter!=null){
-                adapter.removeAllItems();
-            }
+
             // Re-initializes the arraylist to clear any previously stored information
             departureList = new ArrayList<HashMap<String, String>>();
         }
@@ -316,13 +320,16 @@ public class StopActivity extends ActionBarActivity {
                         JSONObject c = departures.getJSONObject(i);
 
                         String tripDest;
+                        String tripId;
                         try {
                             JSONObject t = c.getJSONObject(TAG_TRIP);
                             tripDest = t.getString(TAG_TRIPHEADSIGN);
+                            tripId = t.getString(TAG_TRIPID);
                         }
                         catch (JSONException e)
                         {
                             tripDest = "";
+                            tripId = "";
                         }
 
                         JSONObject r = c.getJSONObject(TAG_ROUTE);
@@ -334,7 +341,6 @@ public class StopActivity extends ActionBarActivity {
                         String vehicleID = c.getString(TAG_VEHICLEID);
                         String expectedMins = c.getString(TAG_EXPECTEDMINS);
                         String iStop = c.getString(TAG_ISISTOP);
-
                         HashMap<String, String> departure = new HashMap<String, String>();
 
                         departure.put(TAG_STOPID, stopID);
@@ -345,7 +351,7 @@ public class StopActivity extends ActionBarActivity {
                         departure.put(TAG_TRIPHEADSIGN, tripDest);
                         departure.put(TAG_ROUTETEXTCOLOR, routeTextColor);
                         departure.put(TAG_ISISTOP, iStop);
-
+                        departure.put(TAG_TRIPID, tripId);
                         departureList.add(departure);
                     }
                 }
@@ -376,8 +382,6 @@ public class StopActivity extends ActionBarActivity {
             // Resets the refresh time once new data is populated
             lastRefreshTime = System.currentTimeMillis();
             refreshAdapter();
-
         }
     }
-
 }

@@ -22,8 +22,8 @@ import me.hyunbin.transit.R;
 public class NearMeAdapter extends RecyclerView.Adapter
         <NearMeAdapter.ListItemViewHolder> {
 
-    public final static String ARG_STOPID = "cashpa.bettermtd.STOPID";
-    public final static String ARG_STOPNAME = "cashpa.bettermtd.STOPNAME";
+    public final String ARG_STOPID = "cashpa.bettermtd.STOPID";
+    public final String ARG_STOPNAME = "cashpa.bettermtd.STOPNAME";
 
     ArrayList<HashMap<String, String>> items;
     private static Context sContext;
@@ -36,6 +36,14 @@ public class NearMeAdapter extends RecyclerView.Adapter
         }
         this.sContext = context;
         this.items = modelData;
+    }
+
+    public void removeAllItems() {
+        final int size = items.size();
+        for(int i = size-1; i >= 0 ; i--) {
+            items.remove(i);
+            notifyItemRemoved(i);
+        }
     }
 
     @Override
@@ -57,8 +65,8 @@ public class NearMeAdapter extends RecyclerView.Adapter
 
         String dist = model.get("distance").split("\\.",2)[0];
         double test = Double.parseDouble(dist) * 0.000189394;
-        if(Double.parseDouble(dist) * 0.000189394 >= 0.11){
-            dist = new DecimalFormat("#0.00").format(Double.parseDouble(dist) * 0.000189394);
+        if(test >= 0.11){
+            dist = new DecimalFormat("#0.00").format(test);
             viewHolder.distanceView.setText(dist + " mi");
         }
         else{
@@ -68,14 +76,14 @@ public class NearMeAdapter extends RecyclerView.Adapter
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), StopActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra(ARG_STOPID, model.get("stop_id"));
                 intent.putExtra(ARG_STOPNAME, model.get("stop_name"));
-                sContext.startActivity(intent);
+                //sContext.startActivity(intent);
+                v.getContext().startActivity(intent);
             }
         });
     }
-
     @Override
     public int getItemCount() {
         return items.size();

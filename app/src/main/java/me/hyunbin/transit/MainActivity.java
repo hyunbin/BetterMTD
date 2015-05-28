@@ -11,8 +11,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
@@ -41,23 +42,21 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import me.hyunbin.transit.R;
+public class MainActivity extends AppCompatActivity {
 
-public class MainActivity extends ActionBarActivity {
+    public static final String ARG_STOPID = "cashpa.bettermtd.STOPID";
+    public static final String ARG_STOPNAME = "cashpa.bettermtd.STOPNAME";
+    private final String TAG_STOPID = "stop_id";
+    private final String TAG_STOPNAME = "stop_name";
 
-    public final static String ARG_STOPID = "cashpa.bettermtd.STOPID";
-    public final static String ARG_STOPNAME = "cashpa.bettermtd.STOPNAME";
-    private static final String TAG_STOPID = "stop_id";
-    private static final String TAG_STOPNAME = "stop_name";
+    private Context context;
+    private ArrayList<String> mStopName;
+    private ArrayList<HashMap<String, String>> mHash;
 
-    Context context;
-    public ArrayList<String> mStopName;
-    public ArrayList<HashMap<String, String>> mHash;
-    AutoCompleteTextView textView;
-
-    LinearLayout searchContainer;
-    ImageView searchClearButton;
-    MenuItem searchItem;
+    private AutoCompleteTextView mTextView;
+    private LinearLayout mSearchContainer;
+    private ImageView mSearchClearButton;
+    private MenuItem mSearchItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,13 +72,14 @@ public class MainActivity extends ActionBarActivity {
         setSupportActionBar(toolbar);
 
         // Setup search container view
-        searchContainer = new LinearLayout(this);
+        mSearchContainer = new LinearLayout(this);
         Toolbar.LayoutParams containerParams = new Toolbar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         containerParams.gravity = Gravity.CENTER_VERTICAL;
-        searchContainer.setLayoutParams(containerParams);
+        mSearchContainer.setLayoutParams(containerParams);
 
         // Setup search view
-        textView = new AutoCompleteTextView(this);
+        mTextView = new AutoCompleteTextView(this);
+
         // Set width / height / gravity
         int[] textSizeAttr = new int[]{android.R.attr.actionBarSize};
         int indexOfAttrTextSize = 0;
@@ -89,43 +89,39 @@ public class MainActivity extends ActionBarActivity {
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(0, actionBarHeight);
         params.gravity = Gravity.CENTER_VERTICAL;
         params.weight = 1;
-        textView.setLayoutParams(params);
+        mTextView.setLayoutParams(params);
 
         // Style the autocomplete suggestions box
-        textView.setDropDownVerticalOffset(2);
+        mTextView.setDropDownVerticalOffset(2);
         Display display = getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
         int width = size.x;
-        //textView.setDropDownWidth(width - width/12);
-        textView.setDropDownWidth(width);
+        mTextView.setDropDownWidth(width);
 
         // Setup display
-        textView.setBackgroundColor(Color.TRANSPARENT);
-        textView.setPadding(2, 0, 0, 0);
-        textView.setTextColor(Color.WHITE);
-        textView.setGravity(Gravity.CENTER_VERTICAL);
-        textView.setSingleLine(true);
-        //textView.setImeActionLabel("Search", EditorInfo.IME_ACTION_UNSPECIFIED);
-        textView.setHint("Search bus stops");
-        textView.setHintTextColor(Color.parseColor("#b3ffffff"));
-        ((LinearLayout) searchContainer).addView(textView);
+        mTextView.setBackgroundColor(Color.TRANSPARENT);
+        mTextView.setPadding(2, 0, 0, 0);
+        mTextView.setTextColor(Color.WHITE);
+        mTextView.setGravity(Gravity.CENTER_VERTICAL);
+        mTextView.setSingleLine(true);
+        mTextView.setHint("Search bus stops");
+        mTextView.setHintTextColor(Color.parseColor("#b3ffffff"));
+        ((LinearLayout) mSearchContainer).addView(mTextView);
 
         try {
             // Set cursor colour to white using the custom cursor.xml file
             Field f = TextView.class.getDeclaredField("mCursorDrawableRes");
             f.setAccessible(true);
-            f.set(textView, R.drawable.cursor);
+            f.set(mTextView, R.drawable.cursor);
         } catch (Exception ignored) {
         }
 
         // Add autocomplete functionality to AutoCompleteTextView
         new ParseBusStops().execute();
-        textView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View arg1, int pos,
-                                    long id) {
-                //Toast.makeText(context, parent.getItemAtPosition(pos)+ " selected", Toast.LENGTH_SHORT).show();
+            public void onItemClick(AdapterView<?> parent, View arg1, int pos, long id) {
                 String searchFor = parent.getItemAtPosition(pos).toString();
                 for(HashMap<String,String> curItem : mHash)
                 {
@@ -137,31 +133,29 @@ public class MainActivity extends ActionBarActivity {
         });
 
         // Setup the clear button
-        searchClearButton = new ImageView(this);
+        mSearchClearButton = new ImageView(this);
         Resources r = getResources();
         int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, r.getDisplayMetrics());
         LinearLayout.LayoutParams clearParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         clearParams.gravity = Gravity.CENTER;
-        searchClearButton.setLayoutParams(clearParams);
-        searchClearButton.setImageResource(R.drawable.ic_close);
-        searchClearButton.setPadding(px, 0, px-24, 0);
-        searchClearButton.setOnClickListener(new View.OnClickListener() {
+        mSearchClearButton.setLayoutParams(clearParams);
+        mSearchClearButton.setImageResource(R.drawable.ic_close);
+        mSearchClearButton.setPadding(px, 0, px - 24, 0);
+        mSearchClearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(textView.getText().length() == 0)
-                {
+                if (mTextView.getText().length() == 0) {
                     displaySearchView(false);
-                }
-                else{
-                    textView.setText("");
+                } else {
+                    mTextView.setText("");
                 }
             }
         });
-        ((LinearLayout) searchContainer).addView(searchClearButton);
+        ((LinearLayout) mSearchContainer).addView(mSearchClearButton);
 
         // Add search view to toolbar and hide it
-        searchContainer.setVisibility(View.GONE);
-        toolbar.addView(searchContainer);
+        mSearchContainer.setVisibility(View.GONE);
+        toolbar.addView(mSearchContainer);
 
         // Initialize the ViewPager and set an adapter
         ViewPager pager = (ViewPager) findViewById(R.id.viewpager);
@@ -174,9 +168,7 @@ public class MainActivity extends ActionBarActivity {
         // Make the ViewPager look pretty
         tabs.setShouldExpand(true);
         tabs.setIndicatorColorResource(R.color.accent_alternative);
-        //tabs.setTextColorResource(R.color.abc_primary_text_material_dark);
         tabs.setViewPager(pager);
-
     }
 
     @Override
@@ -188,7 +180,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     public void onBackPressed(){
         // Before exiting, the searchview should be cleared if available (ie: another layer of back)
-        if(searchContainer.getVisibility() != View.GONE){
+        if(mSearchContainer.getVisibility() != View.GONE){
             displaySearchView(false);
         }
         else{
@@ -200,7 +192,7 @@ public class MainActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        searchItem = menu.findItem(R.id.action_search);
+        mSearchItem = menu.findItem(R.id.action_search);
         return true;
     }
 
@@ -213,9 +205,6 @@ public class MainActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_search) {
-            //Starts a new intent
-            //Intent intent = new Intent(this, SearchActivity.class);
-            //startActivity(intent);
             displaySearchView(true);
         }
 
@@ -251,35 +240,35 @@ public class MainActivity extends ActionBarActivity {
     public void displaySearchView(boolean visible) {
         if (visible) {
             // Hide search button, display EditText
-            searchItem.setVisible(false);
-            searchContainer.setVisibility(View.VISIBLE);
+            mSearchItem.setVisible(false);
+            mSearchContainer.setVisibility(View.VISIBLE);
 
             // Shift focus to the search EditText
-            textView.requestFocus();
+            mTextView.requestFocus();
 
             // Pop up the soft keyboard
             new Handler().postDelayed(new Runnable() {
                 public void run() {
-                    textView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 0, 0, 0));
-                    textView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, 0, 0, 0));
+                    mTextView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 0, 0, 0));
+                    mTextView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, 0, 0, 0));
                 }
             }, 200);
 
         } else {
             // Hide the EditText and put the search button back on the Toolbar.
             // This sometimes fails when it isn't postDelayed(), don't know why.
-            textView.postDelayed(new Runnable() {
+            mTextView.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    textView.setText("");
-                    searchContainer.setVisibility(View.GONE);
-                    searchItem.setVisible(true);
+                    mTextView.setText("");
+                    mSearchContainer.setVisibility(View.GONE);
+                    mSearchItem.setVisible(true);
                 }
             }, 200);
 
             // Hide the keyboard because the search box has been hidden
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(textView.getWindowToken(), 0);
+            imm.hideSoftInputFromWindow(mTextView.getWindowToken(), 0);
         }
     }
 
@@ -323,7 +312,7 @@ public class MainActivity extends ActionBarActivity {
             super.onPostExecute(result);
             // Sets the autocomplete adapter using the parsed JSON information
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, R.layout.simple_dropdown_item, mStopName);
-            textView.setAdapter(adapter);
+            mTextView.setAdapter(adapter);
         }
     }
 }
