@@ -29,15 +29,17 @@ import me.hyunbin.transit.R;
 
 public class Tab1 extends Fragment {
 
-    RecyclerView favoritesView;
-    Context context;
-    Map favoritesData;
-    FavoritesAdapter adapter;
-    TextView textView;
-    ArrayList<HashMap<String, String>> favoritesList;
+    private RecyclerView favoritesView;
+    private Context context;
+    private TextView textView;
+
+    private FavoritesAdapter adapter;
+    private Map favoritesData;
+    private ArrayList<HashMap<String, String>> favoritesList;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View v =inflater.inflate(R.layout.tab_1,container,false);
         context = getActivity().getApplicationContext();
 
@@ -60,9 +62,8 @@ public class Tab1 extends Fragment {
     }
 
     public void refreshAdapter(){
-        // Either sets an adapter if none has been initialized, or makes appropriate calls to
-        // enable animations in the RecyclerView.
-
+        /* Either sets an adapter if none has been initialized, or makes appropriate calls to
+        enable animations in the RecyclerView. */
         if(adapter==null)
         {
             adapter = new FavoritesAdapter(context, favoritesList);
@@ -74,7 +75,7 @@ public class Tab1 extends Fragment {
         }
     }
 
-    private static Comparator<HashMap<String, String>> ALPHABETICAL_ORDER = new Comparator<HashMap<String, String>>() {
+    private Comparator<HashMap<String, String>> ALPHABETICAL_ORDER = new Comparator<HashMap<String, String>>() {
     // Sorts HashMaps based on comparing their stop_name strings
         public int compare(HashMap<String, String> obj1, HashMap<String, String> obj2) {
             int res = String.CASE_INSENSITIVE_ORDER.compare(obj1.get("stop_name"), obj2.get("stop_name"));
@@ -87,7 +88,6 @@ public class Tab1 extends Fragment {
 
     @Override
     public void onStart(){
-        //Log.d("EVENT", "> Start happened");
         super.onStart();
         new ParseFavoritesRequest().execute();
     }

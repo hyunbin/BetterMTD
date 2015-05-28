@@ -4,6 +4,7 @@ import android.content.Context;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -32,27 +33,27 @@ import java.util.HashMap;
 import java.util.List;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
-import me.hyunbin.transit.R;
 
 /**
  * Created by Hyunbin on 3/9/15.
  */
 
 public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener, LocationListener {
+        GoogleApiClient.OnConnectionFailedListener {
 
-    private static final String TAG_STOPS = "stops";
-    private static final String TAG_STOPID = "stop_id";
-    private static final String TAG_STOPNAME = "stop_name";
-    private static final String TAG_DISTANCE = "distance";
+    private final String TAG = "Tab3";
+    private final String TAG_STOPS = "stops";
+    private final String TAG_STOPID = "stop_id";
+    private final String TAG_STOPNAME = "stop_name";
+    private final String TAG_DISTANCE = "distance";
 
-    RecyclerView nearmeView;
-    GoogleApiClient mGoogleApiClient;
-    LocationRequest mLocationRequest;
-    Context context;
-    Location mLastLocation;
-    TextView textView;
-    NearMeAdapter adapter;
+    private RecyclerView nearMeView;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    private Context context;
+    private Location mLastLocation;
+    private TextView textView;
+    private NearMeAdapter adapter;
 
     public SwipeRefreshLayout swipeLayout;
     public SwipeRefreshLayout emptySwipeLayout;
@@ -60,24 +61,29 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
 
     ArrayList<HashMap<String, String>> stopsList;
 
-    private static String baseURL = "https://developer.cumtd.com/api/v2.2/json/GetStopsByLatLon";
+    private String baseURL = "https://developer.cumtd.com/api/v2.2/json/GetStopsByLatLon";
     public List<NameValuePair> params;
     JSONArray stops = null;
 
+    private Handler handler;
+    private int updateInterval;
+    long lastRefreshTime;
+
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View v =inflater.inflate(R.layout.tab_3,container,false);
 
         context = getActivity().getApplicationContext();
-        nearmeView = (RecyclerView) v.findViewById(R.id.nearmeView);
-        nearmeView.setItemAnimator(new FadeInAnimator());
-        nearmeView.getItemAnimator().setAddDuration(200);
-        nearmeView.getItemAnimator().setRemoveDuration(100);
+        nearMeView = (RecyclerView) v.findViewById(R.id.nearmeView);
+        nearMeView.setItemAnimator(new FadeInAnimator());
+        nearMeView.getItemAnimator().setAddDuration(200);
+        nearMeView.getItemAnimator().setRemoveDuration(100);
 
         // Uses linear layout manager for simplicity
         final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        nearmeView.setLayoutManager(layoutManager);
+        nearMeView.setLayoutManager(layoutManager);
 
         mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
                 .addConnectionCallbacks(this)
@@ -90,35 +96,37 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("key","107516afa39d442fb728498a32e43e35"));
 
-        // Sets SwipeRefreshLayout to enable the swipe-to-refresh gesture
-        swipeLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipeRefreshLayout);
-        emptySwipeLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipeRefreshLayout_emptyView);
-        emptySwipeLayout.setEnabled(false);
-        emptySwipeLayout.setVisibility(View.GONE);
-        swipeLayout.setEnabled(false);
+        // Sets handler refresh parameter to refresh the RecyclerView periodically
+        updateInterval = 90000;
+        handler = new Handler();
 
-        nothingHere = (TextView) v.findViewById(R.id.textView);
-
+        lastRefreshTime = System.currentTimeMillis() - 60000;
         return v;
     }
 
-    public void startParsing(Location location){
+    @Override
+    public void onStart(){
+        super.onStart();
+        Log.d(TAG, "onStart called");
+    }
+
+    private void startParsing(Location location) {
         // Re-initalize parameters
         params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair("key","107516afa39d442fb728498a32e43e35"));
+        params.add(new BasicNameValuePair("key", "107516afa39d442fb728498a32e43e35"));
 
-        if (location != null){
-            // Populates parameters with lat/lon information
-            params.add(new BasicNameValuePair("lat", String.valueOf(location.getLatitude())));
-            params.add(new BasicNameValuePair("lon", String.valueOf(location.getLongitude())));
-            emptySwipeLayout.setVisibility(View.GONE);
-            swipeLayout.setVisibility(View.VISIBLE);
-            new ParseLocationRequest().execute();
-        }
-        else {
-            swipeLayout.setVisibility(View.GONE);
-            emptySwipeLayout.setVisibility(View.VISIBLE);
-            nothingHere.setText("Failed to get location :c");
+        if(System.currentTimeMillis() - lastRefreshTime > 50000){
+            if (location != null) {
+                textView.setVisibility(View.GONE);
+                // Populates parameters with lat/lon information
+                params.add(new BasicNameValuePair("lat", String.valueOf(location.getLatitude())));
+                params.add(new BasicNameValuePair("lon", String.valueOf(location.getLongitude())));
+                new ParseLocationRequest().execute();
+            }
+            else{
+                textView.setVisibility(View.VISIBLE);
+                textView.setText("Failed to get location :c");
+            }
         }
     }
 
@@ -148,6 +156,12 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
     }
 
     @Override
+    public void onConnected(Bundle connectionHint) {
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        startParsing(mLastLocation);
+    }
+
+    @Override
     public void onConnectionFailed(ConnectionResult result) {
         swipeLayout.setVisibility(View.GONE);
         emptySwipeLayout.setVisibility(View.VISIBLE);
@@ -158,49 +172,13 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
 
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        stopLocationUpdates();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (mGoogleApiClient.isConnected()) {
-            startLocationUpdates();
-        }
-    }
-
-    protected void stopLocationUpdates() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(
-                mGoogleApiClient, this);
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-
-        if (savedInstanceState != null) {
-            //probably orientation change
-            stopsList = (ArrayList<HashMap<String, String>>) savedInstanceState.getSerializable("list");
-        } else {
-            if (stopsList != null) {
-                //returning from backstack, data is fine, do nothing
-            } else {
-                //newly created, compute data
-
-            }
-        }
-    }
-
     public void refreshAdapter(){
         // Either sets an adapter if none has been initialized, or makes appropriate calls to
         // enable animations in the RecyclerView.
         if(adapter==null)
         {
             adapter = new NearMeAdapter(context, stopsList);
-            nearmeView.setAdapter(adapter);
+            nearMeView.setAdapter(adapter);
             adapter.notifyItemRangeInserted(0,adapter.getItemCount()-1);
         }
         else if(adapter!=null) {
@@ -210,6 +188,61 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         swipeLayout.setRefreshing(false);
         emptySwipeLayout.setRefreshing(true);
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause called");
+        handler.removeCallbacks(updateTask);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "onResume called");
+        if(mGoogleApiClient.isConnected()) {
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            startParsing(mLastLocation);
+        }
+        handler.postDelayed(updateTask, updateInterval);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy called");
+        mGoogleApiClient.disconnect();
+        handler.removeCallbacks(updateTask);
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+        if (isVisibleToUser){
+            Log.d(TAG, "is reported as visible");
+            handler.removeCallbacks(updateTask);
+            handler.postDelayed(updateTask, updateInterval);
+        }
+        else{
+            Log.d(TAG, "is reported as NOT visible");
+            if(updateTask != null && handler != null){
+                handler.removeCallbacks(updateTask);
+            }
+        }
+    }
+
+    final Runnable updateTask=new Runnable() {
+        @Override
+        public void run() {
+            // A runnable task to refresh items at a predetermined interval
+            Log.d(TAG, "Runnable is running");
+            if(mGoogleApiClient.isConnected()) {
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+                startParsing(mLastLocation);
+                handler.postDelayed(updateTask, updateInterval);
+            }
+        }
+    };
 
     private class ParseLocationRequest extends AsyncTask<Void, Void, Void>
     {
@@ -221,17 +254,14 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
                 adapter.removeAllItems();
             }
             stopsList = new ArrayList<HashMap<String, String>>();
-            swipeLayout.setEnabled(true);
-            swipeLayout.setRefreshing(true);
-            emptySwipeLayout.setEnabled(true);
-            emptySwipeLayout.setRefreshing(true);
+            if(adapter != null){
+                adapter.removeAllItems();
+            }
         }
 
         protected Void doInBackground(Void ... arg0) {
             ServiceHandler sh = new ServiceHandler();
             String jsonStr = sh.makeServiceCall(baseURL, params);
-
-            //Log.d("Response: ", "> " + jsonStr);
 
             try {
                 if (jsonStr != null) {
@@ -265,6 +295,7 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
 
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
+            lastRefreshTime = System.currentTimeMillis();
             refreshAdapter();
 
             if(stops == null) {

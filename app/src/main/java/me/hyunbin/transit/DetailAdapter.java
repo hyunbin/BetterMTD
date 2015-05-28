@@ -2,37 +2,52 @@ package me.hyunbin.transit;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.internal.widget.AdapterViewCompat;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.nispok.snackbar.Snackbar;
+import com.nispok.snackbar.SnackbarManager;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
-
 /**
- * Created by Hyunbin on 3/10/15.
+ * Created by Hyunbin on 4/21/15.
  */
-public class FavoritesAdapter extends RecyclerView.Adapter
-        <FavoritesAdapter.ListItemViewHolder> {
+public class DetailAdapter extends RecyclerView.Adapter
+<DetailAdapter.ListItemViewHolder>  {
 
+    private final String TAG_STOPID = "stop_id";
+    private final String TAG_STOPNAME = "stop_name";
+    private final String TAG_ARRIVALTIME = "arrival_time";
     public final static String ARG_STOPID = "cashpa.bettermtd.STOPID";
     public final static String ARG_STOPNAME = "cashpa.bettermtd.STOPNAME";
 
     ArrayList<HashMap<String, String>> items;
-    private static Context sContext;
-    AdapterViewCompat.OnItemClickListener mItemClickListener;
+    private Context context;
+    DateFormat dateFormat;
+    DateFormat outFormat;
 
-    FavoritesAdapter(Context context, ArrayList<HashMap<String, String>> modelData) {
+    DetailAdapter(Context context, ArrayList<HashMap<String, String>> modelData) {
         if (modelData == null) {
             throw new IllegalArgumentException(
                     "modelData must not be null");
         }
-        this.sContext = context;
+        this.context = context;
         this.items = modelData;
+        dateFormat = new SimpleDateFormat("HH:mm:ss");
+        outFormat = new SimpleDateFormat("hh:mm a");
     }
 
     @Override
@@ -40,9 +55,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter
             ViewGroup viewGroup, int viewType) {
         View itemView = LayoutInflater.
                 from(viewGroup.getContext()).
-                inflate(R.layout.favorites_stop,
-                        viewGroup,
-                        false);
+                inflate(R.layout.detail_stop, viewGroup, false);
         return new ListItemViewHolder(itemView);
     }
 
@@ -50,15 +63,22 @@ public class FavoritesAdapter extends RecyclerView.Adapter
     public void onBindViewHolder(
             ListItemViewHolder viewHolder, int position) {
         final HashMap<String, String> model = items.get(position);
-        viewHolder.stopName.setText(model.get("stop_name"));
+        viewHolder.stopName.setText(model.get(TAG_STOPNAME));
+
+        try {
+            Date time = (Date) dateFormat.parse(model.get(TAG_ARRIVALTIME));
+            viewHolder.timeView.setText(outFormat.format(time));
+        }
+        catch(Exception e){
+            viewHolder.timeView.setText(model.get(TAG_ARRIVALTIME));
+        }
+
         viewHolder.mRootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), StopActivity.class);
-                //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra(ARG_STOPID, model.get("stop_id"));
-                intent.putExtra(ARG_STOPNAME, model.get("stop_name"));
-                //sContext.startActivity(intent);
+                intent.putExtra(ARG_STOPID, model.get(TAG_STOPID));
+                intent.putExtra(ARG_STOPNAME, model.get(TAG_STOPNAME));
                 v.getContext().startActivity(intent);
             }
         });
@@ -72,28 +92,22 @@ public class FavoritesAdapter extends RecyclerView.Adapter
     public void addAllItems(ArrayList<HashMap<String, String>> newItems){
         for(int n = 0 ; n < newItems.size() ; n++) {
             items.add(newItems.get(n));
-        }
-        notifyItemRangeInserted(0, newItems.size() - 1);
-    }
-
-    public void removeAllItems() {
-        final int size = items.size();
-        for(int i = size-1; i >= 0 ; i--) {
-            items.remove(i);
-            notifyItemRemoved(i);
+            notifyItemInserted(items.size() - 1);
         }
     }
 
     public final static class ListItemViewHolder extends RecyclerView.ViewHolder {
         TextView stopName;
+        TextView timeView;
+        LinearLayout listItem;
         View mRootView;
 
         public ListItemViewHolder(View itemView) {
             super(itemView);
-            // TODO populate ViewHolder with more items
-            stopName = (TextView) itemView.findViewById(R.id.stopName);
             mRootView = itemView.findViewById(R.id.ripple);
+            listItem = (LinearLayout) itemView.findViewById(R.id.listitem);
+            timeView = (TextView) itemView.findViewById(R.id.timeView);
+            stopName = (TextView) itemView.findViewById(R.id.stopName);
         }
     }
-
 }
