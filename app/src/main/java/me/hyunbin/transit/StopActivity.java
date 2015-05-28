@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -31,9 +32,11 @@ import java.util.HashMap;
 import java.util.List;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
+import jp.wasabeef.recyclerview.animators.adapters.AlphaInAnimationAdapter;
 import me.hyunbin.transit.R;
 
-public class StopActivity extends ActionBarActivity {
+public class StopActivity extends AppCompatActivity {
 
     private String baseURL = "https://developer.cumtd.com/api/v2.2/json/GetDeparturesByStop";
     public List<NameValuePair> params;
@@ -107,8 +110,8 @@ public class StopActivity extends ActionBarActivity {
         // Sets animator to RecyclerView
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         recyclerView.setItemAnimator(new FadeInAnimator());
-        recyclerView.getItemAnimator().setAddDuration(200);
-        recyclerView.getItemAnimator().setRemoveDuration(100);
+        recyclerView.getItemAnimator().setAddDuration(400);
+        recyclerView.getItemAnimator().setRemoveDuration(400);
 
         // Sets SwipeRefreshLayout to enable the swipe-to-refresh gesture
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
@@ -173,7 +176,7 @@ public class StopActivity extends ActionBarActivity {
         // Starts refreshing automatically again when activity is resumed
         super.onRestart();
         handler = new Handler();
-        handler.postDelayed(updateTask,1000);
+        handler.postDelayed(updateTask, 1000);
     }
 
     @Override
@@ -233,37 +236,18 @@ public class StopActivity extends ActionBarActivity {
 
         if(adapter==null)
         {
-            adapter = new RecyclerViewAdapter(context, departureList);
+            adapter = new RecyclerViewAdapter(context, departureList, stop);
             recyclerView.setAdapter(adapter);
             adapter.notifyItemRangeInserted(0,adapter.getItemCount()-1);
-            /*
-            for(int n = 0 ; n < adapter.getItemCount(); n++){
-                adapter.notifyItemInserted(n);
-            }
-            */
         }
         else if(adapter!=null) {
-            adapter.addAllItems(departureList);
-            /*
-                for(int i = 0 ; i < departureList.size(); i++) {
-                    HashMap<String, String> newItem = departureList.get(i);
-                    adapter.addOneItem(newItem);
-                }
-            */
+            adapter = new RecyclerViewAdapter(context, departureList, stop);
+            recyclerView.swapAdapter(adapter, false);
         }
     }
 
     void refreshItems() {
         if(System.currentTimeMillis() - lastRefreshTime < 20000){
-
-            /*
-            // Pops a toast as pacifier if cached data will be used
-            CharSequence text = "Your schedule is up-to-date";
-            int duration = Toast.LENGTH_SHORT;
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
-            */
-
             showSnack("Your schedule is up-to-date");
             onItemsLoadComplete();
         }
@@ -314,10 +298,7 @@ public class StopActivity extends ActionBarActivity {
         protected void onPreExecute()
         {
             super.onPreExecute();
-            // Removes all items to display the proper animations
-            if(adapter!=null){
-                adapter.removeAllItems();
-            }
+
             // Re-initializes the arraylist to clear any previously stored information
             departureList = new ArrayList<HashMap<String, String>>();
         }
@@ -402,8 +383,6 @@ public class StopActivity extends ActionBarActivity {
             // Resets the refresh time once new data is populated
             lastRefreshTime = System.currentTimeMillis();
             refreshAdapter();
-
         }
     }
-
 }

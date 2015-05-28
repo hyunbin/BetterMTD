@@ -55,10 +55,11 @@ public class FavoritesAdapter extends RecyclerView.Adapter
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), StopActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra(ARG_STOPID, model.get("stop_id"));
                 intent.putExtra(ARG_STOPNAME, model.get("stop_name"));
-                sContext.startActivity(intent);
+                //sContext.startActivity(intent);
+                v.getContext().startActivity(intent);
             }
         });
     }

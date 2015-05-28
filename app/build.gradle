@@ -7,8 +7,8 @@ android {
         applicationId 'me.hyunbin.transit'
         minSdkVersion 16
         targetSdkVersion 21
-        versionCode 4
-        versionName "1.1.1"
+        versionCode 5
+        versionName "1.2.0"
     }
     buildTypes {
         release {
@@ -34,6 +34,6 @@ dependencies {
     compile 'com.google.android.gms:play-services:6.5.87'
     compile 'com.jpardogo.materialtabstrip:library:1.0.9'
     compile 'com.balysv:material-ripple:1.0.1'
-    compile 'jp.wasabeef:recyclerview-animators:1.1.0@aar'
+    compile 'jp.wasabeef:recyclerview-animators:1.2.0@aar'
     compile 'com.nispok:snackbar:2.10.7'
 }

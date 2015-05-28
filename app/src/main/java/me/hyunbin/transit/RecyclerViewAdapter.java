@@ -7,6 +7,10 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPropertyAnimatorListener;
+import android.support.v4.view.animation.FastOutLinearInInterpolator;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,8 +19,14 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.nispok.snackbar.Snackbar;
+import com.nispok.snackbar.SnackbarManager;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import jp.wasabeef.recyclerview.animators.BaseItemAnimator;
+import jp.wasabeef.recyclerview.animators.holder.AnimateViewHolder;
 
 /**
  * Created by Hyunbin on 3/3/15.
@@ -27,17 +37,34 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
 
     private final String ARG_TRIPID = "trip_id";
     private final String ARG_HEADSIGN = "headsign";
+    private final String TAG_VEHICLEID = "vehicle_id";
 
     ArrayList<HashMap<String, String>> items;
     private Context context;
+    String currentStopName;
 
-    RecyclerViewAdapter(Context context, ArrayList<HashMap<String, String>> modelData) {
+    RecyclerViewAdapter(Context context, ArrayList<HashMap<String, String>> modelData, String currentStopName) {
         if (modelData == null) {
             throw new IllegalArgumentException(
                     "modelData must not be null");
         }
         this.context = context;
         this.items = modelData;
+        this.currentStopName = currentStopName;
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position){
+        long id = items.get(position).get(ARG_HEADSIGN).hashCode();
+        String subId = items.get(position).get(TAG_VEHICLEID);
+        if(subId != "null"){
+            id = id*10000 + Long.parseLong(subId);
+        }
+        else{
+            id = id*10000;
+        }
+        return id;
     }
 
     @Override
@@ -65,21 +92,21 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
             headSignFrag = "To " + model.get("trip_headsign");
         }
 
-        viewHolder.listItem.setBackgroundColor(Color.parseColor("#" + model.get("route_color"))- 0x48000000);
-        viewHolder.subText.setText(headSignFrag);
-        viewHolder.headSign.setTextColor(Color.parseColor("#" + model.get("route_text_color")));
-        viewHolder.expectedMins.setTextColor(Color.parseColor("#" + model.get("route_text_color")));
-        viewHolder.subText.setTextColor(Color.parseColor("#" + model.get("route_text_color")) - 0x5F000000);
-        viewHolder.minsLabel.setTextColor(Color.parseColor("#" + model.get("route_text_color")) - 0x5F000000);
+        final String mRouteColor = model.get("route_color");
+        String mRouteTextColor = model.get("route_text_color");
 
         // Special adjustment for ugly red
-        if(model.get("route_color").equals("ff0000") || model.get("route_color").equals("ed1c24")){
-            viewHolder.listItem.setBackgroundColor(Color.parseColor("#" + model.get("route_color"))- 0x62000000);
-            viewHolder.headSign.setTextColor(Color.parseColor("#ffffff"));
-            viewHolder.expectedMins.setTextColor(Color.parseColor("#ffffff"));
-            viewHolder.subText.setTextColor(Color.parseColor("#ffffff") - 0x5F000000);
-            viewHolder.minsLabel.setTextColor(Color.parseColor("#ffffff") - 0x5F000000);
+        if(mRouteColor.equals("ff0000") || mRouteColor.equals("ed1c24")){
+            viewHolder.listItem.setBackgroundColor(Color.parseColor("#" + mRouteColor) - 0xD2000000);
+            mRouteTextColor = "ffffff";
         }
+
+        viewHolder.listItem.setBackgroundColor(Color.parseColor("#" + mRouteColor) - 0x48000000);
+        viewHolder.subText.setText(headSignFrag);
+        viewHolder.headSign.setTextColor(Color.parseColor("#" + mRouteTextColor));
+        viewHolder.expectedMins.setTextColor(Color.parseColor("#" + mRouteTextColor));
+        viewHolder.subText.setTextColor(Color.parseColor("#" + mRouteTextColor) - 0x5F000000);
+        viewHolder.minsLabel.setTextColor(Color.parseColor("#" + mRouteTextColor) - 0x5F000000);
 
         if(model.get("is_istop") == "true"){
             if(model.get("route_text_color").equals("ffffff")){
@@ -97,41 +124,35 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
         // Sets an onClickListener to open up a new activity with details
         final String trip = model.get(ARG_TRIPID);
         final String title = model.get(ARG_HEADSIGN);
+        final String routeTextColor = mRouteTextColor;
+        final String sHeadSignFrag = headSignFrag;
 
         viewHolder.mRootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), DetailActivity.class);
-                intent.putExtra(ARG_TRIPID, trip);
-                intent.putExtra(ARG_HEADSIGN, title);
-                v.getContext().startActivity(intent);
+                if(sHeadSignFrag != ""){
+                    Intent intent = new Intent(v.getContext(), DetailActivity.class);
+                    intent.putExtra(ARG_TRIPID, trip);
+                    intent.putExtra(ARG_HEADSIGN, title);
+                    intent.putExtra("current_stop", currentStopName);
+                    intent.putExtra("route_color", mRouteColor);
+                    intent.putExtra("text_color", routeTextColor);
+                    v.getContext().startActivity(intent);
+                }
+                else{
+                    // Dismisses the Snackbar being shown, if any, and displays the new one
+                    SnackbarManager.show(Snackbar.with(v.getContext())
+                            .duration(Snackbar.SnackbarDuration.LENGTH_SHORT)
+                            .text("This bus has no scheduled information"));
+                }
             }
         });
+
     }
 
     @Override
     public int getItemCount() {
         return items.size();
-    }
-
-    public void removeAllItems() {
-        final int size = items.size();
-        for(int i = size-1; i >= 0 ; i--) {
-            items.remove(i);
-            notifyItemRemoved(i);
-        }
-    }
-
-    public void addAllItems(ArrayList<HashMap<String, String>> newItems){
-        for(int n = 0 ; n < newItems.size() ; n++) {
-            items.add(newItems.get(n));
-            notifyItemInserted(items.size() - 1);
-        }
-    }
-
-    public void addOneItem(HashMap<String, String> newItem){
-        items.add(newItem);
-        notifyItemInserted(items.size() - 1);
     }
 
     public void setNotification(String route, String time){
@@ -176,4 +197,3 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
         }
     }
 }
-
