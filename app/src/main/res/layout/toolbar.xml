@@ -4,5 +4,7 @@
     android:layout_height="wrap_content"
     android:background="@color/primary"
     android:theme="@style/ThemeOverlay.AppCompat.Dark"
+    app:titleTextAppearance="@style/ToolbarTitle"
     android:elevation="4dp"
-    xmlns:android="http://schemas.android.com/apk/res/android" />
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" />
