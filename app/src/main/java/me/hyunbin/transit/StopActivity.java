@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
@@ -18,9 +19,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.nispok.snackbar.Snackbar;
-import com.nispok.snackbar.SnackbarManager;
-
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -32,8 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
-import jp.wasabeef.recyclerview.animators.FadeInLeftAnimator;
-import jp.wasabeef.recyclerview.animators.adapters.AlphaInAnimationAdapter;
 import me.hyunbin.transit.R;
 
 public class StopActivity extends AppCompatActivity {
@@ -225,9 +221,19 @@ public class StopActivity extends AppCompatActivity {
 
     void showSnack(String message){
         // Dismisses the Snackbar being shown, if any, and displays the new one
+
+        /*
         SnackbarManager.show(Snackbar.with(this)
                 .duration(Snackbar.SnackbarDuration.LENGTH_SHORT)
                 .text(message));
+        */
+
+        if(swipeLayout.getVisibility() == View.VISIBLE){
+            Snackbar.make(swipeLayout, message, Snackbar.LENGTH_SHORT).show();
+        }
+        else{
+            Snackbar.make(emptySwipeLayout, message, Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     void refreshAdapter() {
