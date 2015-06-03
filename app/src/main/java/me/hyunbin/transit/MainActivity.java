@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -29,8 +30,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
-import com.astuetz.PagerSlidingTabStrip;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -73,7 +72,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup search container view
         mSearchContainer = new LinearLayout(this);
-        Toolbar.LayoutParams containerParams = new Toolbar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        Toolbar.LayoutParams containerParams =
+                new Toolbar.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT);
         containerParams.gravity = Gravity.CENTER_VERTICAL;
         mSearchContainer.setLayoutParams(containerParams);
 
@@ -114,8 +115,7 @@ public class MainActivity extends AppCompatActivity {
             Field f = TextView.class.getDeclaredField("mCursorDrawableRes");
             f.setAccessible(true);
             f.set(mTextView, R.drawable.cursor);
-        } catch (Exception ignored) {
-        }
+        } catch (Exception ignored) { }
 
         // Add autocomplete functionality to AutoCompleteTextView
         new ParseBusStops().execute();
@@ -135,8 +135,11 @@ public class MainActivity extends AppCompatActivity {
         // Setup the clear button
         mSearchClearButton = new ImageView(this);
         Resources r = getResources();
-        int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16, r.getDisplayMetrics());
-        LinearLayout.LayoutParams clearParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16,
+                r.getDisplayMetrics());
+        LinearLayout.LayoutParams clearParams =
+                new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
         clearParams.gravity = Gravity.CENTER;
         mSearchClearButton.setLayoutParams(clearParams);
         mSearchClearButton.setImageResource(R.drawable.ic_close);
@@ -162,13 +165,8 @@ public class MainActivity extends AppCompatActivity {
         pager.setOffscreenPageLimit(2);
         pager.setAdapter(new ViewPagerAdapter(context, getSupportFragmentManager()));
 
-        // Bind the tabs to the ViewPager
-        PagerSlidingTabStrip tabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
-
-        // Make the ViewPager look pretty
-        tabs.setShouldExpand(true);
-        tabs.setIndicatorColorResource(R.color.accent_alternative);
-        tabs.setViewPager(pager);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(pager);
     }
 
     @Override
@@ -249,8 +247,10 @@ public class MainActivity extends AppCompatActivity {
             // Pop up the soft keyboard
             new Handler().postDelayed(new Runnable() {
                 public void run() {
-                    mTextView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 0, 0, 0));
-                    mTextView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, 0, 0, 0));
+                    mTextView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+                            SystemClock.uptimeMillis(), MotionEvent.ACTION_DOWN, 0, 0, 0));
+                    mTextView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(),
+                            SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, 0, 0, 0));
                 }
             }, 200);
 
@@ -267,7 +267,8 @@ public class MainActivity extends AppCompatActivity {
             }, 200);
 
             // Hide the keyboard because the search box has been hidden
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm =
+                    (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(mTextView.getWindowToken(), 0);
         }
     }
@@ -311,7 +312,8 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             // Sets the autocomplete adapter using the parsed JSON information
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, R.layout.simple_dropdown_item, mStopName);
+            ArrayAdapter<String> adapter =
+                    new ArrayAdapter<String>(context, R.layout.simple_dropdown_item, mStopName);
             mTextView.setAdapter(adapter);
         }
     }
