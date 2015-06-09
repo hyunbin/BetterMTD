@@ -5,12 +5,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPropertyAnimatorListener;
-import android.support.v4.view.animation.FastOutLinearInInterpolator;
-import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,14 +15,8 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.nispok.snackbar.Snackbar;
-import com.nispok.snackbar.SnackbarManager;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import jp.wasabeef.recyclerview.animators.BaseItemAnimator;
-import jp.wasabeef.recyclerview.animators.holder.AnimateViewHolder;
 
 /**
  * Created by Hyunbin on 3/3/15.
@@ -42,6 +32,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
     ArrayList<HashMap<String, String>> items;
     private Context context;
     String currentStopName;
+    RecyclerView parentView;
 
     RecyclerViewAdapter(Context context, ArrayList<HashMap<String, String>> modelData, String currentStopName) {
         if (modelData == null) {
@@ -52,6 +43,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
         this.items = modelData;
         this.currentStopName = currentStopName;
         setHasStableIds(true);
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView view){
+        parentView = view;
     }
 
     @Override
@@ -141,9 +137,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
                 }
                 else{
                     // Dismisses the Snackbar being shown, if any, and displays the new one
-                    SnackbarManager.show(Snackbar.with(v.getContext())
-                            .duration(Snackbar.SnackbarDuration.LENGTH_SHORT)
-                            .text("This bus has no scheduled information"));
+                    Snackbar.make(parentView, "This bus has no scheduled information",
+                            Snackbar.LENGTH_SHORT).show();
                 }
             }
         });
