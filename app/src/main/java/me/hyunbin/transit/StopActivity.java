@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
-import me.hyunbin.transit.R;
 
 public class StopActivity extends AppCompatActivity {
 
@@ -38,23 +36,23 @@ public class StopActivity extends AppCompatActivity {
     public List<NameValuePair> params;
 
     // JSON Node names
-    private final String TAG_TIME = "time";
-    private final String TAG_DEPARTURES = "departures";
-    private final String TAG_STOPID = "stop_id";
-    private final String TAG_HEADSIGN = "headsign";
-    private final String TAG_ROUTE = "route";
-    private final String TAG_ROUTECOLOR = "route_color";
-    private final String TAG_ROUTEID = "route_id";
-    private final String TAG_ROUTELONGNAME = "route_long_name";
-    private final String TAG_ROUTESHORTNAME = "route_short_name";
-    private final String TAG_ROUTETEXTCOLOR = "route_text_color";
-    private final String TAG_VEHICLEID = "vehicle_id";
-    private final String TAG_ISISTOP = "is_istop";
-    private final String TAG_EXPECTEDMINS = "expected_mins";
-    private final String TAG_TRIP = "trip";
-    private final String TAG_TRIPID = "trip_id";
-    private final String TAG_TRIPHEADSIGN = "trip_headsign";
-    private final String TAG_DESTINATION = "destination";
+    private static final String TAG_TIME = "time";
+    private static final String TAG_DEPARTURES = "departures";
+    private static final String TAG_STOPID = "stop_id";
+    private static final String TAG_HEADSIGN = "headsign";
+    private static final String TAG_ROUTE = "route";
+    private static final String TAG_ROUTECOLOR = "route_color";
+    private static final String TAG_ROUTEID = "route_id";
+    private static final String TAG_ROUTELONGNAME = "route_long_name";
+    private static final String TAG_ROUTESHORTNAME = "route_short_name";
+    private static final String TAG_ROUTETEXTCOLOR = "route_text_color";
+    private static final String TAG_VEHICLEID = "vehicle_id";
+    private static final String TAG_ISISTOP = "is_istop";
+    private static final String TAG_EXPECTEDMINS = "expected_mins";
+    private static final String TAG_TRIP = "trip";
+    private static final String TAG_TRIPID = "trip_id";
+    private static final String TAG_TRIPHEADSIGN = "trip_headsign";
+    private static final String TAG_DESTINATION = "destination";
 
     JSONArray departures = null;
 
@@ -136,7 +134,7 @@ public class StopActivity extends AppCompatActivity {
         });
         emptySwipeLayout.setVisibility(View.GONE);
 
-        nothingHere = (TextView) findViewById(R.id.textView);
+        nothingHere = (TextView) findViewById(R.id.text_view);
         nothingHere.setText("There are no buses scheduled :c \nData provided by CUMTD");
 
         // Uses linear layout manager for simplicity

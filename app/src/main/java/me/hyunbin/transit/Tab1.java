@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +20,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
-import me.hyunbin.transit.R;
 
 /**
  * Created by Hyunbin on 3/9/15.
@@ -29,34 +27,36 @@ import me.hyunbin.transit.R;
 
 public class Tab1 extends Fragment {
 
-    private RecyclerView favoritesView;
-    private Context context;
-    private TextView textView;
+    private static final String TAG = Tab1.class.getSimpleName();
 
-    private FavoritesAdapter adapter;
-    private Map favoritesData;
-    private ArrayList<HashMap<String, String>> favoritesList;
+    private RecyclerView mRecyclerView;
+    private Context mContext;
+    private TextView mTextView;
+
+    private FavoritesAdapter mAdapter;
+    private Map mFavoritesData;
+    private ArrayList<HashMap<String, String>> mFavoritesList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View v =inflater.inflate(R.layout.tab_1,container,false);
-        context = getActivity().getApplicationContext();
+        View v = inflater.inflate(R.layout.tab_1,container,false);
+        mContext = getActivity().getApplicationContext();
 
         // Sets animator to RecyclerView
-        favoritesView = (RecyclerView) v.findViewById(R.id.favoritesView);
-        favoritesView.setItemAnimator(new FadeInAnimator());
-        favoritesView.getItemAnimator().setAddDuration(200);
-        favoritesView.getItemAnimator().setRemoveDuration(100);
+        mRecyclerView = (RecyclerView) v.findViewById(R.id.favorites_view);
+        mRecyclerView.setItemAnimator(new FadeInAnimator());
+        mRecyclerView.getItemAnimator().setAddDuration(200);
+        mRecyclerView.getItemAnimator().setRemoveDuration(100);
 
         // Hides no favorites view by default
-        textView = (TextView) v.findViewById(R.id.textView);
-        textView.setVisibility(View.GONE);
+        mTextView = (TextView) v.findViewById(R.id.text_view);
+        mTextView.setVisibility(View.GONE);
 
         // Uses linear layout manager for simplicity
-        final LinearLayoutManager layoutManager = new LinearLayoutManager(context);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        favoritesView.setLayoutManager(layoutManager);
+        mRecyclerView.setLayoutManager(layoutManager);
 
         return v;
     }
@@ -64,14 +64,14 @@ public class Tab1 extends Fragment {
     public void refreshAdapter(){
         /* Either sets an adapter if none has been initialized, or makes appropriate calls to
         enable animations in the RecyclerView. */
-        if(adapter==null)
+        if(mAdapter ==null)
         {
-            adapter = new FavoritesAdapter(context, favoritesList);
-            favoritesView.setAdapter(adapter);
-            adapter.notifyItemRangeInserted(0,adapter.getItemCount()-1);
+            mAdapter = new FavoritesAdapter(mContext, mFavoritesList);
+            mRecyclerView.setAdapter(mAdapter);
+            mAdapter.notifyItemRangeInserted(0, mAdapter.getItemCount()-1);
         }
-        else if(adapter!=null) {
-            adapter.addAllItems(favoritesList);
+        else if(mAdapter !=null) {
+            mAdapter.addAllItems(mFavoritesList);
         }
     }
 
@@ -98,17 +98,17 @@ public class Tab1 extends Fragment {
         protected void onPreExecute()
         {
             super.onPreExecute();
-            if(adapter!=null){
-                adapter.removeAllItems();
+            if(mAdapter !=null){
+                mAdapter.removeAllItems();
             }
             // Grab shared preferences and data
-            favorites = context.getSharedPreferences("favorites",0);
-            favoritesData = favorites.getAll();
-            favoritesList = new ArrayList<HashMap<String, String>>();
+            favorites = mContext.getSharedPreferences("favorites",0);
+            mFavoritesData = favorites.getAll();
+            mFavoritesList = new ArrayList<HashMap<String, String>>();
         }
 
         protected Void doInBackground(Void ... arg0) {
-            Iterator entries = favoritesData.entrySet().iterator();
+            Iterator entries = mFavoritesData.entrySet().iterator();
             while (entries.hasNext()) {
                 Map.Entry entry = (Map.Entry) entries.next();
                 String key = (String) entry.getKey();
@@ -116,18 +116,18 @@ public class Tab1 extends Fragment {
                 HashMap<String, String> stopInfo = new HashMap<String, String>();
                 stopInfo.put("stop_name", value);
                 stopInfo.put("stop_id", key);
-                favoritesList.add(stopInfo);
+                mFavoritesList.add(stopInfo);
             }
-            Collections.sort(favoritesList, ALPHABETICAL_ORDER);
+            Collections.sort(mFavoritesList, ALPHABETICAL_ORDER);
             return null;
         }
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            if(favoritesList.size() != 0){
+            if(mFavoritesList.size() != 0){
                 refreshAdapter();
             }
             else{
-                textView.setVisibility(View.VISIBLE);
+                mTextView.setVisibility(View.VISIBLE);
             }
         }
     }

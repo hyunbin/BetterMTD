@@ -36,7 +36,7 @@
             android:layout_height="match_parent">
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/text_view"
                 android:layout_width="match_parent"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:layout_height="0dp"
