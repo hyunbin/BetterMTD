@@ -45,12 +45,14 @@ import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = MainActivity.class.getSimpleName();
+
     public static final String ARG_STOPID = "cashpa.bettermtd.STOPID";
     public static final String ARG_STOPNAME = "cashpa.bettermtd.STOPNAME";
     private final String TAG_STOPID = "stop_id";
     private final String TAG_STOPNAME = "stop_name";
 
-    private Context context;
+    private Context mContext;
     private ArrayList<String> mStopName;
     private ArrayList<HashMap<String, String>> mHash;
 
@@ -64,11 +66,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // Initialize Crashlytics
-        Fabric.with(this, new Crashlytics());
+        if (!BuildConfig.DEBUG) Fabric.with(this, new Crashlytics());
+        else Log.e(TAG, "**In Debug mode, Crashlytics is disabled**");
 
         setContentView(R.layout.activity_main);
-
-        context = getApplicationContext();
+        mContext = getApplicationContext();
 
         // Sets the toolbar as ActionBar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -169,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
         // Initialize the ViewPager and set an adapter
         ViewPager pager = (ViewPager) findViewById(R.id.viewpager);
         pager.setOffscreenPageLimit(2);
-        pager.setAdapter(new ViewPagerAdapter(context, getSupportFragmentManager()));
+        pager.setAdapter(new ViewPagerAdapter(mContext, getSupportFragmentManager()));
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(pager);
@@ -227,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
         // Loads the MTDStops.json file and returns it as a string
         String json = null;
         try {
-            InputStream is = context.getAssets().open("MTDStops.json");
+            InputStream is = mContext.getAssets().open("MTDStops.json");
             int size = is.available();
             byte[] buffer = new byte[size];
             is.read(buffer);
@@ -319,7 +321,7 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(result);
             // Sets the autocomplete adapter using the parsed JSON information
             ArrayAdapter<String> adapter =
-                    new ArrayAdapter<String>(context, R.layout.simple_dropdown_item, mStopName);
+                    new ArrayAdapter<String>(mContext, R.layout.simple_dropdown_item, mStopName);
             mTextView.setAdapter(adapter);
         }
     }
