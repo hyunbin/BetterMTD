@@ -1,10 +1,10 @@
 package me.hyunbin.transit;
 
 import android.content.Context;
+import android.content.IntentSender;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
@@ -37,12 +38,15 @@ import jp.wasabeef.recyclerview.animators.FadeInAnimator;
  */
 
 public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private static final String TAG = Tab3.class.getSimpleName();
 
-    private static final int REQUEST_RESOLVE_ERROR = 1000;
+    private static final int REQUEST_RESOLVE_ERROR = 9000;
     private boolean mResolvingError = false;
+    private static int NO_ERROR = 0;
+    private static int ERROR_NETWORK = 1;
+    private static int ERROR_LOCATION = 2;
 
     private static final String TAG_STOPS = "stops";
     private static final String TAG_STOPID = "stop_id";
@@ -63,13 +67,13 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
     public List<NameValuePair> mParams;
     JSONArray mStopsArray = null;
 
-    private Handler mHandler;
-    private int mUpdateInterval;
-    private long mLastRefreshTime;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Sets refresh parameter for location requests
+        int updateInterval = 90000;
+        int minUpdateInterval = 30000;
 
         // Begin Google Play Services location service
         mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
@@ -78,6 +82,12 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
                 .addApi(LocationServices.API)
                 .build();
         mGoogleApiClient.connect();
+
+        // Create the LocationRequest object
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+                .setInterval(updateInterval)
+                .setFastestInterval(minUpdateInterval);
     }
 
     @Override
@@ -87,6 +97,9 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
 
         mContext = getActivity().getApplicationContext();
         mRecyclerView = (RecyclerView) v.findViewById(R.id.near_me_view);
+        mRecyclerView.setHasFixedSize(true);
+
+        // Sets animator to RecyclerView
         mRecyclerView.setItemAnimator(new FadeInAnimator());
         mRecyclerView.getItemAnimator().setAddDuration(200);
         mRecyclerView.getItemAnimator().setRemoveDuration(100);
@@ -103,11 +116,6 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         mParams = new ArrayList<NameValuePair>();
         mParams.add(new BasicNameValuePair("key", "***REMOVED***"));
 
-        // Sets handler refresh parameter to refresh the RecyclerView periodically
-        mUpdateInterval = 90000;
-        mHandler = new Handler();
-
-        mLastRefreshTime = System.currentTimeMillis() - 60000;
         return v;
     }
 
@@ -115,55 +123,97 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
     public void onStart(){
         super.onStart();
         Log.d(TAG, "onStart called");
+        if (!mResolvingError) {
+            mGoogleApiClient.connect();
+        }
     }
 
     private void startParsing(Location location) {
-        // Re-initalize parameters
+        // Re-initialize parameters
         mParams = new ArrayList<NameValuePair>();
         mParams.add(new BasicNameValuePair("key", "***REMOVED***"));
 
-        if(System.currentTimeMillis() - mLastRefreshTime > 50000){
-            if (location != null) {
-                mTextView.setVisibility(View.GONE);
-                // Populates parameters with lat/lon information
-                mParams.add(new BasicNameValuePair("lat", String.valueOf(location.getLatitude())));
-                mParams.add(new BasicNameValuePair("lon", String.valueOf(location.getLongitude())));
-                new ParseLocationRequest().execute();
-            }
-            else{
-                mTextView.setVisibility(View.VISIBLE);
-                mTextView.setText("Failed to get location :c");
-            }
+        if (location != null) {
+            onErrorStatusChanged(NO_ERROR);
+            // Populates parameters with lat/lon information
+            mParams.add(new BasicNameValuePair("lat", String.valueOf(location.getLatitude())));
+            mParams.add(new BasicNameValuePair("lon", String.valueOf(location.getLongitude())));
+            new ParseLocationRequest().execute();
+        }
+        else{
+            onErrorStatusChanged(ERROR_LOCATION);
         }
     }
 
     @Override
     public void onConnected(Bundle connectionHint) {
+        Log.d(TAG, "Connected successfully to Google Play Services");
+        mResolvingError = false;
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        startParsing(mLastLocation);
+        if(mLastLocation == null) {
+            Log.d(TAG, "Last Location reported as null");
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+            onErrorStatusChanged(ERROR_LOCATION);
+        }
+        else{
+            Log.d(TAG, "Last Location found");
+            onErrorStatusChanged(NO_ERROR);
+            startParsing(mLastLocation);
+        }
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {
-        mTextView.setVisibility(View.VISIBLE);
-        mTextView.setText("Failed to get location :c");
+        Log.d(TAG, "Connection failed to Google Play Services");
+        onErrorStatusChanged(ERROR_LOCATION);
+        if (mResolvingError) {
+            // Already attempting to resolve an error.
+            return;
+        } else if (result.hasResolution()) {
+            try {
+                mResolvingError = true;
+                result.startResolutionForResult(getActivity(), REQUEST_RESOLVE_ERROR);
+            } catch (IntentSender.SendIntentException e) {
+                // There was an error with the resolution intent. Try again.
+                mGoogleApiClient.connect();
+            }
+        } else {
+            Log.e(TAG, "Connection to Google API client has failed");
+            mResolvingError = false;
+        }
+    }
+
+    private void onErrorStatusChanged(int mode){
+        if(mode == ERROR_NETWORK){
+            mTextView.setText("Network error\nCheck your internet connection");
+            mTextView.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.GONE);
+        }
+        if(mode == ERROR_LOCATION){
+            mTextView.setText("Location not found\nTry enabling Wifi, GPS, or Location");
+            mTextView.setVisibility(View.VISIBLE);
+            mRecyclerView.setVisibility(View.GONE);
+        }
+        else{
+            mTextView.setVisibility(View.GONE);
+            mRecyclerView.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-
+        Log.d(TAG, "Connection suspended to Google Play Services");
     }
 
     public void refreshAdapter(){
         // Either sets an adapter if none has been initialized, or makes appropriate calls to
         // enable animations in the RecyclerView.
-        if(mAdapter ==null)
-        {
+        if(mAdapter == null) {
             mAdapter = new NearMeAdapter(mContext, mStopsList);
             mRecyclerView.setAdapter(mAdapter);
             mAdapter.notifyItemRangeInserted(0, mAdapter.getItemCount()-1);
         }
-        else if(mAdapter !=null) {
+        else if(mAdapter != null) {
             mAdapter.addAllItems(mStopsList);
         }
     }
@@ -171,8 +221,11 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
     @Override
     public void onPause() {
         super.onPause();
+        if (mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+            mGoogleApiClient.disconnect();
+        }
         Log.d(TAG, "onPause called");
-        mHandler.removeCallbacks(updateTask);
     }
 
     @Override
@@ -182,46 +235,22 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         if(mGoogleApiClient.isConnected()) {
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             startParsing(mLastLocation);
-        }
-        mHandler.postDelayed(updateTask, mUpdateInterval);
+        } else
+            mGoogleApiClient.connect();
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy called");
-        mGoogleApiClient.disconnect();
-        mHandler.removeCallbacks(updateTask);
+    public void onStop() {
+        if (!mResolvingError) {
+            mGoogleApiClient.disconnect();
+        }
+        super.onStop();
     }
 
     @Override
-    public void setUserVisibleHint(boolean isVisibleToUser) {
-        super.setUserVisibleHint(isVisibleToUser);
-        if (isVisibleToUser){
-            Log.d(TAG, "is reported as visible");
-            mHandler.removeCallbacks(updateTask);
-            mHandler.postDelayed(updateTask, mUpdateInterval);
-        }
-        else{
-            Log.d(TAG, "is reported as NOT visible");
-            if(updateTask != null && mHandler != null){
-                mHandler.removeCallbacks(updateTask);
-            }
-        }
+    public void onLocationChanged(Location location) {
+        startParsing(location);
     }
-
-    final Runnable updateTask=new Runnable() {
-        @Override
-        public void run() {
-            // A runnable task to refresh items at a predetermined interval
-            Log.d(TAG, "Runnable is running");
-            if(mGoogleApiClient.isConnected()) {
-                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-                startParsing(mLastLocation);
-                mHandler.postDelayed(updateTask, mUpdateInterval);
-            }
-        }
-    };
 
     private class ParseLocationRequest extends AsyncTask<Void, Void, Void>
     {
@@ -271,11 +300,12 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
 
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            mLastRefreshTime = System.currentTimeMillis();
             refreshAdapter();
             if(mStopsArray == null) {
-                mTextView.setText("Network error :c");
-                mTextView.setVisibility(View.VISIBLE);
+                onErrorStatusChanged(ERROR_NETWORK);
+            }
+            else{
+                onErrorStatusChanged(NO_ERROR);
             }
         }
     }

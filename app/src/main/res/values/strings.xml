@@ -6,4 +6,5 @@
 
     <string name="subtextrecentstops">Shows your most recent three stops.</string>
     <string name="no_favorites_msg">You have no favorites</string>
+    <string name="error_location">Location not found :c</string>
 </resources>

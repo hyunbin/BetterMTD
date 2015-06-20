@@ -49,8 +49,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String ARG_STOPID = "cashpa.bettermtd.STOPID";
     public static final String ARG_STOPNAME = "cashpa.bettermtd.STOPNAME";
-    private final String TAG_STOPID = "stop_id";
-    private final String TAG_STOPNAME = "stop_name";
+    private static final String TAG_STOPID = "stop_id";
+    private static final String TAG_STOPNAME = "stop_name";
 
     private Context mContext;
     private ArrayList<String> mStopName;
@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private LinearLayout mSearchContainer;
     private ImageView mSearchClearButton;
     private MenuItem mSearchItem;
+    private Toolbar mToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,11 +74,24 @@ public class MainActivity extends AppCompatActivity {
         mContext = getApplicationContext();
 
         // Sets the toolbar as ActionBar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Bus Stops");
-        toolbar.setTitleTextColor(-1);
-        setSupportActionBar(toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar.setTitle("Bus Stops");
+        mToolbar.setTitleTextColor(-1);
+        setSupportActionBar(mToolbar);
 
+        // Setup search container
+        setupSearchBar();
+
+        // Initialize the ViewPager and set an adapter
+        ViewPager pager = (ViewPager) findViewById(R.id.viewpager);
+        pager.setOffscreenPageLimit(2);
+        pager.setAdapter(new ViewPagerAdapter(mContext, getSupportFragmentManager()));
+
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(pager);
+    }
+
+    private void setupSearchBar(){
         // Setup search container view
         mSearchContainer = new LinearLayout(this);
         Toolbar.LayoutParams containerParams =
@@ -166,15 +180,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Add search view to toolbar and hide it
         mSearchContainer.setVisibility(View.GONE);
-        toolbar.addView(mSearchContainer);
-
-        // Initialize the ViewPager and set an adapter
-        ViewPager pager = (ViewPager) findViewById(R.id.viewpager);
-        pager.setOffscreenPageLimit(2);
-        pager.setAdapter(new ViewPagerAdapter(mContext, getSupportFragmentManager()));
-
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(pager);
+        mToolbar.addView(mSearchContainer);
     }
 
     @Override
@@ -217,7 +223,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void switchView(String stopID, String stopName)
+    private void switchView(String stopID, String stopName)
     {
         Intent intent = new Intent(this, StopActivity.class);
         intent.putExtra(ARG_STOPID, stopID);
@@ -225,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    public String loadJSONFromAsset() {
+    private String loadJSONFromAsset() {
         // Loads the MTDStops.json file and returns it as a string
         String json = null;
         try {
@@ -243,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
         return json;
     }
 
-    public void displaySearchView(boolean visible) {
+    private void displaySearchView(boolean visible) {
         if (visible) {
             // Hide search button, display EditText
             mSearchItem.setVisible(false);

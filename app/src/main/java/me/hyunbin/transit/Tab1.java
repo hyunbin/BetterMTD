@@ -43,8 +43,10 @@ public class Tab1 extends Fragment {
         View v = inflater.inflate(R.layout.tab_1,container,false);
         mContext = getActivity().getApplicationContext();
 
-        // Sets animator to RecyclerView
         mRecyclerView = (RecyclerView) v.findViewById(R.id.favorites_view);
+        mRecyclerView.setHasFixedSize(true);
+
+        // Sets animator to RecyclerView
         mRecyclerView.setItemAnimator(new FadeInAnimator());
         mRecyclerView.getItemAnimator().setAddDuration(200);
         mRecyclerView.getItemAnimator().setRemoveDuration(100);
@@ -127,6 +129,7 @@ public class Tab1 extends Fragment {
                 refreshAdapter();
             }
             else{
+                mTextView.setText("Network error :c");
                 mTextView.setVisibility(View.VISIBLE);
             }
         }
