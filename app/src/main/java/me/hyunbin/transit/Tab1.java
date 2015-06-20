@@ -126,10 +126,10 @@ public class Tab1 extends Fragment {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             if(mFavoritesList.size() != 0){
+                mTextView.setVisibility(View.GONE);
                 refreshAdapter();
             }
             else{
-                mTextView.setText("Network error :c");
                 mTextView.setVisibility(View.VISIBLE);
             }
         }
