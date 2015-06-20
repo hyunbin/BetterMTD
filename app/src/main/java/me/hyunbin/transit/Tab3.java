@@ -40,6 +40,10 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         GoogleApiClient.OnConnectionFailedListener {
 
     private static final String TAG = Tab3.class.getSimpleName();
+
+    private static final int REQUEST_RESOLVE_ERROR = 1000;
+    private boolean mResolvingError = false;
+
     private static final String TAG_STOPS = "stops";
     private static final String TAG_STOPID = "stop_id";
     private static final String TAG_STOPNAME = "stop_name";
@@ -64,6 +68,19 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
     private long mLastRefreshTime;
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Begin Google Play Services location service
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View v =inflater.inflate(R.layout.tab_3,container,false);
@@ -81,13 +98,6 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(layoutManager);
-
-        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
-        mGoogleApiClient.connect();
 
         // Populates parameters with key information
         mParams = new ArrayList<NameValuePair>();
