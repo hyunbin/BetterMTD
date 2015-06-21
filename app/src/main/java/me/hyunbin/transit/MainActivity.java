@@ -1,5 +1,7 @@
 package me.hyunbin.transit;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -7,11 +9,14 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.animation.FastOutLinearInInterpolator;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -22,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -253,7 +259,25 @@ public class MainActivity extends AppCompatActivity {
         if (visible) {
             // Hide search button, display EditText
             mSearchItem.setVisible(false);
-            mSearchContainer.setVisibility(View.VISIBLE);
+
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+
+                final float scale = getResources().getDisplayMetrics().density;
+                int cx = mToolbar.getRight() - (int) (24 * scale + 0.5f);
+                int cy = mToolbar.getTop() + (int) (24 * scale + 0.5f);
+
+                // get the final radius for the clipping circle
+                int finalRadius = Math.max(mToolbar.getWidth(), mToolbar.getHeight());
+
+                // create the animator for this view (the start radius is zero)
+                Animator anim = ViewAnimationUtils.createCircularReveal(mSearchContainer, cx, cy, 0, finalRadius);
+                anim.setInterpolator(new FastOutSlowInInterpolator());
+
+                // Start animation
+                mSearchContainer.setVisibility(View.VISIBLE);
+                anim.start();
+            } else
+                mSearchContainer.setVisibility(View.VISIBLE);
 
             // Shift focus to the search EditText
             mTextView.requestFocus();
@@ -269,21 +293,52 @@ public class MainActivity extends AppCompatActivity {
             }, 200);
 
         } else {
-            // Hide the EditText and put the search button back on the Toolbar.
-            // This sometimes fails when it isn't postDelayed(), don't know why.
-            mTextView.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mTextView.setText("");
-                    mSearchContainer.setVisibility(View.GONE);
-                    mSearchItem.setVisible(true);
-                }
-            }, 200);
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
+                // get the center for the clipping circle
+                int cx = (mSearchClearButton.getLeft() + mSearchClearButton.getRight()) / 2;
+                int cy = (mSearchClearButton.getTop() + mSearchClearButton.getBottom()) / 2;
 
-            // Hide the keyboard because the search box has been hidden
-            InputMethodManager imm =
-                    (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(mTextView.getWindowToken(), 0);
+                // get the initial radius for the clipping circle
+                int initialRadius = mToolbar.getWidth();
+
+                // create the animation (the final radius is zero)
+                Animator anim = ViewAnimationUtils.createCircularReveal(mSearchContainer, cx, cy, initialRadius, 0);
+                anim.setInterpolator(new FastOutSlowInInterpolator());
+
+                // make the view invisible when the animation is done
+                anim.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        mTextView.setText("");
+
+                        mSearchContainer.setVisibility(View.GONE);
+                        mSearchItem.setVisible(true);
+
+                        // Hide the keyboard because the search box has been hidden
+                        InputMethodManager imm =
+                                (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(mTextView.getWindowToken(), 0);
+                    }
+                });
+                anim.start();
+            } else{
+                // Hide the EditText and put the search button back on the Toolbar.
+                // This sometimes fails when it isn't postDelayed(), don't know why.
+                mTextView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        mTextView.setText("");
+                        mSearchContainer.setVisibility(View.GONE);
+                        mSearchItem.setVisible(true);
+                    }
+                }, 200);
+
+                // Hide the keyboard because the search box has been hidden
+                InputMethodManager imm =
+                        (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(mTextView.getWindowToken(), 0);
+            }
         }
     }
 
