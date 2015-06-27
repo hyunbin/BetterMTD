@@ -15,7 +15,6 @@ import android.os.Handler;
 import android.os.SystemClock;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -261,7 +260,6 @@ public class MainActivity extends AppCompatActivity {
             mSearchItem.setVisible(false);
 
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
-
                 final float scale = getResources().getDisplayMetrics().density;
                 int cx = mToolbar.getRight() - (int) (24 * scale + 0.5f);
                 int cy = mToolbar.getTop() + (int) (24 * scale + 0.5f);
@@ -291,7 +289,6 @@ public class MainActivity extends AppCompatActivity {
                             SystemClock.uptimeMillis(), MotionEvent.ACTION_UP, 0, 0, 0));
                 }
             }, 200);
-
         } else {
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP){
                 // get the center for the clipping circle
