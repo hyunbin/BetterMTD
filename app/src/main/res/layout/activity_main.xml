@@ -1,6 +1,4 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card="http://schemas.android.com/apk/res-auto"
-    xmlns:custom="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical">
@@ -17,6 +15,8 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:contentInsetStart="16dp"
+            android:contentInsetEnd="16dp"
             android:background="@color/primary"
             android:theme="@style/ThemeOverlay.AppCompat.Dark"
             app:titleTextAppearance="@style/ToolbarTitle" />
