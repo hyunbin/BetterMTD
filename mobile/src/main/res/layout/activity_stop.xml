@@ -11,7 +11,7 @@
         android:id="@+id/toolbar"
         layout="@layout/toolbar"> </include>
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <me.hyunbin.transit.BetterSwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -23,10 +23,10 @@
             android:scrollbars="vertical"
             tools:context=".StopActivity" />
 
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </me.hyunbin.transit.BetterSwipeRefreshLayout>
 
 
-    <android.support.v4.widget.SwipeRefreshLayout
+    <me.hyunbin.transit.BetterSwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout_emptyView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -44,6 +44,6 @@
                 android:gravity="center" />
 
         </ScrollView>
-    </android.support.v4.widget.SwipeRefreshLayout>
+    </me.hyunbin.transit.BetterSwipeRefreshLayout>
 
 </LinearLayout>
