@@ -90,6 +90,10 @@ public class MainActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(pager);
+
+        // Retrofit Example
+        RestClient restClient = new RestClient();
+        restClient.getStopsByLatLon(40.1109948, -88.2203593, 20);
     }
 
     private void setupSearchBar(){
