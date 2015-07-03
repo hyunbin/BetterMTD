@@ -71,10 +71,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Initialize Crashlytics
-        if (!BuildConfig.DEBUG) Fabric.with(this, new Crashlytics());
-        else Log.e(TAG, "**In Debug mode, Crashlytics is disabled**");
-
         setContentView(R.layout.activity_main);
         mContext = getApplicationContext();
 
@@ -94,6 +90,10 @@ public class MainActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(pager);
+
+        // Retrofit Example
+        RestClient restClient = new RestClient();
+        restClient.getStopsByLatLon(40.1109948, -88.2203593, 20);
     }
 
     private void setupSearchBar(){

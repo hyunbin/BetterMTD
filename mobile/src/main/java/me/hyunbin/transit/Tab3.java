@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+import retrofit.RestAdapter;
 
 /**
  * Created by Hyunbin on 3/9/15.
@@ -127,23 +128,6 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         Log.d(TAG, "onStart called");
         if (!mResolvingError) {
             mGoogleApiClient.connect();
-        }
-    }
-
-    private void startParsing(Location location) {
-        // Re-initialize parameters
-        mParams = new ArrayList<NameValuePair>();
-        mParams.add(new BasicNameValuePair("key", "***REMOVED***"));
-
-        if (location != null) {
-            onErrorStatusChanged(NO_ERROR);
-            // Populates parameters with lat/lon information
-            mParams.add(new BasicNameValuePair("lat", String.valueOf(location.getLatitude())));
-            mParams.add(new BasicNameValuePair("lon", String.valueOf(location.getLongitude())));
-            new ParseLocationRequest().execute();
-        }
-        else{
-            onErrorStatusChanged(ERROR_LOCATION);
         }
     }
 
@@ -247,6 +231,23 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
             mGoogleApiClient.disconnect();
         }
         super.onStop();
+    }
+
+    private void startParsing(Location location) {
+        // Re-initialize parameters
+        mParams = new ArrayList<NameValuePair>();
+        mParams.add(new BasicNameValuePair("key", "***REMOVED***"));
+
+        if (location != null) {
+            onErrorStatusChanged(NO_ERROR);
+            // Populates parameters with lat/lon information
+            mParams.add(new BasicNameValuePair("lat", String.valueOf(location.getLatitude())));
+            mParams.add(new BasicNameValuePair("lon", String.valueOf(location.getLongitude())));
+            new ParseLocationRequest().execute();
+        }
+        else{
+            onErrorStatusChanged(ERROR_LOCATION);
+        }
     }
 
     @Override
