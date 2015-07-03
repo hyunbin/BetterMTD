@@ -4,6 +4,9 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import me.hyunbin.transit.fragments.FavoritesFragment;
+import me.hyunbin.transit.fragments.NearMeFragment;
+
 /**
  * Created by Hyunbin on 3/9/15.
  * Adapted with liberty from http://www.android4devs.com/2015/01/how-to-make-material-design-sliding-tabs.html
@@ -28,13 +31,13 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
         if(position == 0) // if the position is 0 we are returning the First tab
         {
-            Tab1 tab1 = new Tab1();
-            return tab1;
+            FavoritesFragment favoritesFragment = new FavoritesFragment();
+            return favoritesFragment;
         }
         else if(position==1)            // As we are having 2 tabs if the position is now 0 it must be 1 so we are returning second tab
         {
-            Tab3 tab3 = new Tab3();
-            return tab3;
+            NearMeFragment nearMeFragment = new NearMeFragment();
+            return nearMeFragment;
         }
         return null;
     }

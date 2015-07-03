@@ -1,18 +1,15 @@
-package me.hyunbin.transit;
+package me.hyunbin.transit.fragments;
 
 import android.content.Context;
 import android.content.IntentSender;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -23,26 +20,26 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+import me.hyunbin.transit.R;
+import me.hyunbin.transit.RestClient;
+import me.hyunbin.transit.adapters.NearMeAdapter;
+import me.hyunbin.transit.models.Stop;
+import me.hyunbin.transit.models.StopsByLatLonResponse;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
 
 /**
  * Created by Hyunbin on 3/9/15.
  */
 
-public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallbacks,
+public class NearMeFragment extends Fragment implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    private static final String TAG = Tab3.class.getSimpleName();
+    private static final String TAG = NearMeFragment.class.getSimpleName();
 
     private static final int REQUEST_RESOLVE_ERROR = 9000;
     private boolean mResolvingError = false;
@@ -50,24 +47,15 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
     private static int ERROR_NETWORK = 1;
     private static int ERROR_LOCATION = 2;
 
-    private static final String TAG_STOPS = "stops";
-    private static final String TAG_STOPID = "stop_id";
-    private static final String TAG_STOPNAME = "stop_name";
-    private static final String TAG_DISTANCE = "distance";
-
     private RecyclerView mRecyclerView;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+    private RestClient mRestClient;
+    private Callback<StopsByLatLonResponse> mCallback;
     private Context mContext;
     private Location mLastLocation;
     private TextView mTextView;
     private NearMeAdapter mAdapter;
-
-    ArrayList<HashMap<String, String>> mStopsList;
-
-    private String mBaseUrl = "https://developer.cumtd.com/api/v2.2/json/GetStopsByLatLon";
-    public List<NameValuePair> mParams;
-    JSONArray mStopsArray = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -95,9 +83,25 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View v =inflater.inflate(R.layout.tab_3,container,false);
-
+        View v =inflater.inflate(R.layout.fragment_nearme,container,false);
         mContext = getActivity().getApplicationContext();
+
+        // Initialize Retrofit client and callback response
+        mRestClient = new RestClient();
+        mCallback = new Callback<StopsByLatLonResponse>(){
+            @Override
+            public void success(StopsByLatLonResponse responseObject, Response response) {
+                Log.d(TAG, "Retrofit success!");
+                List<Stop> stopList = responseObject.getStops();
+                refreshAdapter(stopList);
+            }
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d(TAG, "Retrofit Error: " + error.toString());
+                onErrorStatusChanged(ERROR_NETWORK);
+            }
+        };
+
         mRecyclerView = (RecyclerView) v.findViewById(R.id.near_me_view);
         mRecyclerView.setHasFixedSize(true);
 
@@ -114,10 +118,6 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(layoutManager);
 
-        // Populates parameters with key information
-        mParams = new ArrayList<NameValuePair>();
-        mParams.add(new BasicNameValuePair("key", "***REMOVED***"));
-
         return v;
     }
 
@@ -127,23 +127,6 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         Log.d(TAG, "onStart called");
         if (!mResolvingError) {
             mGoogleApiClient.connect();
-        }
-    }
-
-    private void startParsing(Location location) {
-        // Re-initialize parameters
-        mParams = new ArrayList<NameValuePair>();
-        mParams.add(new BasicNameValuePair("key", "***REMOVED***"));
-
-        if (location != null) {
-            onErrorStatusChanged(NO_ERROR);
-            // Populates parameters with lat/lon information
-            mParams.add(new BasicNameValuePair("lat", String.valueOf(location.getLatitude())));
-            mParams.add(new BasicNameValuePair("lon", String.valueOf(location.getLongitude())));
-            new ParseLocationRequest().execute();
-        }
-        else{
-            onErrorStatusChanged(ERROR_LOCATION);
         }
     }
 
@@ -207,19 +190,6 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         Log.d(TAG, "Connection suspended to Google Play Services");
     }
 
-    public void refreshAdapter(){
-        // Either sets an adapter if none has been initialized, or makes appropriate calls to
-        // enable animations in the RecyclerView.
-        if(mAdapter == null) {
-            mAdapter = new NearMeAdapter(mContext, mStopsList);
-            mRecyclerView.setAdapter(mAdapter);
-            mAdapter.notifyItemRangeInserted(0, mAdapter.getItemCount() - 1);
-        }
-        else if(mAdapter != null) {
-            mAdapter.addAllItems(mStopsList);
-        }
-    }
-
     @Override
     public void onPause() {
         super.onPause();
@@ -254,61 +224,33 @@ public class Tab3 extends Fragment implements GoogleApiClient.ConnectionCallback
         startParsing(location);
     }
 
-    private class ParseLocationRequest extends AsyncTask<Void, Void, Void>
-    {
-        protected void onPreExecute()
-        {
-            super.onPreExecute();
-            // Re-initializes the arraylist to clear any previously stored information
-            mStopsList = new ArrayList<HashMap<String, String>>();
-            if(mAdapter != null){
-                mAdapter.removeAllItems();
-            }
+    private void startParsing(Location location) {
+        if (location != null) {
+            onErrorStatusChanged(NO_ERROR);
+            // Populates parameters with lat/lon information
+            double lat = location.getLatitude();
+            double lon = location.getLongitude();
+            sendDataRequest(lat, lon);
         }
-
-        protected Void doInBackground(Void ... arg0) {
-            ServiceHandler sh = new ServiceHandler();
-            String jsonStr = sh.makeServiceCall(mBaseUrl, mParams);
-
-            try {
-                if (jsonStr != null) {
-                    // Get JSON Object from string in ServiceHandler response
-                    JSONObject jsonObj = new JSONObject(jsonStr);
-                    mStopsArray = jsonObj.getJSONArray(TAG_STOPS);
-
-                    // Parses through JSON array to populate HashMap / ArrayLists
-                    for (int i = 0; i < mStopsArray.length(); i++) {
-                        JSONObject c = mStopsArray.getJSONObject(i);
-
-                        String stopID = c.getString(TAG_STOPID);
-                        String stopName = c.getString(TAG_STOPNAME);
-                        String distance = c.getString(TAG_DISTANCE);
-
-                        HashMap<String, String> stop = new HashMap<String, String>();
-
-                        stop.put(TAG_STOPID, stopID);
-                        stop.put(TAG_STOPNAME, stopName);
-                        stop.put(TAG_DISTANCE, distance);
-
-                        mStopsList.add(stop);
-                    }
-                }
-            }
-            catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            refreshAdapter();
-            if(mStopsArray == null) {
-                onErrorStatusChanged(ERROR_NETWORK);
-            }
-            else{
-                onErrorStatusChanged(NO_ERROR);
-            }
+        else{
+            onErrorStatusChanged(ERROR_LOCATION);
         }
     }
+
+    private void sendDataRequest(double lat, double lon){
+        mRestClient.getStopsByLatLon(lat, lon, mCallback);
+    }
+
+    private void refreshAdapter(List<Stop> data){
+        // Either sets an adapter if none has been initialized, or makes appropriate calls to
+        // enable animations in the RecyclerView.
+        mAdapter = new NearMeAdapter(data);
+        if(mAdapter == null) {
+            mRecyclerView.setAdapter(mAdapter);
+        }
+        else if(mAdapter != null) {
+            mRecyclerView.swapAdapter(mAdapter, false);
+        }
+    }
+
 }

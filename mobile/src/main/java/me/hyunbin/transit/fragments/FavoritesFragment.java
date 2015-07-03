@@ -1,4 +1,4 @@
-package me.hyunbin.transit;
+package me.hyunbin.transit.fragments;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -20,14 +20,16 @@ import java.util.Iterator;
 import java.util.Map;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+import me.hyunbin.transit.FavoritesAdapter;
+import me.hyunbin.transit.R;
 
 /**
  * Created by Hyunbin on 3/9/15.
  */
 
-public class Tab1 extends Fragment {
+public class FavoritesFragment extends Fragment {
 
-    private static final String TAG = Tab1.class.getSimpleName();
+    private static final String TAG = FavoritesFragment.class.getSimpleName();
 
     private RecyclerView mRecyclerView;
     private Context mContext;
@@ -40,7 +42,7 @@ public class Tab1 extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.tab_1,container,false);
+        View v = inflater.inflate(R.layout.fragment_favorites,container,false);
         mContext = getActivity().getApplicationContext();
 
         mRecyclerView = (RecyclerView) v.findViewById(R.id.favorites_view);

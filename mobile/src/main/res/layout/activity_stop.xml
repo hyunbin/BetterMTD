@@ -25,7 +25,6 @@
 
     </me.hyunbin.transit.BetterSwipeRefreshLayout>
 
-
     <me.hyunbin.transit.BetterSwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout_emptyView"
         android:layout_width="match_parent"

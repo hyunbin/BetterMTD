@@ -71,10 +71,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Initialize Crashlytics
-        if (!BuildConfig.DEBUG) Fabric.with(this, new Crashlytics());
-        else Log.e(TAG, "**In Debug mode, Crashlytics is disabled**");
-
         setContentView(R.layout.activity_main);
         mContext = getApplicationContext();
 
@@ -135,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
         mTextView.setSingleLine(true);
         mTextView.setHint("Search bus stops");
         mTextView.setHintTextColor(Color.parseColor("#b3ffffff"));
-        ((LinearLayout) mSearchContainer).addView(mTextView);
+        mSearchContainer.addView(mTextView);
 
         try {
             // Set cursor colour to white using the custom cursor.xml file
@@ -153,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
                 for(HashMap<String,String> curItem : mHash)
                 {
                     if(curItem.get(searchFor) != null){
-                        switchView(curItem.get(searchFor).toString(), searchFor);
+                        switchView(curItem.get(searchFor), searchFor);
                     }
                 }
             }
@@ -238,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
 
     private String loadJSONFromAsset() {
         // Loads the MTDStops.json file and returns it as a string
-        String json = null;
+        String json;
         try {
             InputStream is = mContext.getAssets().open("MTDStops.json");
             int size = is.available();
