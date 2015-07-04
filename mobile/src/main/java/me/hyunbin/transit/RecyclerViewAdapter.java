@@ -172,13 +172,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter
     }
 
     public final static class ListItemViewHolder extends RecyclerView.ViewHolder {
-        TextView headSign;
-        TextView expectedMins;
-        TextView subText;
-        TextView minsLabel;
-        RelativeLayout listItem;
-        View mRootView;
-        ImageView iStopView;
+        private TextView headSign;
+        private TextView expectedMins;
+        private TextView subText;
+        private TextView minsLabel;
+        private RelativeLayout listItem;
+        private View mRootView;
+        private ImageView iStopView;
 
         public ListItemViewHolder(View itemView) {
             super(itemView);

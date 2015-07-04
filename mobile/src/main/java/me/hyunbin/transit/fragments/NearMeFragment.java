@@ -244,11 +244,12 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
     private void refreshAdapter(List<Stop> data){
         // Either sets an adapter if none has been initialized, or makes appropriate calls to
         // enable animations in the RecyclerView.
-        mAdapter = new NearMeAdapter(data);
         if(mAdapter == null) {
+            mAdapter = new NearMeAdapter(data);
             mRecyclerView.setAdapter(mAdapter);
         }
-        else if(mAdapter != null) {
+        else {
+            mAdapter = new NearMeAdapter(data);
             mRecyclerView.swapAdapter(mAdapter, false);
         }
     }

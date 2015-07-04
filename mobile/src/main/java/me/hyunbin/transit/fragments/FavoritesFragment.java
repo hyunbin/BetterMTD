@@ -20,7 +20,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
-import me.hyunbin.transit.FavoritesAdapter;
+import me.hyunbin.transit.adapters.FavoritesAdapter;
 import me.hyunbin.transit.R;
 
 /**
@@ -65,17 +65,23 @@ public class FavoritesFragment extends Fragment {
         return v;
     }
 
+    @Override
+    public void onStart(){
+        super.onStart();
+        new ParseFavoritesRequest().execute();
+    }
+
     public void refreshAdapter(){
         /* Either sets an adapter if none has been initialized, or makes appropriate calls to
         enable animations in the RecyclerView. */
-        if(mAdapter ==null)
+        if(mAdapter == null)
         {
-            mAdapter = new FavoritesAdapter(mContext, mFavoritesList);
+            mAdapter = new FavoritesAdapter(mFavoritesList);
             mRecyclerView.setAdapter(mAdapter);
-            mAdapter.notifyItemRangeInserted(0, mAdapter.getItemCount()-1);
         }
-        else if(mAdapter !=null) {
-            mAdapter.addAllItems(mFavoritesList);
+        else {
+            mAdapter = new FavoritesAdapter(mFavoritesList);
+            mRecyclerView.swapAdapter(mAdapter, false);
         }
     }
 
@@ -89,12 +95,6 @@ public class FavoritesFragment extends Fragment {
             return res;
         }
     };
-
-    @Override
-    public void onStart(){
-        super.onStart();
-        new ParseFavoritesRequest().execute();
-    }
 
     private class ParseFavoritesRequest extends AsyncTask<Void, Void, Void>
     {

@@ -8,6 +8,7 @@ import com.google.gson.GsonBuilder;
 
 import java.util.List;
 
+import me.hyunbin.transit.models.DeparturesByStopResponse;
 import me.hyunbin.transit.models.Stop;
 import me.hyunbin.transit.models.StopsByLatLonResponse;
 import retrofit.Callback;
@@ -42,7 +43,10 @@ public class RestClient {
     }
 
     public void getStopsByLatLon(double lat, double lon, Callback<StopsByLatLonResponse> callback){
-
         mApiService.getStopsByLatLon(lat, lon, 20, callback);
+    }
+
+    public void getDeparturesByStop(String stopId, Callback<DeparturesByStopResponse> callback){
+        mApiService.getDeparturesByStop(stopId, callback);
     }
 }

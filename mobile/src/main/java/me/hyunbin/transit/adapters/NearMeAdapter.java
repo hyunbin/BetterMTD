@@ -14,7 +14,6 @@ import me.hyunbin.transit.MainActivity;
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.StopActivity;
 import me.hyunbin.transit.models.Stop;
-import me.hyunbin.transit.models.StopsByLatLonResponse;
 
 /**
  * Created by Hyunbin on 7/3/2015.
@@ -49,16 +48,16 @@ public class NearMeAdapter extends RecyclerView.Adapter
     @Override
     public void onBindViewHolder(ListItemViewHolder holder, int position) {
         final Stop stop = mData.get(position);
-        holder.stopName.setText(stop.getStopName());
+        holder.mStopNameTextView.setText(stop.getStopName());
 
         String distance;
         double test = stop.getDistance() * 0.000189394;
         if(test >= 0.11){
             distance = new DecimalFormat("#0.00").format(test);
-            holder.distanceView.setText(distance + " mi");
+            holder.mDistanceTextView.setText(distance + " mi");
         }
         else{
-            holder.distanceView.setText(stop.getDistance() + " ft");
+            holder.mDistanceTextView.setText(stop.getDistance() + " ft");
         }
         holder.mRootView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -77,14 +76,14 @@ public class NearMeAdapter extends RecyclerView.Adapter
     }
 
     public final static class ListItemViewHolder extends RecyclerView.ViewHolder {
-        TextView stopName;
-        TextView distanceView;
-        View mRootView;
+        private TextView mStopNameTextView;
+        private TextView mDistanceTextView;
+        private View mRootView;
 
         public ListItemViewHolder(View itemView) {
             super(itemView);
-            stopName = (TextView) itemView.findViewById(R.id.stopName);
-            distanceView = (TextView) itemView.findViewById(R.id.distanceView);
+            mStopNameTextView = (TextView) itemView.findViewById(R.id.stopName);
+            mDistanceTextView = (TextView) itemView.findViewById(R.id.distanceView);
             mRootView = itemView.findViewById(R.id.ripple);
         }
     }

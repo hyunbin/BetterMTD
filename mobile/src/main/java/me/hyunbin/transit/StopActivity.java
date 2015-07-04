@@ -175,7 +175,7 @@ public class StopActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        // Inflate the menu; this adds mData to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_stop, menu);
         // Updates favorites icon based on state (either filled or outline)
         if(favorites.getString(stop, "nope") == "nope"){
@@ -219,13 +219,6 @@ public class StopActivity extends AppCompatActivity {
 
     void showSnack(String message){
         // Dismisses the Snackbar being shown, if any, and displays the new one
-
-        /*
-        SnackbarManager.show(Snackbar.with(this)
-                .duration(Snackbar.SnackbarDuration.LENGTH_SHORT)
-                .text(message));
-        */
-
         if(swipeLayout.getVisibility() == View.VISIBLE){
             Snackbar.make(swipeLayout, message, Snackbar.LENGTH_SHORT).show();
         }
@@ -266,7 +259,6 @@ public class StopActivity extends AppCompatActivity {
             });
             new HTTPStopRequest().execute();
         }
-
     }
 
     public void setNothingHere(boolean b){
@@ -291,7 +283,7 @@ public class StopActivity extends AppCompatActivity {
     final Runnable updateTask=new Runnable() {
         @Override
         public void run() {
-            // A runnable task to refresh items at a predetermined interval
+            // A runnable task to refresh mData at a predetermined interval
             refreshItems();
             handler.postDelayed(updateTask, updateInterval);
         }
