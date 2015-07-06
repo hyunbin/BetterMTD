@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-import me.hyunbin.transit.DetailActivity;
+import me.hyunbin.transit.activities.StopTimesActivity;
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.models.Departure;
 
@@ -40,12 +40,10 @@ public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ListItemView
 
     @Override
     public long getItemId(int position){
-        long id = mData.get(position).getHeadsign().hashCode();
+        long id = mData.get(position).getHeadsign().hashCode() * 10000;
         String subId = mData.get(position).getVehicleId();
-        if(subId != "null")
-            id = id*10000 + Long.parseLong(subId);
-        else
-            id = id*10000;
+        if(subId != null)
+            id = id + Long.parseLong(subId);
         return id;
     }
 
@@ -57,7 +55,7 @@ public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ListItemView
     @Override
     public ListItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item, parent, false);
+                .inflate(R.layout.item_stop, parent, false);
         return new ListItemViewHolder(itemView);
     }
 
@@ -103,7 +101,7 @@ public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ListItemView
             @Override
             public void onClick(View v) {
                 if(departure.getTrip() != null){
-                    Intent intent = new Intent(v.getContext(), DetailActivity.class);
+                    Intent intent = new Intent(v.getContext(), StopTimesActivity.class);
                     intent.putExtra(ARG_TRIPID, departure.getTrip().getTripId());
                     intent.putExtra(ARG_HEADSIGN, departure.getHeadsign());
                     intent.putExtra("current_stop", mCurrentStopName);

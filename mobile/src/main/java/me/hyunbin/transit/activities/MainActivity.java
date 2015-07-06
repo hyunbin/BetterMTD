@@ -1,4 +1,4 @@
-package me.hyunbin.transit;
+package me.hyunbin.transit.activities;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -18,7 +18,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
@@ -36,8 +35,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.crashlytics.android.Crashlytics;
-import io.fabric.sdk.android.Fabric;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,6 +44,9 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import me.hyunbin.transit.R;
+import me.hyunbin.transit.ViewPagerAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -226,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void switchView(String stopID, String stopName)
     {
-        Intent intent = new Intent(this, StopActivity.class);
+        Intent intent = new Intent(this, StopsActivity.class);
         intent.putExtra(ARG_STOPID, stopID);
         intent.putExtra(ARG_STOPNAME, stopName);
         startActivity(intent);

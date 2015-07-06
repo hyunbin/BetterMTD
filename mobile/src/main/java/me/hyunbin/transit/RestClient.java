@@ -10,6 +10,7 @@ import java.util.List;
 
 import me.hyunbin.transit.models.DeparturesByStopResponse;
 import me.hyunbin.transit.models.Stop;
+import me.hyunbin.transit.models.StopTimesByTripResponse;
 import me.hyunbin.transit.models.StopsByLatLonResponse;
 import retrofit.Callback;
 import retrofit.RestAdapter;
@@ -48,5 +49,9 @@ public class RestClient {
 
     public void getDeparturesByStop(String stopId, Callback<DeparturesByStopResponse> callback){
         mApiService.getDeparturesByStop(stopId, callback);
+    }
+
+    public void getStopTimesByTrip(String tripId, Callback<StopTimesByTripResponse> callback){
+        mApiService.getStopTimesByTrip(tripId, callback);
     }
 }

@@ -1,4 +1,4 @@
-package me.hyunbin.transit;
+package me.hyunbin.transit.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,6 +20,8 @@ import android.widget.Toast;
 import java.util.List;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+import me.hyunbin.transit.R;
+import me.hyunbin.transit.RestClient;
 import me.hyunbin.transit.adapters.StopsAdapter;
 import me.hyunbin.transit.models.Departure;
 import me.hyunbin.transit.models.DeparturesByStopResponse;
@@ -27,9 +29,9 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class StopActivity extends AppCompatActivity {
+public class StopsActivity extends AppCompatActivity {
 
-    private static final String TAG = StopActivity.class.getSimpleName();
+    private static final String TAG = StopsActivity.class.getSimpleName();
     private static int NO_ERROR = 0;
     private static int ERROR_NETWORK = 1;
     private static int ERROR_EMPTY_RESPONSE = 2;
@@ -55,7 +57,7 @@ public class StopActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_stop);
+        setContentView(R.layout.activity_stops);
 
         Intent intent = getIntent();
         mStopString = intent.getStringExtra(MainActivity.ARG_STOPID);

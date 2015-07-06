@@ -10,9 +10,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import me.hyunbin.transit.MainActivity;
+import me.hyunbin.transit.activities.MainActivity;
 import me.hyunbin.transit.R;
-import me.hyunbin.transit.StopActivity;
+import me.hyunbin.transit.activities.StopsActivity;
 
 
 /**
@@ -40,7 +40,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter
     @Override
     public ListItemViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View itemView = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.favorites_stop, viewGroup, false);
+                .inflate(R.layout.item_favorite, viewGroup, false);
         return new ListItemViewHolder(itemView);
     }
 
@@ -52,7 +52,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter
         viewHolder.mRootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), StopActivity.class);
+                Intent intent = new Intent(v.getContext(), StopsActivity.class);
                 intent.putExtra(MainActivity.ARG_STOPID, model.get("stop_id"));
                 intent.putExtra(MainActivity.ARG_STOPNAME, model.get("stop_name"));
                 v.getContext().startActivity(intent);
