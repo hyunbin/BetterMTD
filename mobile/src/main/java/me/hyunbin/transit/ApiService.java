@@ -31,5 +31,4 @@ public interface ApiService {
             @Query("stop_id") String stopId,
             Callback<DeparturesByStopResponse> callback
     );
-
 }

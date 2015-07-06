@@ -33,7 +33,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter
 
     @Override
     public long getItemId(int position){
-        long id = mData.get(position).get(MainActivity.ARG_STOPID).hashCode();
+        long id = mData.get(position).get("stop_id").hashCode();
         return id;
     }
 
@@ -63,13 +63,6 @@ public class FavoritesAdapter extends RecyclerView.Adapter
     @Override
     public int getItemCount() {
         return mData.size();
-    }
-
-    public void addAllItems(ArrayList<HashMap<String, String>> newItems){
-        for(int n = 0 ; n < newItems.size() ; n++) {
-            mData.add(newItems.get(n));
-        }
-        notifyItemRangeInserted(0, newItems.size() - 1);
     }
 
     public void removeAllItems() {

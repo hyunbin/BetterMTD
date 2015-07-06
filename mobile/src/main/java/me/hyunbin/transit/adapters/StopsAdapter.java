@@ -49,7 +49,6 @@ public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ListItemView
         return id;
     }
 
-
     @Override
     public void onAttachedToRecyclerView(RecyclerView view){
         mParentRecyclerView = view;
@@ -67,10 +66,10 @@ public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ListItemView
         final Departure departure = mData.get(position);
 
         holder.mHeadSignTextView.setText(departure.getHeadsign());
-        holder.mExpectedMinsTextView.setText(departure.getExpectedMins());
+        holder.mExpectedMinsTextView.setText(departure.getExpectedMins() + "");
 
         String headSignFrag = "";
-        if(departure.getTrip().getTripHeadsign() != null)
+        if(departure.getTrip() != null)
             headSignFrag = "To " + departure.getTrip().getTripHeadsign();
         holder.mSubTextView.setText(headSignFrag);
 
@@ -103,10 +102,10 @@ public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ListItemView
         holder.mRootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(departure.getTrip().getTripHeadsign() != null){
+                if(departure.getTrip() != null){
                     Intent intent = new Intent(v.getContext(), DetailActivity.class);
                     intent.putExtra(ARG_TRIPID, departure.getTrip().getTripId());
-                    intent.putExtra(ARG_HEADSIGN, departure.getTrip().getTripHeadsign());
+                    intent.putExtra(ARG_HEADSIGN, departure.getHeadsign());
                     intent.putExtra("current_stop", mCurrentStopName);
                     intent.putExtra("route_color", routeColor);
                     intent.putExtra("text_color", sRouteTextColor);

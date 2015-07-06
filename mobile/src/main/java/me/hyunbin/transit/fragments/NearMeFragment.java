@@ -84,7 +84,7 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View v =inflater.inflate(R.layout.fragment_nearme,container,false);
-        mContext = getActivity().getApplicationContext();
+        mContext = getActivity();
 
         // Initialize Retrofit client and callback response
         mRestClient = new RestClient();
@@ -242,8 +242,7 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private void refreshAdapter(List<Stop> data){
-        // Either sets an adapter if none has been initialized, or makes appropriate calls to
-        // enable animations in the RecyclerView.
+        // Either sets an adapter if none has been initialized, or swaps existing adapter.
         if(mAdapter == null) {
             mAdapter = new NearMeAdapter(data);
             mRecyclerView.setAdapter(mAdapter);
