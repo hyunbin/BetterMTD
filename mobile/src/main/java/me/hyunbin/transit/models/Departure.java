@@ -40,6 +40,14 @@ public class Departure {
     @Expose
     private Location location;
 
+    public long getUniqueId(){
+        long id = getHeadsign().hashCode() * 10000;
+        String subId = getVehicleId();
+        if(subId != null)
+            id = id + Long.parseLong(subId);
+        return id;
+    }
+
     /**
      *
      * @return

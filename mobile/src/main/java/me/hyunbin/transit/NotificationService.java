@@ -24,7 +24,7 @@ public class NotificationService extends IntentService {
 
     private static final String TAG = NotificationService.class.getSimpleName();
     private String mStopIdString;
-    private String mVehicleIdString;
+    private long mVehicleIdString;
     private RestClient mRestClient;
     private Callback<DeparturesByStopResponse> mCallback;
 
@@ -42,7 +42,7 @@ public class NotificationService extends IntentService {
                 Log.d(TAG, "Retrofit success!");
                 List<Departure> departures = departuresByStopResponse.getDepartures();
                 for (int i = 0; i < departures.size(); i++) {
-                    if(departures.get(i).getVehicleId().equals(mVehicleIdString)){
+                    if(departures.get(i).getUniqueId() == mVehicleIdString){
                         updateNotification(departures.get(i));
                         break;
                     }
@@ -73,7 +73,7 @@ public class NotificationService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         mStopIdString = intent.getStringExtra("current_stop");
-        mVehicleIdString = intent.getStringExtra("vehicle_id");
+        mVehicleIdString = intent.getLongExtra("unique_id", 0);
         mRestClient.getDeparturesByStop(mStopIdString, mCallback);
     }
 }

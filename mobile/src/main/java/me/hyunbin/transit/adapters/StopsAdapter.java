@@ -41,11 +41,7 @@ public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ListItemView
 
     @Override
     public long getItemId(int position){
-        long id = mData.get(position).getHeadsign().hashCode() * 10000;
-        String subId = mData.get(position).getVehicleId();
-        if(subId != null)
-            id = id + Long.parseLong(subId);
-        return id;
+        return mData.get(position).getUniqueId();
     }
 
     @Override
@@ -123,8 +119,7 @@ public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ListItemView
             public boolean onLongClick(View v) {
                 Intent intent = new Intent(v.getContext(), NotificationService.class);
                 intent.putExtra("current_stop", mCurrentStopId);
-                intent.putExtra("vehicle_id", departure.getVehicleId());
-                /* TODO @HyunbinTodo: ^ This vehicle id is probably not unique during a busy day */
+                intent.putExtra("unique_id", departure.getUniqueId());
                 v.getContext().startService(intent);
                 return true;
             }
