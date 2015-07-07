@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import me.hyunbin.transit.NotificationService;
 import me.hyunbin.transit.activities.StopTimesActivity;
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.models.Departure;
@@ -26,7 +27,7 @@ public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ListItemView
     private static final String ARG_HEADSIGN = "headsign";
 
     private List<Departure> mData;
-    private String mCurrentStopName;
+    private String mCurrentStopId;
     private RecyclerView mParentRecyclerView;
 
     public StopsAdapter(List<Departure> data, String currentStopName){
@@ -34,7 +35,7 @@ public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ListItemView
             throw new IllegalArgumentException("Adapter data must not be null");
         }
         this.mData = data;
-        this.mCurrentStopName = currentStopName;
+        this.mCurrentStopId = currentStopName;
         setHasStableIds(true);
     }
 
@@ -104,7 +105,7 @@ public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ListItemView
                     Intent intent = new Intent(v.getContext(), StopTimesActivity.class);
                     intent.putExtra(ARG_TRIPID, departure.getTrip().getTripId());
                     intent.putExtra(ARG_HEADSIGN, departure.getHeadsign());
-                    intent.putExtra("current_stop", mCurrentStopName);
+                    intent.putExtra("current_stop", mCurrentStopId);
                     intent.putExtra("route_color", routeColor);
                     intent.putExtra("text_color", sRouteTextColor);
                     v.getContext().startActivity(intent);
@@ -114,6 +115,18 @@ public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ListItemView
                     Snackbar.make(mParentRecyclerView, "This bus has no scheduled information",
                             Snackbar.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+        holder.mListItem.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                Intent intent = new Intent(v.getContext(), NotificationService.class);
+                intent.putExtra("current_stop", mCurrentStopId);
+                intent.putExtra("vehicle_id", departure.getVehicleId());
+                /* TODO @HyunbinTodo: ^ This vehicle id is probably not unique during a busy day */
+                v.getContext().startService(intent);
+                return true;
             }
         });
     }
