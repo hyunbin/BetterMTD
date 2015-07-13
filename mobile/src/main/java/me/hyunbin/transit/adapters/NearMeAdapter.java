@@ -12,7 +12,7 @@ import java.util.List;
 
 import me.hyunbin.transit.activities.MainActivity;
 import me.hyunbin.transit.R;
-import me.hyunbin.transit.activities.StopsActivity;
+import me.hyunbin.transit.activities.DeparturesActivity;
 import me.hyunbin.transit.models.Stop;
 
 /**
@@ -62,7 +62,7 @@ public class NearMeAdapter extends RecyclerView.Adapter
         holder.mRootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), StopsActivity.class);
+                Intent intent = new Intent(v.getContext(), DeparturesActivity.class);
                 intent.putExtra(MainActivity.ARG_STOPID, stop.getStopId());
                 intent.putExtra(MainActivity.ARG_STOPNAME, stop.getStopName());
                 v.getContext().startActivity(intent);

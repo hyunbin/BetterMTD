@@ -15,19 +15,19 @@ import java.util.List;
 
 import me.hyunbin.transit.activities.MainActivity;
 import me.hyunbin.transit.R;
-import me.hyunbin.transit.activities.StopsActivity;
+import me.hyunbin.transit.activities.DeparturesActivity;
 import me.hyunbin.transit.models.StopTime;
 
 /**
  * Created by Hyunbin on 7/6/2015.
  */
-public class StopTimesAdapter extends RecyclerView.Adapter<StopTimesAdapter.ListItemViewHolder> {
+public class RouteAdapter extends RecyclerView.Adapter<RouteAdapter.ListItemViewHolder> {
 
     private List<StopTime> mData;
     private DateFormat mInDateFormat;
     private DateFormat mOutDateFormat;
 
-    public StopTimesAdapter(List<StopTime> data){
+    public RouteAdapter(List<StopTime> data){
         if(data == null){
             throw new IllegalArgumentException("Adapter data must not be null");
         }
@@ -65,7 +65,7 @@ public class StopTimesAdapter extends RecyclerView.Adapter<StopTimesAdapter.List
         holder.mRootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), StopsActivity.class);
+                Intent intent = new Intent(v.getContext(), DeparturesActivity.class);
                 intent.putExtra(MainActivity.ARG_STOPID, stopTime.getStopPoint().getStopId().split(":", 2)[0]);
                 intent.putExtra(MainActivity.ARG_STOPNAME, stopTime.getStopPoint().getStopName().split("\\(", 2)[0]);
                 v.getContext().startActivity(intent);

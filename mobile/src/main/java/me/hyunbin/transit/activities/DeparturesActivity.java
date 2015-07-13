@@ -22,16 +22,16 @@ import java.util.List;
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.RestClient;
-import me.hyunbin.transit.adapters.StopsAdapter;
+import me.hyunbin.transit.adapters.DeparturesAdapter;
 import me.hyunbin.transit.models.Departure;
 import me.hyunbin.transit.models.DeparturesByStopResponse;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class StopsActivity extends AppCompatActivity {
+public class DeparturesActivity extends AppCompatActivity {
 
-    private static final String TAG = StopsActivity.class.getSimpleName();
+    private static final String TAG = DeparturesActivity.class.getSimpleName();
     private static int NO_ERROR = 0;
     private static int ERROR_NETWORK = 1;
     private static int ERROR_EMPTY_RESPONSE = 2;
@@ -44,7 +44,7 @@ public class StopsActivity extends AppCompatActivity {
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SwipeRefreshLayout mEmptySwipeRefreshLayout;
     private RecyclerView mRecyclerView;
-    private StopsAdapter mAdapter;
+    private DeparturesAdapter mAdapter;
     private TextView mEmptyTextView;
 
     private Handler handler;
@@ -57,7 +57,7 @@ public class StopsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_stops);
+        setContentView(R.layout.activity_departures);
 
         Intent intent = getIntent();
         mStopString = intent.getStringExtra(MainActivity.ARG_STOPID);
@@ -179,16 +179,17 @@ public class StopsActivity extends AppCompatActivity {
         // Either sets an adapter if none has been initialized, or swaps existing adapter.
         if(mAdapter == null)
         {
-            mAdapter = new StopsAdapter(data, mStopString);
+            mAdapter = new DeparturesAdapter(data, mStopString);
             mRecyclerView.setAdapter(mAdapter);
+            mAdapter.notifyItemRangeInserted(0, data.size() - 1);
         }
         else if(mAdapter != null) {
-            mAdapter = new StopsAdapter(data, mStopString);
+            mAdapter = new DeparturesAdapter(data, mStopString);
             mRecyclerView.swapAdapter(mAdapter, false);
         }
     }
 
-    final Runnable updateTask=new Runnable() {
+    private final Runnable updateTask=new Runnable() {
         @Override
         public void run() {
             // A runnable task to refresh mData at a predetermined interval

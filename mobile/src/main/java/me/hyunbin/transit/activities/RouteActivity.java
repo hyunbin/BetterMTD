@@ -16,7 +16,7 @@ import java.util.List;
 import me.hyunbin.transit.DetailItemDecoration;
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.RestClient;
-import me.hyunbin.transit.adapters.StopTimesAdapter;
+import me.hyunbin.transit.adapters.RouteAdapter;
 import me.hyunbin.transit.models.StopTime;
 import me.hyunbin.transit.models.StopTimesByTripResponse;
 import retrofit.Callback;
@@ -26,9 +26,9 @@ import retrofit.client.Response;
 /**
  * Created by Hyunbin on 4/19/15.
  */
-public class StopTimesActivity extends AppCompatActivity {
+public class RouteActivity extends AppCompatActivity {
 
-    private static final String TAG = StopTimesActivity.class.getSimpleName();
+    private static final String TAG = RouteActivity.class.getSimpleName();
 
     private String mTripIdString;
     private String mHeadSignString;
@@ -37,7 +37,7 @@ public class StopTimesActivity extends AppCompatActivity {
     private String mRouteTextColorString;
 
     private RecyclerView mRecyclerView;
-    private StopTimesAdapter mAdapter;
+    private RouteAdapter mAdapter;
 
     private RestClient mRestClient;
     private Callback<StopTimesByTripResponse> mCallback;
@@ -46,7 +46,7 @@ public class StopTimesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
-        setContentView(R.layout.activity_stop_times);
+        setContentView(R.layout.activity_route);
 
         mTripIdString = intent.getStringExtra("trip_id");
         mHeadSignString = intent.getStringExtra("headsign");
@@ -65,6 +65,7 @@ public class StopTimesActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(mHeadSignString);
         toolbar.setBackgroundColor(Color.parseColor("#" + mRouteColorString) - 0x48000000);
+        toolbar.setTitleTextColor(-1);
 
         if(android.os.Build.VERSION.SDK_INT >= 21) {
             /* Set tinted status bar color */
@@ -76,7 +77,7 @@ public class StopTimesActivity extends AppCompatActivity {
 
             /* TODO Set edge effect*/
         }
-        toolbar.setTitleTextColor(-1);
+
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
@@ -114,11 +115,12 @@ public class StopTimesActivity extends AppCompatActivity {
     private void refreshAdapter(List<StopTime> data) {
         // Either sets an adapter if none has been initialized, or swaps existing adapter.
         if(mAdapter == null) {
-            mAdapter = new StopTimesAdapter(data);
+            mAdapter = new RouteAdapter(data);
             mRecyclerView.setAdapter(mAdapter);
+            mAdapter.notifyItemRangeInserted(0, data.size() - 1);
         }
         else if(mAdapter != null) {
-            mAdapter = new StopTimesAdapter(data);
+            mAdapter = new RouteAdapter(data);
             mRecyclerView.swapAdapter(mAdapter, false);
         }
         findAndScrollTo(data);

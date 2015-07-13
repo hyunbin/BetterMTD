@@ -226,7 +226,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void switchView(String stopID, String stopName)
     {
-        Intent intent = new Intent(this, StopsActivity.class);
+        Intent intent = new Intent(this, DeparturesActivity.class);
         intent.putExtra(ARG_STOPID, stopID);
         intent.putExtra(ARG_STOPNAME, stopName);
         startActivity(intent);

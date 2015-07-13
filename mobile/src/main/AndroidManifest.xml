@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.StopsActivity"
+            android:name=".activities.DeparturesActivity"
             android:parentActivityName=".activities.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -36,11 +36,11 @@
             android:launchMode="singleTop">
         </activity>
         <activity
-            android:name=".activities.StopTimesActivity"
-            android:parentActivityName=".activities.StopsActivity" >
+            android:name=".activities.RouteActivity"
+            android:parentActivityName=".activities.DeparturesActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.StopsActivity" />
+                android:value=".activities.DeparturesActivity" />
         </activity>
         <service
             android:name=".NotificationService"

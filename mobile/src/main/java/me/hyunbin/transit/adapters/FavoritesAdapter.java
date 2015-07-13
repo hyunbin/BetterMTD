@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 import me.hyunbin.transit.activities.MainActivity;
 import me.hyunbin.transit.R;
-import me.hyunbin.transit.activities.StopsActivity;
+import me.hyunbin.transit.activities.DeparturesActivity;
 
 
 /**
@@ -52,7 +52,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter
         viewHolder.mRootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), StopsActivity.class);
+                Intent intent = new Intent(v.getContext(), DeparturesActivity.class);
                 intent.putExtra(MainActivity.ARG_STOPID, model.get("stop_id"));
                 intent.putExtra(MainActivity.ARG_STOPNAME, model.get("stop_name"));
                 v.getContext().startActivity(intent);

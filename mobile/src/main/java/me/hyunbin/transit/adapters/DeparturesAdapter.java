@@ -14,14 +14,14 @@ import android.widget.TextView;
 import java.util.List;
 
 import me.hyunbin.transit.NotificationService;
-import me.hyunbin.transit.activities.StopTimesActivity;
+import me.hyunbin.transit.activities.RouteActivity;
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.models.Departure;
 
 /**
  * Created by Hyunbin on 7/3/2015.
  */
-public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ListItemViewHolder>{
+public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.ListItemViewHolder>{
 
     private static final String ARG_TRIPID = "trip_id";
     private static final String ARG_HEADSIGN = "headsign";
@@ -30,7 +30,7 @@ public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ListItemView
     private String mCurrentStopId;
     private RecyclerView mParentRecyclerView;
 
-    public StopsAdapter(List<Departure> data, String currentStopName){
+    public DeparturesAdapter(List<Departure> data, String currentStopName){
         if(data == null){
             throw new IllegalArgumentException("Adapter data must not be null");
         }
@@ -98,7 +98,7 @@ public class StopsAdapter extends RecyclerView.Adapter<StopsAdapter.ListItemView
             @Override
             public void onClick(View v) {
                 if(departure.getTrip() != null){
-                    Intent intent = new Intent(v.getContext(), StopTimesActivity.class);
+                    Intent intent = new Intent(v.getContext(), RouteActivity.class);
                     intent.putExtra(ARG_TRIPID, departure.getTrip().getTripId());
                     intent.putExtra(ARG_HEADSIGN, departure.getHeadsign());
                     intent.putExtra("current_stop", mCurrentStopId);
