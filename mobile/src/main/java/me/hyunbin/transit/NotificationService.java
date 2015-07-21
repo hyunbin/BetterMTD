@@ -1,12 +1,16 @@
 package me.hyunbin.transit;
 
-import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -21,10 +25,18 @@ import retrofit.client.Response;
 
 /**
  * Created by Hyunbin on 7/6/2015.
+ * This class borrows code from the core IntentService class to handle Intents,
+ * but manages lifecycle to persist until alarm rings or notification is dismissed by user.
+ *
  */
-public class NotificationService extends IntentService {
+public class NotificationService extends Service {
 
     private static final String TAG = NotificationService.class.getSimpleName();
+
+    private volatile Looper mServiceLooper;
+    private volatile ServiceHandler mServiceHandler;
+    private int mServiceId;
+
     private String mStopIdString;
     private long mVehicleIdString;
     private RestClient mRestClient;
@@ -35,13 +47,56 @@ public class NotificationService extends IntentService {
     private int mCachedTimeRemaining;
     private String mCachedHeadSign;
 
+    private final class ServiceHandler extends Handler {
+        public ServiceHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            onHandleIntent((Intent)msg.obj);
+            mServiceId = msg.arg1;
+        }
+    }
+
     public NotificationService(){
-        super(TAG);
+        super();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    @Override
+    public void onStart(Intent intent, int startId) {
+        Message msg = mServiceHandler.obtainMessage();
+        msg.arg1 = startId;
+        msg.obj = intent;
+        mServiceHandler.sendMessage(msg);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.d(TAG, "onStartCommand");
+        onStart(intent, startId);
+        return START_REDELIVER_INTENT;
+    }
+
+    @Override
+    public void onDestroy(){
+        cancelNotification();
     }
 
     @Override
     public void onCreate(){
         super.onCreate();
+        HandlerThread thread = new HandlerThread("IntentService[" + TAG + "]");
+        thread.start();
+
+        mServiceLooper = thread.getLooper();
+        mServiceHandler = new ServiceHandler(mServiceLooper);
+
         mHandler = new Handler();
         mRestClient = new RestClient();
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -62,19 +117,21 @@ public class NotificationService extends IntentService {
             public void failure(RetrofitError error) {
                 Log.d(TAG, "Retrofit Error: " + error.toString());
                 // If bus disappears off tracker, then cancel notification and post an error
-                mNotificationManager.cancel(0);
+                mNotificationManager.cancel(1);
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(NotificationService.this)
                         .setSmallIcon(R.drawable.ic_notification)
                         .setContentTitle("Network Error")
                         .setDefaults(Notification.DEFAULT_ALL)
-                        .setContentText("Attempting to reconnect...");
-                mNotificationManager.notify(1, builder.build());
+                        .setContentText("Attempting to reconnect...")
+                        .setOngoing(true)
+                        .addAction(R.drawable.ic_close, "Dismiss now", getDismissIntent(2));;
+                mNotificationManager.notify(2, builder.build());
             }
         };
     }
 
     private void updateNotification(Departure departure){
-        PendingIntent dismissIntent = getDismissIntent(0);
+        PendingIntent dismissIntent = getDismissIntent(1);
 
         mCachedTimeRemaining = departure.getExpectedMins();
         mCachedHeadSign = departure.getHeadsign();
@@ -86,7 +143,8 @@ public class NotificationService extends IntentService {
                 .setOngoing(true)
                 .addAction(R.drawable.ic_close, "Dismiss now", dismissIntent);
 
-        mNotificationManager.notify(0, builder.build());
+
+        startForeground(1, builder.build());
 
         // Call helper function to set a delay until next refresh
         postNextRefresh(departure.getExpectedMins());
@@ -102,7 +160,7 @@ public class NotificationService extends IntentService {
 
     private void cancelNotification(){
         // Removes current notification and all related callbacks
-        mNotificationManager.cancel(0);
+        mNotificationManager.cancel(1);
         mHandler.removeCallbacks(webUpdateTask);
         mHandler.removeCallbacks(localUpdateTask);
     }
@@ -138,21 +196,25 @@ public class NotificationService extends IntentService {
                 .setContentText("Bus will arrive in " + min + " min.");
         Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         vibrator.vibrate(vibratePattern, -1);
-        mNotificationManager.notify(1, builder.build());
+        stopForeground(true);
+        mNotificationManager.notify(2, builder.build());
+        stopSelf(mServiceId);
     }
 
-    @Override
     protected void onHandleIntent(Intent intent) {
+        Log.d(TAG, "onHandleIntent");
         if(intent.getBooleanExtra("dismiss", false)){
             // Case 1: Dismiss intent
-            intent.getIntExtra("notification_id", 0);
+            intent.getIntExtra("notification_id", 1);
             cancelNotification();
+            stopForeground(true);
+            stopSelf(mServiceId);
         } else{
             // Case 2: Initialization for intent calls (ie: called from long pressing a departure)
             // Restriction: only one alarm can be set right now
             cancelNotification();
             mStopIdString = intent.getStringExtra("current_stop");
-            mVehicleIdString = intent.getLongExtra("unique_id", 0);
+            mVehicleIdString = intent.getLongExtra("unique_id", 1);
             timeToRingAlarm = intent.getIntExtra("alarm_time", 5);
             mRestClient.getDeparturesByStop(mStopIdString, mCallback);
         }
@@ -179,15 +241,13 @@ public class NotificationService extends IntentService {
     };
 
     private void localUpdateNotification(){
-        PendingIntent dismissIntent = getDismissIntent(0);
-
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(--mCachedTimeRemaining + " min remaining")
                 .setContentText("Until " + mCachedHeadSign + " arrives")
                 .setOngoing(true)
-                .addAction(R.drawable.ic_close, "Dismiss now", dismissIntent);
+                .addAction(R.drawable.ic_close, "Dismiss now", getDismissIntent(1));
 
-        mNotificationManager.notify(0, builder.build());
+        startForeground(1, builder.build());
     }
 }

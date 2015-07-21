@@ -132,17 +132,19 @@ public class DeparturesActivity extends AppCompatActivity {
                     onErrorStatusChanged(NO_ERROR);
                     refreshAdapter(departures);
                 }
-                // Relieves animation
-                onItemsLoadComplete();
-
                 // Resets the refresh time once new data is populated
                 mLastRefreshTime = System.currentTimeMillis();
+
+                // Relieves animation
+                onItemsLoadComplete();
             }
 
             @Override
             public void failure(RetrofitError error) {
                 Log.d(TAG, "Retrofit Error: " + error.toString());
                 onErrorStatusChanged(ERROR_NETWORK);
+                // Relieves animation
+                onItemsLoadComplete();
             }
         };
         mLastRefreshTime = System.currentTimeMillis();

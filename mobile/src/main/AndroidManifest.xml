@@ -32,12 +32,6 @@
                 android:value=".activities.MainActivity" />
         </activity>
         <activity
-            android:name=".NotificationActivity"
-            android:taskAffinity=""
-            android:excludeFromRecents="true"
-            android:launchMode="singleTop">
-        </activity>
-        <activity
             android:name=".activities.RouteActivity"
             android:parentActivityName=".activities.DeparturesActivity" >
             <meta-data
