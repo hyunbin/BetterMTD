@@ -1,13 +1,20 @@
 package me.hyunbin.transit.adapters;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatDialog;
 import android.support.v7.widget.RecyclerView;
+import android.text.Layout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -23,12 +30,14 @@ import me.hyunbin.transit.models.Departure;
  */
 public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.ListItemViewHolder>{
 
+    private static final String TAG = DeparturesAdapter.class.getSimpleName();
     private static final String ARG_TRIPID = "trip_id";
     private static final String ARG_HEADSIGN = "headsign";
 
     private List<Departure> mData;
     private String mCurrentStopId;
     private RecyclerView mParentRecyclerView;
+    private String[] displayedValues;
 
     public DeparturesAdapter(List<Departure> data, String currentStopName){
         if(data == null){
@@ -37,6 +46,10 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Li
         this.mData = data;
         this.mCurrentStopId = currentStopName;
         setHasStableIds(true);
+        displayedValues = new String[15];
+        for (int i = 1; i <= 15; i++) {
+            displayedValues[i-1] = i + " min";
+        }
     }
 
     @Override
@@ -116,11 +129,34 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Li
 
         holder.mListItem.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public boolean onLongClick(View v) {
-                Intent intent = new Intent(v.getContext(), NotificationService.class);
-                intent.putExtra("current_stop", mCurrentStopId);
-                intent.putExtra("unique_id", departure.getUniqueId());
-                v.getContext().startService(intent);
+            public boolean onLongClick(final View v) {
+                LayoutInflater inflater = (LayoutInflater) v.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View numPickView = inflater.inflate(R.layout.dialog_time_picker, null);
+                final NumberPicker numberPicker = (NumberPicker) numPickView.findViewById(R.id.number_picker);
+                numberPicker.setMinValue(1);
+                numberPicker.setMaxValue(15);
+                numberPicker.setValue(5);
+                if(departure.getExpectedMins() < 5) {
+                    numberPicker.setValue(2);
+                }
+                numberPicker.setDisplayedValues(displayedValues);
+                numberPicker.setWrapSelectorWheel(false);
+                AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext());
+                builder.setTitle("Set incoming bus alarm")
+                        .setMessage("At how many minutes before arrival should the alarm ring?")
+                        .setView(numPickView)
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent(v.getContext(), NotificationService.class);
+                                intent.putExtra("current_stop", mCurrentStopId);
+                                intent.putExtra("unique_id", departure.getUniqueId());
+                                intent.putExtra("alarm_time", numberPicker.getValue());
+                                v.getContext().startService(intent);
+                            }
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
                 return true;
             }
         });

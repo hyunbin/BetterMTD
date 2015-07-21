@@ -8,6 +8,9 @@
         <!--   theme UI controls like checkboxes and text fields -->
         <item name="colorAccent">@color/accent</item>
         <item name="windowActionBar">false</item>
+
+        <!--<item name="android:dialogTheme">@style/MaterialDialogTheme</item>-->
+        <!--<item name="android:alertDialogTheme">@style/MaterialDialogTheme</item>-->
     </style>
 
     <style name="ToolbarTitle" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Title">
@@ -15,4 +18,10 @@
         <item name="android:textColor">@color/abc_primary_text_material_dark</item>
     </style>
 
+    <!--<style name="MaterialDialogTheme" parent="Theme.AppCompat.Light.Dialog">-->
+        <!--<item name="android:windowBackground">@color/background_floating_material_dark</item>-->
+        <!--<item name="android:windowContentOverlay">@null</item>-->
+        <!--<item name="android:windowIsFloating">true</item>-->
+        <!--<item name="android:windowCloseOnTouchOutside">false</item>-->
+    <!--</style>-->
 </resources>
