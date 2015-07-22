@@ -31,7 +31,7 @@ public class RestClient {
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
         RestAdapter restAdapter = new RestAdapter.Builder()
-                .setLogLevel(RestAdapter.LogLevel.FULL)
+                .setLogLevel(RestAdapter.LogLevel.NONE)
                 .setEndpoint(BASE_URL)
                 .setConverter(new GsonConverter(gson))
                 .build();

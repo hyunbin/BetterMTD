@@ -85,6 +85,7 @@ public class NotificationService extends Service {
 
     @Override
     public void onDestroy(){
+        Log.d(TAG, "onDestroy");
         cancelNotification();
     }
 
@@ -132,6 +133,7 @@ public class NotificationService extends Service {
 
     private void updateNotification(Departure departure){
         PendingIntent dismissIntent = getDismissIntent(1);
+        Log.d(TAG, "Web update of notification: " + departure.getExpectedMins() + " min remaining");
 
         mCachedTimeRemaining = departure.getExpectedMins();
         mCachedHeadSign = departure.getHeadsign();
@@ -142,7 +144,6 @@ public class NotificationService extends Service {
                 .setContentText("Until " + departure.getHeadsign() + " arrives")
                 .setOngoing(true)
                 .addAction(R.drawable.ic_close, "Dismiss now", dismissIntent);
-
 
         startForeground(1, builder.build());
 
@@ -173,7 +174,7 @@ public class NotificationService extends Service {
         } else if(expectedMins <= timeToRingAlarm + 6){
             // Case: if it's close to ringing the alarm, web update once a minute-ish
             mHandler.postDelayed(webUpdateTask, 60 * 1000);
-        } else if(expectedMins <= timeToRingAlarm + 15){
+        } else if(expectedMins <= timeToRingAlarm + 12){
             // Case: if it's approaching set time to ring alarm, web update once every 3 minutes
             mHandler.postDelayed(webUpdateTask, 3 * 60 * 1000);
             mHandler.removeCallbacks(localUpdateTask);
@@ -198,7 +199,7 @@ public class NotificationService extends Service {
         vibrator.vibrate(vibratePattern, -1);
         stopForeground(true);
         mNotificationManager.notify(2, builder.build());
-        stopSelf(mServiceId);
+//        stopSelf(mServiceId);
     }
 
     protected void onHandleIntent(Intent intent) {
@@ -234,13 +235,14 @@ public class NotificationService extends Service {
         public void run() {
             // A runnable task to refresh notification data at a predetermined interval
             // Just guesstimates the time remaining using previously synchronized data
-            Log.d(TAG, "Local update of notification");
             localUpdateNotification();
             mHandler.postDelayed(localUpdateTask, 70 * 1000);
         }
     };
 
     private void localUpdateNotification(){
+        Log.d(TAG, "Local update of notification: " + (mCachedTimeRemaining - 1) + " min remaining");
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(--mCachedTimeRemaining + " min remaining")
