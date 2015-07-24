@@ -92,6 +92,7 @@ public class NotificationService extends Service {
     @Override
     public void onCreate(){
         super.onCreate();
+
         HandlerThread thread = new HandlerThread("IntentService[" + TAG + "]");
         thread.start();
 
@@ -218,6 +219,11 @@ public class NotificationService extends Service {
             mVehicleIdString = intent.getLongExtra("unique_id", 1);
             timeToRingAlarm = intent.getIntExtra("alarm_time", 5);
             mRestClient.getDeparturesByStop(mStopIdString, mCallback);
+
+//            // Log metrics because I'm a sucker for data
+//            Answers.getInstance().logContentView(new ContentViewEvent()
+//                    .putContentName("NotificationAlarm")
+//                    .putCustomAttribute("Minutes", intent.getIntExtra("alarm_time", -1)));
         }
     }
 

@@ -6,6 +6,8 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import com.crashlytics.android.Crashlytics;
+
 /**
  * Created by Hyunbin on 7/1/15.
  * Fixes out of bound error found on certain devices spontaneously.
@@ -60,7 +62,14 @@ public class BetterSwipeRefreshLayout extends SwipeRefreshLayout {
             mActivePointerId = MotionEventCompat.getPointerId(ev, index);
             index = MotionEventCompat.findPointerIndex(ev,mActivePointerId);
             if (index > -1 && index < pointerCount) {
-                super.onTouchEvent(ev);
+                try{
+                    super.onTouchEvent(ev);
+                } catch (Exception e){
+                    // Seems to bug out only when activity is about to be destroyed,
+                    // so catch without any error handling for now.
+                    Crashlytics.logException(e);
+                    return true;
+                }
             } else {
                 return true;
             }

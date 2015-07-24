@@ -11,6 +11,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.util.List;
 
 import me.hyunbin.transit.DetailItemDecoration;
@@ -64,7 +66,20 @@ public class RouteActivity extends AppCompatActivity {
         // Sets and styles the toolbar to enable hierarchy button
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle(mHeadSignString);
-        toolbar.setBackgroundColor(Color.parseColor("#" + mRouteColorString) - 0x48000000);
+
+        try{
+            // TODO this causes a NumberFormatException, gather JSON data to find out why it's crashing
+            toolbar.setBackgroundColor(Color.parseColor("#" + mRouteColorString) - 0x48000000);
+        } catch(NumberFormatException e){
+            // Logs exception in Crashlytics (cannot reproduce on @Hyunbin end)
+            Crashlytics.setString("trip id", mTripIdString);
+            Crashlytics.setString("headsign", mHeadSignString);
+            Crashlytics.setString("current stop", mCurrentStopIdString);
+            Crashlytics.setString("route color", mRouteColorString);
+            Crashlytics.setString("text color", mRouteTextColorString);
+            Crashlytics.logException(e);
+        }
+
         toolbar.setTitleTextColor(-1);
 
         if(android.os.Build.VERSION.SDK_INT >= 21) {
@@ -90,6 +105,7 @@ public class RouteActivity extends AppCompatActivity {
     @Override
     public void onStart(){
         super.onStart();
+
         mRestClient = new RestClient();
         mCallback = new Callback<StopTimesByTripResponse>() {
             @Override
