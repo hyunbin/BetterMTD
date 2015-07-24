@@ -15,6 +15,9 @@ import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
+
 import java.util.List;
 
 import me.hyunbin.transit.models.Departure;
@@ -220,10 +223,10 @@ public class NotificationService extends Service {
             timeToRingAlarm = intent.getIntExtra("alarm_time", 5);
             mRestClient.getDeparturesByStop(mStopIdString, mCallback);
 
-//            // Log metrics because I'm a sucker for data
-//            Answers.getInstance().logContentView(new ContentViewEvent()
-//                    .putContentName("NotificationAlarm")
-//                    .putCustomAttribute("Minutes", intent.getIntExtra("alarm_time", -1)));
+            // Log metrics because I'm a sucker for data
+            Answers.getInstance().logContentView(new ContentViewEvent()
+                    .putContentName("NotificationAlarm")
+                    .putCustomAttribute("Minutes", intent.getIntExtra("alarm_time", -1)));
         }
     }
 
