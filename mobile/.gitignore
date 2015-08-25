@@ -1,4 +1,4 @@
 /build
 fabric.properties
 MTD.java
-/src/main/res/values/MTD.xml
+/src/main/java/me/hyunbin/transit/MTD.java
