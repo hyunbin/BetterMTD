@@ -6,6 +6,7 @@ import me.hyunbin.transit.models.DeparturesByStopResponse;
 import me.hyunbin.transit.models.ShapeResponse;
 import me.hyunbin.transit.models.StopTimesByTripResponse;
 import me.hyunbin.transit.models.StopsByLatLonResponse;
+import me.hyunbin.transit.models.VehiclesByRouteResponse;
 import retrofit.Callback;
 import retrofit.http.GET;
 import retrofit.http.Header;
@@ -44,5 +45,11 @@ public interface ApiService {
     void getShape(
             @Query("shape_id") String shapeId,
             Callback<ShapeResponse> callback
+    );
+
+    @GET("/GetVehiclesByRoute?key=" + token)
+    void getVehiclesByRoute(
+            @Query("route_id") String routeId,
+            Callback<VehiclesByRouteResponse> callback
     );
 }

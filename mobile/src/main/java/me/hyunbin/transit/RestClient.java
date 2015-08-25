@@ -8,6 +8,7 @@ import me.hyunbin.transit.models.ShapeResponse;
 import me.hyunbin.transit.models.Stop;
 import me.hyunbin.transit.models.StopTimesByTripResponse;
 import me.hyunbin.transit.models.StopsByLatLonResponse;
+import me.hyunbin.transit.models.VehiclesByRouteResponse;
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.converter.GsonConverter;
@@ -51,5 +52,9 @@ public class RestClient {
 
     public void getShape(String shapeId, Callback<ShapeResponse> callback){
         mApiService.getShape(shapeId, callback);
+    }
+
+    public void getVehiclesByRoute(String routeId, Callback<VehiclesByRouteResponse> callback){
+        mApiService.getVehiclesByRoute(routeId, callback);
     }
 }
