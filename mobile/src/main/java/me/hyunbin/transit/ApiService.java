@@ -19,7 +19,7 @@ public interface ApiService {
     // Request method and URL specified in the annotation
     // Callback for the parsed response is the last parameter
 
-    String token =
+    String token = MTD.apiKey;
 
     @GET("/GetStopsByLatLon?key=" + token)
     void getStopsByLatLon(
