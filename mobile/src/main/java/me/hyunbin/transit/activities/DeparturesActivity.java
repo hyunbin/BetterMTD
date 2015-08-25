@@ -17,6 +17,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
+
 import java.util.List;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
@@ -137,6 +139,9 @@ public class DeparturesActivity extends AppCompatActivity {
 
                 // Relieves animation
                 onItemsLoadComplete();
+
+                // Set Crashlytics key to a certain string to see raw JSON at time of crash
+                Crashlytics.setString("departure json", response.toString());
             }
 
             @Override

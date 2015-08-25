@@ -1,12 +1,7 @@
 package me.hyunbin.transit;
 
-import android.util.Log;
-
-import com.google.android.gms.common.api.Api;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import java.util.List;
 
 import me.hyunbin.transit.models.DeparturesByStopResponse;
 import me.hyunbin.transit.models.ShapeResponse;
@@ -15,8 +10,6 @@ import me.hyunbin.transit.models.StopTimesByTripResponse;
 import me.hyunbin.transit.models.StopsByLatLonResponse;
 import retrofit.Callback;
 import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 import retrofit.converter.GsonConverter;
 
 /**
