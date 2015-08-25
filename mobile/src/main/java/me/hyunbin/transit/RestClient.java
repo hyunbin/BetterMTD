@@ -9,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import java.util.List;
 
 import me.hyunbin.transit.models.DeparturesByStopResponse;
+import me.hyunbin.transit.models.ShapeResponse;
 import me.hyunbin.transit.models.Stop;
 import me.hyunbin.transit.models.StopTimesByTripResponse;
 import me.hyunbin.transit.models.StopsByLatLonResponse;
@@ -53,5 +54,9 @@ public class RestClient {
 
     public void getStopTimesByTrip(String tripId, Callback<StopTimesByTripResponse> callback){
         mApiService.getStopTimesByTrip(tripId, callback);
+    }
+
+    public void getShape(String shapeId, Callback<ShapeResponse> callback){
+        mApiService.getShape(shapeId, callback);
     }
 }

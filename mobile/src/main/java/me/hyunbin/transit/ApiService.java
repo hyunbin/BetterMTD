@@ -3,6 +3,7 @@ package me.hyunbin.transit;
 import java.util.List;
 
 import me.hyunbin.transit.models.DeparturesByStopResponse;
+import me.hyunbin.transit.models.ShapeResponse;
 import me.hyunbin.transit.models.StopTimesByTripResponse;
 import me.hyunbin.transit.models.StopsByLatLonResponse;
 import retrofit.Callback;
@@ -37,5 +38,11 @@ public interface ApiService {
     void getStopTimesByTrip(
             @Query("trip_id") String tripId,
             Callback<StopTimesByTripResponse> callback
+    );
+
+    @GET("/GetShape?key=" + token)
+    void getShape(
+            @Query("shape_id") String shapeId,
+            Callback<ShapeResponse> callback
     );
 }
