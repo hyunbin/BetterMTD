@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.ViewTreeObserver;
 
 import com.crashlytics.android.Crashlytics;
 
@@ -131,6 +132,7 @@ public class RouteActivity extends AppCompatActivity {
     private void refreshAdapter(List<StopTime> data) {
         // Either sets an adapter if none has been initialized, or swaps existing adapter.
         if(mAdapter == null) {
+            setViewTreeObserver(data); // Gets ready to scroll down to current bus stop when loaded
             mAdapter = new RouteAdapter(data);
             mRecyclerView.setAdapter(mAdapter);
             mAdapter.notifyItemRangeInserted(0, data.size() - 1);
@@ -139,15 +141,30 @@ public class RouteActivity extends AppCompatActivity {
             mAdapter = new RouteAdapter(data);
             mRecyclerView.swapAdapter(mAdapter, false);
         }
-        findAndScrollTo(data);
     }
 
+    // Sets a view observer to listen when RecyclerView finishes drawing
+    private void setViewTreeObserver(final List<StopTime> data){
+        final ViewTreeObserver vto = mRecyclerView.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            public void onGlobalLayout() {
+                findAndScrollTo(data);
+                if (vto.isAlive()) {
+                    // Unregister the listener to only call scrollToPosition once
+                    vto.removeOnGlobalLayoutListener(this);
+                }
+            }
+        });
+    }
+
+    // Called by the ViewTreeObserver to find item and scroll by approporiate amount
     private void findAndScrollTo(List<StopTime> data){
         String name;
         for(int i = 0; i < data.size(); i++) {
-            name = data.get(i).getStopPoint().getStopName();
+            name = data.get(i).getStopPoint().getStopId();
             if (name.split(":", 2)[0].equals(mCurrentStopIdString)){
-                mRecyclerView.scrollToPosition(i);
+                final int itemHeight = mRecyclerView.getChildAt(0).getHeight();
+                mRecyclerView.smoothScrollBy(0, itemHeight * i);
                 break;
             }
         }
