@@ -4,6 +4,7 @@ import android.app.Application;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
 
 import io.fabric.sdk.android.Fabric;
 
@@ -18,8 +19,8 @@ public class TransitApplication extends Application {
     public void onCreate(){
         super.onCreate();
 
-        // Initialize Crashlytics for debug builds
-        if (!BuildConfig.DEBUG) Fabric.with(this, new Crashlytics());
-        else Log.e(TAG, "**In Debug mode, Crashlytics is disabled**");
+        // Initialize Crashlytics only if release mode
+        CrashlyticsCore core = new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build();
+        Fabric.with(this, new Crashlytics.Builder().core(core).build());
     }
 }
