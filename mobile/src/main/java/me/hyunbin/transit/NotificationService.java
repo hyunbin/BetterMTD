@@ -20,6 +20,8 @@ import com.crashlytics.android.answers.ContentViewEvent;
 
 import java.util.List;
 
+import me.hyunbin.transit.activities.DeparturesActivity;
+import me.hyunbin.transit.activities.MainActivity;
 import me.hyunbin.transit.models.Departure;
 import me.hyunbin.transit.models.DeparturesByStopResponse;
 import retrofit.Callback;
@@ -49,6 +51,7 @@ public class NotificationService extends Service {
     private NotificationManager mNotificationManager;
     private int mCachedTimeRemaining;
     private String mCachedHeadSign;
+    private String mStopName;
 
     private final class ServiceHandler extends Handler {
         public ServiceHandler(Looper looper) {
@@ -137,6 +140,9 @@ public class NotificationService extends Service {
 
     private void updateNotification(Departure departure){
         PendingIntent dismissIntent = getDismissIntent(1);
+        Intent intent = new Intent(this, DeparturesActivity.class);
+        intent.putExtra(MainActivity.ARG_STOPID, mStopIdString);
+        intent.putExtra(MainActivity.ARG_STOPNAME, mStopName);
         Log.d(TAG, "Web update of notification: " + departure.getExpectedMins() + " min remaining");
 
         mCachedTimeRemaining = departure.getExpectedMins();
@@ -147,6 +153,7 @@ public class NotificationService extends Service {
                 .setContentTitle(departure.getExpectedMins() + " min remaining")
                 .setContentText("Until " + departure.getHeadsign() + " arrives")
                 .setOngoing(true)
+                .setContentIntent(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
                 .addAction(R.drawable.ic_close, "Dismiss now", dismissIntent);
 
         startForeground(1, builder.build());
@@ -219,6 +226,7 @@ public class NotificationService extends Service {
             // Restriction: only one alarm can be set right now
             cancelNotification();
             mStopIdString = intent.getStringExtra("current_stop");
+            mStopName = intent.getStringExtra("stop_name");
             mVehicleIdString = intent.getLongExtra("unique_id", 1);
             timeToRingAlarm = intent.getIntExtra("alarm_time", 5);
             mRestClient.getDeparturesByStop(mStopIdString, mCallback);

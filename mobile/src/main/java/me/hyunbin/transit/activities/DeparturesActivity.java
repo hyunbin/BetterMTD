@@ -186,12 +186,12 @@ public class DeparturesActivity extends AppCompatActivity {
         // Either sets an adapter if none has been initialized, or swaps existing adapter.
         if(mAdapter == null)
         {
-            mAdapter = new DeparturesAdapter(data, mStopString);
+            mAdapter = new DeparturesAdapter(data, mStopString, mStopNameString);
             mRecyclerView.setAdapter(mAdapter);
             mAdapter.notifyItemRangeInserted(0, data.size() - 1);
         }
         else if(mAdapter != null) {
-            mAdapter = new DeparturesAdapter(data, mStopString);
+            mAdapter = new DeparturesAdapter(data, mStopString, mStopNameString);
             mRecyclerView.swapAdapter(mAdapter, false);
         }
     }

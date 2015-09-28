@@ -33,15 +33,17 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Li
 
     private List<Departure> mData;
     private String mCurrentStopId;
+    private final String mCurrentStopName;
     private RecyclerView mParentRecyclerView;
     private String[] displayedValues;
 
-    public DeparturesAdapter(List<Departure> data, String currentStopName){
+    public DeparturesAdapter(List<Departure> data, String currentStopId, String currentStopName){
         if(data == null){
             throw new IllegalArgumentException("Adapter data must not be null");
         }
         this.mData = data;
-        this.mCurrentStopId = currentStopName;
+        this.mCurrentStopId = currentStopId;
+        this.mCurrentStopName = currentStopName;
         setHasStableIds(true);
         displayedValues = new String[15];
         for (int i = 1; i <= 15; i++) {
@@ -147,6 +149,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Li
                             public void onClick(DialogInterface dialog, int which) {
                                 Intent intent = new Intent(v.getContext(), NotificationService.class);
                                 intent.putExtra("current_stop", mCurrentStopId);
+                                intent.putExtra("stop_name", mCurrentStopName);
                                 intent.putExtra("unique_id", departure.getUniqueId());
                                 intent.putExtra("alarm_time", numberPicker.getValue());
                                 v.getContext().startService(intent);
