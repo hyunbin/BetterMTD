@@ -17,13 +17,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.crashlytics.android.Crashlytics;
-
 import java.util.List;
-
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
-import me.hyunbin.transit.PreferenceBackupAgent;
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.RestClient;
 import me.hyunbin.transit.adapters.DeparturesAdapter;
@@ -196,9 +192,9 @@ public class DeparturesActivity extends AppCompatActivity {
             mRecyclerView.setAdapter(mAdapter);
             mAdapter.notifyItemRangeInserted(0, data.size() - 1);
         }
-        else if(mAdapter != null) {
-            mAdapter = new DeparturesAdapter(data, mStopString, mStopNameString);
-            mRecyclerView.swapAdapter(mAdapter, false);
+        else {
+            mAdapter.swapData(data);
+            mAdapter.notifyItemRangeChanged(0, data.size() - 1);
         }
     }
 

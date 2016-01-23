@@ -32,6 +32,10 @@ public class NearMeAdapter extends RecyclerView.Adapter
         setHasStableIds(true);
     }
 
+    public void swapData(List<Stop> data){
+        mData = data;
+    }
+
     @Override
     public long getItemId(int position){
         long id = mData.get(position).getStopId().hashCode();

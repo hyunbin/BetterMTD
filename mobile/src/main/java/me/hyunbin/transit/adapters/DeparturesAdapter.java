@@ -51,6 +51,10 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Li
         }
     }
 
+    public void swapData(List<Departure> data){
+        mData = data;
+    }
+
     @Override
     public long getItemId(int position){
         return mData.get(position).getUniqueId();

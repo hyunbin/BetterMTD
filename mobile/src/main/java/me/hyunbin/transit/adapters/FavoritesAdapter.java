@@ -31,6 +31,10 @@ public class FavoritesAdapter extends RecyclerView.Adapter
         setHasStableIds(true);
     }
 
+    public void swapData(ArrayList<HashMap<String, String>> data){
+        mData = data;
+    }
+
     @Override
     public long getItemId(int position){
         long id = mData.get(position).get("stop_id").hashCode();

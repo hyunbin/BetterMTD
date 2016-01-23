@@ -326,8 +326,8 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
             mAdapter.notifyItemRangeInserted(0, data.size() - 1);
         }
         else {
-            mAdapter = new NearMeAdapter(data);
-            mRecyclerView.swapAdapter(mAdapter, false);
+            mAdapter.swapData(data);
+            mAdapter.notifyItemRangeChanged(0, data.size() - 1);
         }
     }
 }

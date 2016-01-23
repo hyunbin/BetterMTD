@@ -80,8 +80,8 @@ public class FavoritesFragment extends Fragment {
             mRecyclerView.setAdapter(mAdapter);
         }
         else {
-            mAdapter = new FavoritesAdapter(mFavoritesList);
-            mRecyclerView.swapAdapter(mAdapter, false);
+            mAdapter.swapData(mFavoritesList);
+            mAdapter.notifyDataSetChanged();
         }
     }
 
