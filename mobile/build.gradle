@@ -50,4 +50,5 @@ dependencies {
     }
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.okhttp:okhttp:2.4.0'
+    compile 'com.github.jd-alexander:LikeButton:0.1.7'
 }

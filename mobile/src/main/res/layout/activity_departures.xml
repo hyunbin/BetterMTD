@@ -7,9 +7,32 @@
     android:orientation="vertical"
     tools:context="me.hyunbin.transit.activities.DeparturesActivity">
 
-    <include
+    <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
-        layout="@layout/toolbar"> </include>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark"
+        app:titleTextAppearance="@style/ToolbarTitle"
+        android:elevation="4dp"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+        <com.like.LikeButton
+            app:icon_type="heart"
+            app:icon_size="32dp"
+            app:anim_scale_factor="1.5"
+            android:id="@+id/favorite_button"
+            app:like_drawable="@drawable/ic_favorite"
+            app:unlike_drawable="@drawable/ic_notfavorite"
+            app:dots_primary_color="@color/primary_light"
+            app:dots_secondary_color="@color/accent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginRight="4dp"/>
+    </android.support.v7.widget.Toolbar>
+
 
     <me.hyunbin.transit.BetterSwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"

@@ -12,13 +12,12 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
+import com.like.LikeButton;
+import com.like.OnLikeListener;
 
 import java.util.List;
 
@@ -56,6 +55,7 @@ public class DeparturesActivity extends AppCompatActivity {
 
     private String mStopString;
     private String mStopNameString;
+    private LikeButton mLikeButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +69,7 @@ public class DeparturesActivity extends AppCompatActivity {
         // Grabs preferences for favorite stops and recents
         mSharedPrefs = this.getSharedPreferences("favorites", 0);
         mBackupManager = new BackupManager(getBaseContext());
+        mSharedPrefsEditor = mSharedPrefs.edit();
 
         // Sets and styles the toolbar to enable hierarchy button
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -155,6 +156,34 @@ public class DeparturesActivity extends AppCompatActivity {
         // Sets a handler to refresh the RecyclerView periodically
         handler = new Handler();
         handler.postDelayed(updateTask, mUpdateInterval);
+
+        // Handle like button
+        mLikeButton = (LikeButton) findViewById(R.id.favorite_button);
+        if(mSharedPrefs.getString(mStopString, "nope") == "nope"){
+            mLikeButton.setLiked(false);
+        }
+        else{
+            mLikeButton.setLiked(true);
+        }
+
+        mLikeButton.setOnLikeListener(new OnLikeListener() {
+            @Override
+            public void liked(LikeButton likeButton) {
+                // Updates mSharedPrefs based on whether the stop is already stored in mSharedPrefs
+                mSharedPrefsEditor.putString(mStopString, mStopNameString);
+                mSharedPrefsEditor.commit();
+                mBackupManager.dataChanged();
+                showSnack("Stop added to favorites");
+            }
+
+            @Override
+            public void unLiked(LikeButton likeButton) {
+                mSharedPrefsEditor.remove(mStopString);
+                mSharedPrefsEditor.commit();
+                mBackupManager.dataChanged();
+                showSnack("Stop removed from favorites");
+            }
+        });
     }
 
     @Override
@@ -253,52 +282,6 @@ public class DeparturesActivity extends AppCompatActivity {
         // Stops refreshing automatically again when activity is destroyed
         super.onDestroy();
         handler.removeCallbacks(updateTask);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds mData to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_stop, menu);
-        // Updates mSharedPrefs icon based on state (either filled or outline)
-        if(mSharedPrefs.getString(mStopString, "nope") == "nope"){
-            menu.getItem(0).setIcon(R.drawable.ic_notfavorite);
-        }
-        else{
-            menu.getItem(0).setIcon(R.drawable.ic_favorite);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_favorite) {
-            // Pops a toast as pacifier, then refreshes.
-            int duration = Toast.LENGTH_SHORT;
-
-            // Updates mSharedPrefs based on whether the stop is already stored in mSharedPrefs
-            mSharedPrefsEditor = mSharedPrefs.edit();
-            if(mSharedPrefs.getString(mStopString, "nope") == "nope"){
-                mSharedPrefsEditor.putString(mStopString, mStopNameString);
-                mSharedPrefsEditor.commit();
-                mBackupManager.dataChanged();
-                showSnack("Stop added to favorites");
-            }
-            else{
-                mSharedPrefsEditor.remove(mStopString);
-                mSharedPrefsEditor.commit();
-                mBackupManager.dataChanged();
-                showSnack("Stop removed from favorites");
-            }
-            invalidateOptionsMenu();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     void showSnack(String message){
