@@ -116,11 +116,7 @@ public class DeparturesActivity extends AppCompatActivity {
         mEmptySwipeRefreshLayout.setVisibility(View.GONE);
 
         mEmptyTextView = (TextView) findViewById(R.id.text_view);
-    }
 
-    @Override
-    public void onStart(){
-        super.onStart();
         mRestClient = new RestClient();
         mCallback = new Callback<DeparturesByStopResponse>() {
             @Override
@@ -154,11 +150,24 @@ public class DeparturesActivity extends AppCompatActivity {
         };
         mLastRefreshTime = System.currentTimeMillis();
         sendDataRequest();
+    }
 
+    @Override
+    public void onStart(){
+        super.onStart();
+        Log.e(TAG, "onStart invoked");
         // Sets a handler to refresh the RecyclerView periodically
         mUpdateInterval = 80000;
         handler = new Handler();
         handler.postDelayed(updateTask, mUpdateInterval);
+    }
+
+    @Override
+    public void onResume(){
+        // Starts refreshing automatically again when activity is resumed
+        super.onResume();
+        Log.e(TAG, "onResume invoked");
+        onDataUpdateRequested();
     }
 
     // Helper function to facilitate show/hide of error messages and data view.
@@ -206,7 +215,7 @@ public class DeparturesActivity extends AppCompatActivity {
     };
 
     private void onDataUpdateRequested() {
-        if(System.currentTimeMillis() - mLastRefreshTime < 20000){ // TODO was 20000
+        if(System.currentTimeMillis() - mLastRefreshTime < 20000){
             showSnack("Your schedule is up-to-date");
             onItemsLoadComplete();
         }
@@ -233,14 +242,6 @@ public class DeparturesActivity extends AppCompatActivity {
         // Stop refresh animation
         mSwipeRefreshLayout.setRefreshing(false);
         mEmptySwipeRefreshLayout.setRefreshing(false);
-    }
-
-    @Override
-    public void onRestart(){
-        // Starts refreshing automatically again when activity is resumed
-        super.onRestart();
-        handler = new Handler();
-        handler.postDelayed(updateTask, 1000);
     }
 
     @Override
