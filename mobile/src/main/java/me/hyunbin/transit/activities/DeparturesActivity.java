@@ -149,24 +149,19 @@ public class DeparturesActivity extends AppCompatActivity {
             }
         };
         mLastRefreshTime = System.currentTimeMillis();
-        sendDataRequest();
-    }
+        mUpdateInterval = 70000;
 
-    @Override
-    public void onStart(){
-        super.onStart();
-        Log.e(TAG, "onStart invoked");
+        sendDataRequest();
         // Sets a handler to refresh the RecyclerView periodically
-        mUpdateInterval = 80000;
         handler = new Handler();
         handler.postDelayed(updateTask, mUpdateInterval);
     }
 
     @Override
-    public void onResume(){
+    public void onRestart(){
         // Starts refreshing automatically again when activity is resumed
-        super.onResume();
-        Log.e(TAG, "onResume invoked");
+        super.onRestart();
+        Log.e(TAG, "onRestart invoked");
         onDataUpdateRequested();
     }
 
@@ -210,7 +205,6 @@ public class DeparturesActivity extends AppCompatActivity {
         public void run() {
             // A runnable task to refresh mData at a predetermined interval
             onDataUpdateRequested();
-            handler.postDelayed(updateTask, mUpdateInterval);
         }
     };
 
@@ -230,6 +224,9 @@ public class DeparturesActivity extends AppCompatActivity {
                 }
             });
             sendDataRequest();
+            // Reset all active callbacks
+            handler.removeCallbacks(updateTask);
+            handler.postDelayed(updateTask, mUpdateInterval);
         }
     }
 
