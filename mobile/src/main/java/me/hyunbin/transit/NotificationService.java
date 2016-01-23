@@ -200,11 +200,15 @@ public class NotificationService extends Service {
 
     private void ringAlarm(int min) {
         long[] vibratePattern = {0, 600, 1000, 600, 1000, 600};
+        Intent intent = new Intent(this, DeparturesActivity.class);
+        intent.putExtra(MainActivity.ARG_STOPID, mStopIdString);
+        intent.putExtra(MainActivity.ARG_STOPNAME, mStopName);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(NotificationService.this)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("It's time to leave")
                 .setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_LIGHTS)
                 .setPriority(Notification.PRIORITY_HIGH)
+                .setContentIntent(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT))
                 .setContentText("Bus will arrive in " + min + " min.");
         Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         vibrator.vibrate(vibratePattern, -1);
