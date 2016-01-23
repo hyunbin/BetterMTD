@@ -176,13 +176,13 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
                 // This is where we should show further rationale, because the user
                 // has previous denied a permission request.
                 onErrorStatusChanged(ERROR_LOCATION);
-                Log.e(TAG, "This is where we should show the permission rationale");
+                Log.e(TAG, "Showing re-enable permission prompt");
                 String message = "Location permission is disabled.";
                 Snackbar.make(mCoordinatorLayout, message, Snackbar.LENGTH_INDEFINITE)
                         .setAction("Enable", new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                ActivityCompat.requestPermissions(getActivity(),
+                                requestPermissions(
                                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                                         PERMISSIONS_REQUEST_LOC);
                             }
@@ -190,7 +190,7 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
                         .show();
             } else {
                 // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(getActivity(),
+                requestPermissions(
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         PERMISSIONS_REQUEST_LOC);
             }
@@ -216,10 +216,13 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
                     && grantResults[i] == PackageManager.PERMISSION_GRANTED){
                 // Permission was granted!
                 Log.e(TAG, "Location permission reported as GRANTED");
+                if (!mResolvingError) {
+                    mGoogleApiClient.connect();
+                }
             } else{
                 // Permission denied, alert user
-                // TODO change to RecyclerView diaglogue
                 Log.e(TAG, "Location permission reported as DENIED");
+                refreshLocationData();
             }
         }
     }
@@ -327,5 +330,4 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
             mRecyclerView.swapAdapter(mAdapter, false);
         }
     }
-
 }
