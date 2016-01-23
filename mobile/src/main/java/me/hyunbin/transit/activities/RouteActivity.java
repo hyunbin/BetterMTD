@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewTreeObserver;
 
 import com.crashlytics.android.Crashlytics;
@@ -58,6 +59,8 @@ public class RouteActivity extends AppCompatActivity {
         mRouteTextColorString = intent.getStringExtra("text_color");
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView2);
+        mRecyclerView.getItemAnimator().setAddDuration(400);
+        mRecyclerView.getItemAnimator().setRemoveDuration(400);
 
         // Uses linear layout manager for simplicity
         final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -97,6 +100,13 @@ public class RouteActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back);
+
+        // Special for dark text
+        if(mRouteTextColorString.equals("000000")){
+            toolbar.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            toolbar.setTitleTextColor(0xff000000);
+            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_back_black);
+        }
 
         // Sets item decoration to show the train-like line
         mRecyclerView.addItemDecoration(new DetailItemDecoration(this,

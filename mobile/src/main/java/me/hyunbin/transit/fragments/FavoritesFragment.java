@@ -49,9 +49,9 @@ public class FavoritesFragment extends Fragment {
         mRecyclerView.setHasFixedSize(true);
 
         // Sets animator to RecyclerView
-        mRecyclerView.setItemAnimator(new FadeInAnimator());
-        mRecyclerView.getItemAnimator().setAddDuration(200);
-        mRecyclerView.getItemAnimator().setRemoveDuration(100);
+        //mRecyclerView.setItemAnimator(new FadeInAnimator());
+        mRecyclerView.getItemAnimator().setAddDuration(400);
+        mRecyclerView.getItemAnimator().setRemoveDuration(400);
 
         // Hides no favorites view by default
         mTextView = (TextView) v.findViewById(R.id.text_view);

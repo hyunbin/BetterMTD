@@ -78,7 +78,7 @@ public class DeparturesActivity extends AppCompatActivity {
 
         // Sets animator to RecyclerView
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView);
-        mRecyclerView.setItemAnimator(new FadeInAnimator());
+        // mRecyclerView.setItemAnimator(new FadeInAnimator());
         mRecyclerView.getItemAnimator().setAddDuration(400);
         mRecyclerView.getItemAnimator().setRemoveDuration(400);
 
@@ -194,7 +194,7 @@ public class DeparturesActivity extends AppCompatActivity {
         }
         else {
             mAdapter.swapData(data);
-            mAdapter.notifyItemRangeChanged(0, data.size() - 1);
+            mAdapter.notifyDataSetChanged();
         }
     }
 

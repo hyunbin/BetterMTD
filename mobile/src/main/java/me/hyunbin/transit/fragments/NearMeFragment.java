@@ -12,6 +12,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -118,7 +119,7 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
         mRecyclerView = (RecyclerView) v.findViewById(R.id.near_me_view);
 
         // Sets animator to RecyclerView
-        mRecyclerView.setItemAnimator(new FadeInAnimator());
+        // mRecyclerView.setItemAnimator(new FadeInAnimator(new LinearOutSlowInInterpolator()));
         mRecyclerView.getItemAnimator().setAddDuration(400);
         mRecyclerView.getItemAnimator().setRemoveDuration(400);
 
@@ -327,7 +328,8 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
         }
         else {
             mAdapter.swapData(data);
-            mAdapter.notifyItemRangeChanged(0, data.size() - 1);
+            mRecyclerView.destroyDrawingCache(); // Required to fix overlay bug?
+            mAdapter.notifyDataSetChanged();
         }
     }
 }
