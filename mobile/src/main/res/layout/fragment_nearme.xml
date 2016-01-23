@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/coordLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
 <RelativeLayout
     android:layout_width="match_parent"
@@ -7,22 +12,41 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/near_me_view"
+    <me.hyunbin.transit.BetterSwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical"
-        tools:context=".MainActivity" />
+        android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/text_view"
-        android:text="@string/error_location"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:gravity="center"/>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/near_me_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="vertical"
+            tools:context=".MainActivity" />
+
+    </me.hyunbin.transit.BetterSwipeRefreshLayout>
+
+
+    <me.hyunbin.transit.BetterSwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout_emptyView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/text_view"
+                android:text="@string/error_location"
+                android:layout_gravity="center"
+                android:gravity="center" />
+
+        </ScrollView>
+    </me.hyunbin.transit.BetterSwipeRefreshLayout>
 
 </RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

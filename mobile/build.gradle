@@ -11,12 +11,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 23
     buildToolsVersion "22.0.1"
     defaultConfig {
         applicationId 'me.hyunbin.transit'
         minSdkVersion 16
-        targetSdkVersion 22
+        targetSdkVersion 23
         versionCode 14
         versionName "1.5.5"
     }
@@ -40,12 +40,12 @@ repositories {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.android.support:recyclerview-v7:22.2.0'
-    compile 'com.android.support:design:22.2.0'
-    compile 'com.google.android.gms:play-services-location:7.5.0'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:recyclerview-v7:23.1.1'
+    compile 'com.android.support:design:23.1.1'
+    compile 'com.google.android.gms:play-services-location:8.4.0'
     compile 'com.balysv:material-ripple:1.0.1'
-    compile 'jp.wasabeef:recyclerview-animators:1.2.0@aar'
+    compile 'jp.wasabeef:recyclerview-animators:2.1.0'
     compile('com.crashlytics.sdk.android:crashlytics:2.5.2@aar') {
         transitive = true;
     }

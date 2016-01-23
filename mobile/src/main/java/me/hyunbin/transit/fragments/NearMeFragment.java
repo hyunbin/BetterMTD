@@ -1,11 +1,18 @@
 package me.hyunbin.transit.fragments;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -41,6 +48,7 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
 
     private static final String TAG = NearMeFragment.class.getSimpleName();
 
+    private static int PERMISSIONS_REQUEST_LOC = 128;
     private static final int REQUEST_RESOLVE_ERROR = 9000;
     private boolean mResolvingError = false;
     private static int NO_ERROR = 0;
@@ -56,11 +64,14 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
     private Location mLastLocation;
     private TextView mTextView;
     private NearMeAdapter mAdapter;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private SwipeRefreshLayout mEmptySwipeRefreshLayout;
+    private CoordinatorLayout mCoordinatorLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Log.d(TAG, "onCreate called");
         // Sets refresh parameter for location requests
         int updateInterval = 90000;
         int minUpdateInterval = 30000;
@@ -83,18 +94,20 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View v =inflater.inflate(R.layout.fragment_nearme,container,false);
+        Log.d(TAG, "onCreateView called");
+        View v = inflater.inflate(R.layout.fragment_nearme, container, false);
         mContext = getActivity();
 
         // Initialize Retrofit client and callback response
         mRestClient = new RestClient();
-        mCallback = new Callback<StopsByLatLonResponse>(){
+        mCallback = new Callback<StopsByLatLonResponse>() {
             @Override
             public void success(StopsByLatLonResponse responseObject, Response response) {
                 Log.d(TAG, "Retrofit success!");
                 List<Stop> stopList = responseObject.getStops();
                 refreshAdapter(stopList);
             }
+
             @Override
             public void failure(RetrofitError error) {
                 Log.d(TAG, "Retrofit Error: " + error.toString());
@@ -103,26 +116,43 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
         };
 
         mRecyclerView = (RecyclerView) v.findViewById(R.id.near_me_view);
-        mRecyclerView.setHasFixedSize(true);
 
         // Sets animator to RecyclerView
         mRecyclerView.setItemAnimator(new FadeInAnimator());
-        mRecyclerView.getItemAnimator().setAddDuration(200);
-        mRecyclerView.getItemAnimator().setRemoveDuration(100);
+        mRecyclerView.getItemAnimator().setAddDuration(400);
+        mRecyclerView.getItemAnimator().setRemoveDuration(400);
 
         mTextView = (TextView) v.findViewById(R.id.text_view);
-        mTextView.setVisibility(View.GONE);
 
         // Uses linear layout manager for simplicity
         final LinearLayoutManager layoutManager = new LinearLayoutManager(mContext);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         mRecyclerView.setLayoutManager(layoutManager);
 
+        // Sets SwipeRefreshLayout to enable the swipe-to-refresh gesture
+        mSwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipeRefreshLayout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshLocationData();
+            }
+        });
+
+        mEmptySwipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swipeRefreshLayout_emptyView);
+        mEmptySwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshLocationData();
+            }
+        });
+        mEmptySwipeRefreshLayout.setVisibility(View.GONE);
+
+        mCoordinatorLayout = (CoordinatorLayout) v.findViewById(R.id.coordLayout);
         return v;
     }
 
     @Override
-    public void onStart(){
+    public void onStart() {
         super.onStart();
         Log.d(TAG, "onStart called");
         if (!mResolvingError) {
@@ -134,16 +164,63 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
     public void onConnected(Bundle connectionHint) {
         Log.d(TAG, "Connected successfully to Google Play Services");
         mResolvingError = false;
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if(mLastLocation == null) {
-            Log.d(TAG, "Last Location reported as null");
-            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-            onErrorStatusChanged(ERROR_LOCATION);
+        refreshLocationData();
+    }
+
+    private void refreshLocationData(){
+        // Before we make location requests, check for permission
+        if (ActivityCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+                // This is where we should show further rationale, because the user
+                // has previous denied a permission request.
+                onErrorStatusChanged(ERROR_LOCATION);
+                Log.e(TAG, "This is where we should show the permission rationale");
+                String message = "Location permission is disabled.";
+                Snackbar.make(mCoordinatorLayout, message, Snackbar.LENGTH_INDEFINITE)
+                        .setAction("Enable", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                ActivityCompat.requestPermissions(getActivity(),
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        PERMISSIONS_REQUEST_LOC);
+                            }
+                        })
+                        .show();
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(getActivity(),
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        PERMISSIONS_REQUEST_LOC);
+            }
+        } else{
+            mEmptySwipeRefreshLayout.setEnabled(true);
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            if (mLastLocation == null) {
+                Log.d(TAG, "Last location reported as null. Requesting location updates.");
+                LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+                onErrorStatusChanged(ERROR_LOCATION);
+            } else {
+                Log.d(TAG, "Last location found. Now parsing.");
+                onErrorStatusChanged(NO_ERROR);
+                startParsing(mLastLocation);
+            }
         }
-        else{
-            Log.d(TAG, "Last Location found");
-            onErrorStatusChanged(NO_ERROR);
-            startParsing(mLastLocation);
+    }
+
+    @Override
+    public void onRequestPermissionsResult (int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
+        for (int i = 0; i < permissions.length; i++) {
+            if(permissions[i].equals(Manifest.permission.ACCESS_FINE_LOCATION)
+                    && grantResults[i] == PackageManager.PERMISSION_GRANTED){
+                // Permission was granted!
+                Log.e(TAG, "Location permission reported as GRANTED");
+            } else{
+                // Permission denied, alert user
+                // TODO change to RecyclerView diaglogue
+                Log.e(TAG, "Location permission reported as DENIED");
+            }
         }
     }
 
@@ -171,18 +248,20 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
     private void onErrorStatusChanged(int mode){
         if(mode == ERROR_NETWORK){
             mTextView.setText("Network error\nCheck your internet connection");
-            mTextView.setVisibility(View.VISIBLE);
-            mRecyclerView.setVisibility(View.GONE);
+            mEmptySwipeRefreshLayout.setVisibility(View.VISIBLE);
+            mSwipeRefreshLayout.setVisibility(View.GONE);
         }
         if(mode == ERROR_LOCATION){
             mTextView.setText("Location not found\nTry enabling Wifi, GPS, or Location");
-            mTextView.setVisibility(View.VISIBLE);
-            mRecyclerView.setVisibility(View.GONE);
+            mEmptySwipeRefreshLayout.setVisibility(View.VISIBLE);
+            mSwipeRefreshLayout.setVisibility(View.GONE);
         }
         else{
-            mTextView.setVisibility(View.GONE);
-            mRecyclerView.setVisibility(View.VISIBLE);
+            mEmptySwipeRefreshLayout.setVisibility(View.GONE);
+            mSwipeRefreshLayout.setVisibility(View.VISIBLE);
         }
+        mEmptySwipeRefreshLayout.setRefreshing(false);
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     @Override
@@ -204,11 +283,6 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
     public void onResume() {
         super.onResume();
         Log.d(TAG, "onResume called");
-        if(mGoogleApiClient.isConnected()) {
-            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            startParsing(mLastLocation);
-        } else
-            mGoogleApiClient.connect();
     }
 
     @Override

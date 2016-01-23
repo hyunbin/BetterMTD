@@ -206,7 +206,7 @@ public class DeparturesActivity extends AppCompatActivity {
     };
 
     private void onDataUpdateRequested() {
-        if(System.currentTimeMillis() - mLastRefreshTime < 20000){
+        if(System.currentTimeMillis() - mLastRefreshTime < 20000){ // TODO was 20000
             showSnack("Your schedule is up-to-date");
             onItemsLoadComplete();
         }
