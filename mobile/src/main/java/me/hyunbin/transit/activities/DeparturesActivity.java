@@ -1,5 +1,6 @@
 package me.hyunbin.transit.activities;
 
+import android.app.backup.BackupManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import com.crashlytics.android.Crashlytics;
 import java.util.List;
 
 import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+import me.hyunbin.transit.PreferenceBackupAgent;
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.RestClient;
 import me.hyunbin.transit.adapters.DeparturesAdapter;
@@ -40,6 +42,7 @@ public class DeparturesActivity extends AppCompatActivity {
 
     private SharedPreferences mSharedPrefs;
     private SharedPreferences.Editor mSharedPrefsEditor;
+    private BackupManager mBackupManager;
     private RestClient mRestClient;
     private Callback<DeparturesByStopResponse> mCallback;
 
@@ -65,8 +68,9 @@ public class DeparturesActivity extends AppCompatActivity {
         mStopString = intent.getStringExtra(MainActivity.ARG_STOPID);
         mStopNameString = intent.getStringExtra(MainActivity.ARG_STOPNAME);
 
-        // Grabs preferences for favorite stops and recents, adds this stop to recents
+        // Grabs preferences for favorite stops and recents
         mSharedPrefs = this.getSharedPreferences("favorites", 0);
+        mBackupManager = new BackupManager(getBaseContext());
 
         // Sets and styles the toolbar to enable hierarchy button
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -132,10 +136,8 @@ public class DeparturesActivity extends AppCompatActivity {
                 }
                 // Resets the refresh time once new data is populated
                 mLastRefreshTime = System.currentTimeMillis();
-
                 // Relieves animation
                 onItemsLoadComplete();
-
                 // Set Crashlytics key to a certain string to see raw JSON at time of crash
                 Crashlytics.setString("departure json", response.toString());
             }
@@ -286,11 +288,13 @@ public class DeparturesActivity extends AppCompatActivity {
             if(mSharedPrefs.getString(mStopString, "nope") == "nope"){
                 mSharedPrefsEditor.putString(mStopString, mStopNameString);
                 mSharedPrefsEditor.commit();
+                mBackupManager.dataChanged();
                 showSnack("Stop added to favorites");
             }
             else{
                 mSharedPrefsEditor.remove(mStopString);
                 mSharedPrefsEditor.commit();
+                mBackupManager.dataChanged();
                 showSnack("Stop removed from favorites");
             }
             invalidateOptionsMenu();

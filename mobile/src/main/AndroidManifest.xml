@@ -15,7 +15,7 @@
         android:icon="@mipmap/ic_launcher"
         android:theme="@style/AppTheme"
         android:label="@string/app_name"
-        android:backupAgent=".PreferenceBackupAgent">
+        android:backupAgent="PreferenceBackupAgent">
         <activity
             android:name=".activities.MainActivity" >
             <intent-filter>
