@@ -27,10 +27,13 @@
             app:unlike_drawable="@drawable/ic_notfavorite"
             app:dots_primary_color="@color/primary_light"
             app:dots_secondary_color="@color/accent"
+            app:circle_start_color="@color/primary"
+            app:circle_end_color="@color/textPrimaryColor"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
             android:layout_marginRight="4dp"/>
+
     </android.support.v7.widget.Toolbar>
 
 
