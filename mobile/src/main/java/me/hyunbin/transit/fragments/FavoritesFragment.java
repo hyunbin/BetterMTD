@@ -19,9 +19,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import jp.wasabeef.recyclerview.animators.FadeInAnimator;
-import me.hyunbin.transit.adapters.FavoritesAdapter;
 import me.hyunbin.transit.R;
+import me.hyunbin.transit.adapters.FavoritesAdapter;
 
 /**
  * Created by Hyunbin on 3/9/15.

@@ -12,7 +12,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,7 +29,6 @@ import com.google.android.gms.location.LocationServices;
 
 import java.util.List;
 
-import jp.wasabeef.recyclerview.animators.FadeInAnimator;
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.RestClient;
 import me.hyunbin.transit.adapters.NearMeAdapter;
@@ -68,6 +66,7 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SwipeRefreshLayout mEmptySwipeRefreshLayout;
     private CoordinatorLayout mCoordinatorLayout;
+    private Location mPrevLocation;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -308,7 +307,21 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
             // Populates parameters with lat/lon information
             double lat = location.getLatitude();
             double lon = location.getLongitude();
-            sendDataRequest(lat, lon);
+            if(mPrevLocation == null){
+                mPrevLocation = location;
+                sendDataRequest(lat, lon);
+            }
+            else if(location.distanceTo(mPrevLocation) >= 15){
+                // Distance must change at least 15 meters before API call can happen again
+                mPrevLocation = location;
+                sendDataRequest(lat, lon);
+            }
+            else{
+                // Not enough distance, inform user and do nothing
+                String message = "Your location is up-to-date";
+                Snackbar.make(mCoordinatorLayout, message, Snackbar.LENGTH_SHORT)
+                        .show();
+            }
         }
         else{
             onErrorStatusChanged(ERROR_LOCATION);

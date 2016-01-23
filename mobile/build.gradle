@@ -45,7 +45,6 @@ dependencies {
     compile 'com.android.support:design:23.1.1'
     compile 'com.google.android.gms:play-services-location:8.4.0'
     compile 'com.balysv:material-ripple:1.0.1'
-    compile 'jp.wasabeef:recyclerview-animators:2.1.0'
     compile('com.crashlytics.sdk.android:crashlytics:2.5.2@aar') {
         transitive = true;
     }

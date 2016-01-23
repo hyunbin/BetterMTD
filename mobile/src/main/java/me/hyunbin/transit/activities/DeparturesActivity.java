@@ -17,9 +17,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.crashlytics.android.Crashlytics;
+
 import java.util.List;
-import jp.wasabeef.recyclerview.animators.FadeInAnimator;
+
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.RestClient;
 import me.hyunbin.transit.adapters.DeparturesAdapter;
