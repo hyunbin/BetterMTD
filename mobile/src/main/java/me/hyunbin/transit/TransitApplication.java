@@ -22,13 +22,13 @@ public class TransitApplication extends Application {
         super.onCreate();
         // Initialize Crashlytics only if release mode
         CrashlyticsCore core = new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build();
-        Fabric.with(this, new Crashlytics.Builder().core(core).build(), new Crashlytics());
+        Fabric.with(this, new Crashlytics.Builder().core(core).build(), core);
 
         // Initiate auto-backup on migration from versionCode > 15
         mSharedPrefs = this.getSharedPreferences("transit_backup", 0);
         if(mSharedPrefs.getBoolean("first", true)){
             new BackupManager(this).dataChanged();
-            mSharedPrefs.edit().putBoolean("first", false).commit();
+            mSharedPrefs.edit().putBoolean("first", false).apply();
         }
     }
 }
