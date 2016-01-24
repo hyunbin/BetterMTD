@@ -21,14 +21,14 @@ import com.like.OnLikeListener;
 
 import java.util.List;
 
+import me.hyunbin.transit.ApiClient;
 import me.hyunbin.transit.R;
-import me.hyunbin.transit.RestClient;
 import me.hyunbin.transit.adapters.DeparturesAdapter;
 import me.hyunbin.transit.models.Departure;
 import me.hyunbin.transit.models.DeparturesByStopResponse;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DeparturesActivity extends AppCompatActivity {
 
@@ -40,8 +40,7 @@ public class DeparturesActivity extends AppCompatActivity {
     private SharedPreferences mSharedPrefs;
     private SharedPreferences.Editor mSharedPrefsEditor;
     private BackupManager mBackupManager;
-    private RestClient mRestClient;
-    private Callback<DeparturesByStopResponse> mCallback;
+    private ApiClient mApiClient;
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private SwipeRefreshLayout mEmptySwipeRefreshLayout;
@@ -56,6 +55,7 @@ public class DeparturesActivity extends AppCompatActivity {
     private String mStopString;
     private String mStopNameString;
     private LikeButton mLikeButton;
+    private Callback<DeparturesByStopResponse> mCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,30 +120,31 @@ public class DeparturesActivity extends AppCompatActivity {
 
         mEmptyTextView = (TextView) findViewById(R.id.text_view);
 
-        mRestClient = new RestClient();
+        mApiClient = new ApiClient();
         mCallback = new Callback<DeparturesByStopResponse>() {
             @Override
-            public void success(DeparturesByStopResponse departuresByStopResponse, Response response) {
-                Log.d(TAG, "Retrofit success!");
-                List<Departure> departures = departuresByStopResponse.getDepartures();
-                if(departures.size() == 0){
-                    onErrorStatusChanged(ERROR_EMPTY_RESPONSE);
+            public void onResponse(Response<DeparturesByStopResponse> response) {
+                if(response.isSuccess()){
+                    Log.d(TAG, "Retrofit success!");
+                    List<Departure> departures = response.body().getDepartures();
+                    if(departures.size() == 0){
+                        onErrorStatusChanged(ERROR_EMPTY_RESPONSE);
+                    }
+                    else{
+                        onErrorStatusChanged(NO_ERROR);
+                        refreshAdapter(departures);
+                    }
+                    // Resets the refresh time once new data is populated
+                    mLastRefreshTime = System.currentTimeMillis();
+                    // Set Crashlytics key to a certain string to see raw JSON at time of crash
+                    Crashlytics.setString("departure json", response.toString());
                 }
-                else{
-                    onErrorStatusChanged(NO_ERROR);
-                    refreshAdapter(departures);
-                }
-                // Resets the refresh time once new data is populated
-                mLastRefreshTime = System.currentTimeMillis();
                 // Relieves animation
                 onItemsLoadComplete();
-                // Set Crashlytics key to a certain string to see raw JSON at time of crash
-                Crashlytics.setString("departure json", response.toString());
             }
 
             @Override
-            public void failure(RetrofitError error) {
-                Log.d(TAG, "Retrofit Error: " + error.toString());
+            public void onFailure(Throwable t) {
                 onErrorStatusChanged(ERROR_NETWORK);
                 // Relieves animation
                 onItemsLoadComplete();
@@ -215,7 +216,7 @@ public class DeparturesActivity extends AppCompatActivity {
         }
     }
 
-    private void refreshAdapter(List<Departure> data) {
+    private void refreshAdapter(final List<Departure> data) {
         // Either sets an adapter if none has been initialized, or swaps existing adapter.
         if(mAdapter == null)
         {
@@ -261,7 +262,8 @@ public class DeparturesActivity extends AppCompatActivity {
 
     // Helper function to call Retrofit.
     private void sendDataRequest(){
-        mRestClient.getDeparturesByStop(mStopString, mCallback);
+        Call<DeparturesByStopResponse> call = mApiClient.getDeparturesByStop(mStopString);
+        call.enqueue(mCallback);
     }
 
     private void onItemsLoadComplete() {

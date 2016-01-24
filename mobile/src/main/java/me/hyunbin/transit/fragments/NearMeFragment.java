@@ -29,14 +29,14 @@ import com.google.android.gms.location.LocationServices;
 
 import java.util.List;
 
+import me.hyunbin.transit.ApiClient;
 import me.hyunbin.transit.R;
-import me.hyunbin.transit.RestClient;
 import me.hyunbin.transit.adapters.NearMeAdapter;
 import me.hyunbin.transit.models.Stop;
 import me.hyunbin.transit.models.StopsByLatLonResponse;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by Hyunbin on 3/9/15.
@@ -57,8 +57,7 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
     private RecyclerView mRecyclerView;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
-    private RestClient mRestClient;
-    private Callback<StopsByLatLonResponse> mCallback;
+    private ApiClient mApiClient;
     private Context mContext;
     private Location mLastLocation;
     private TextView mTextView;
@@ -67,6 +66,7 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
     private SwipeRefreshLayout mEmptySwipeRefreshLayout;
     private CoordinatorLayout mCoordinatorLayout;
     private Location mPrevLocation;
+    private Callback<StopsByLatLonResponse> mCallback;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -89,6 +89,26 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
                 .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
                 .setInterval(updateInterval)
                 .setFastestInterval(minUpdateInterval);
+
+        mCallback = new Callback<StopsByLatLonResponse>() {
+            @Override
+            public void onResponse(Response<StopsByLatLonResponse> response) {
+                if(response.isSuccess()){
+                    Log.d(TAG, "Retrofit success!");
+                    List<Stop> stopList = response.body().getStops();
+                    refreshAdapter(stopList);
+                } else{
+                    Log.d(TAG, "Retrofit Error: " + response.errorBody().toString());
+                    onErrorStatusChanged(ERROR_NETWORK);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "Retrofit Error: " + t.toString());
+                onErrorStatusChanged(ERROR_NETWORK);
+            }
+        };
     }
 
     @Override
@@ -99,22 +119,7 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
         mContext = getActivity();
 
         // Initialize Retrofit client and callback response
-        mRestClient = new RestClient();
-        mCallback = new Callback<StopsByLatLonResponse>() {
-            @Override
-            public void success(StopsByLatLonResponse responseObject, Response response) {
-                Log.d(TAG, "Retrofit success!");
-                List<Stop> stopList = responseObject.getStops();
-                refreshAdapter(stopList);
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d(TAG, "Retrofit Error: " + error.toString());
-                onErrorStatusChanged(ERROR_NETWORK);
-            }
-        };
-
+        mApiClient = new ApiClient();
         mRecyclerView = (RecyclerView) v.findViewById(R.id.near_me_view);
 
         // Sets animator to RecyclerView
@@ -329,7 +334,8 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
     }
 
     private void sendDataRequest(double lat, double lon){
-        mRestClient.getStopsByLatLon(lat, lon, mCallback);
+        Call<StopsByLatLonResponse> call = mApiClient.getStopsByLatLon(lat, lon);
+        call.enqueue(mCallback);
     }
 
     private void refreshAdapter(List<Stop> data){

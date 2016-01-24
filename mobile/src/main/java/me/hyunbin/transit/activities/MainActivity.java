@@ -27,6 +27,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
+import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -158,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
         // Setup the clear button
         mSearchClearButton = new ImageView(this);
         Resources r = getResources();
-        int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16,
+        int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 12,
                 r.getDisplayMetrics());
         LinearLayout.LayoutParams clearParams =
                 new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -166,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
         clearParams.gravity = Gravity.CENTER;
         mSearchClearButton.setLayoutParams(clearParams);
         mSearchClearButton.setImageResource(R.drawable.ic_close);
-        mSearchClearButton.setPadding(px, 0, px - 24, 0);
+        mSearchClearButton.setPadding(px/2, 0, px, 0);
         mSearchClearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -264,12 +265,13 @@ public class MainActivity extends AppCompatActivity {
                 int finalRadius = Math.max(mToolbar.getWidth(), mToolbar.getHeight());
 
                 // create the animator for this view (the start radius is zero)
-                Animator anim = ViewAnimationUtils.createCircularReveal(mSearchContainer, cx, cy, 0, finalRadius);
-                anim.setInterpolator(new FastOutSlowInInterpolator());
+                Animator outerCircleAnimation = ViewAnimationUtils.createCircularReveal(mSearchContainer, cx, cy, 0, finalRadius);
+                outerCircleAnimation.setInterpolator(new DecelerateInterpolator());
+                outerCircleAnimation.setDuration(250);
 
                 // Start animation
                 mSearchContainer.setVisibility(View.VISIBLE);
-                anim.start();
+                outerCircleAnimation.start();
             } else
                 mSearchContainer.setVisibility(View.VISIBLE);
 
@@ -338,8 +340,8 @@ public class MainActivity extends AppCompatActivity {
     private class ParseBusStops extends AsyncTask<Void, Void, Void> {
         protected void onPreExecute() {
             super.onPreExecute();
-            mStopName = new ArrayList<String>();
-            mHash = new ArrayList<HashMap<String, String>>();
+            mStopName = new ArrayList<>();
+            mHash = new ArrayList<>();
         }
 
         protected Void doInBackground(Void ... arg0) {

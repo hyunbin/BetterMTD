@@ -24,9 +24,9 @@ import me.hyunbin.transit.activities.DeparturesActivity;
 import me.hyunbin.transit.activities.MainActivity;
 import me.hyunbin.transit.models.Departure;
 import me.hyunbin.transit.models.DeparturesByStopResponse;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by Hyunbin on 7/6/2015.
@@ -44,14 +44,14 @@ public class NotificationService extends Service {
 
     private String mStopIdString;
     private long mVehicleIdString;
-    private RestClient mRestClient;
-    private Callback<DeparturesByStopResponse> mCallback;
+    private ApiClient mApiClient;
     private Handler mHandler;
     private int timeToRingAlarm;
     private NotificationManager mNotificationManager;
     private int mCachedTimeRemaining;
     private String mCachedHeadSign;
     private String mStopName;
+    Callback<DeparturesByStopResponse> mCallback;
 
     private final class ServiceHandler extends Handler {
         public ServiceHandler(Looper looper) {
@@ -106,24 +106,39 @@ public class NotificationService extends Service {
         mServiceHandler = new ServiceHandler(mServiceLooper);
 
         mHandler = new Handler();
-        mRestClient = new RestClient();
+        mApiClient = new ApiClient();
         mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
         mCallback = new Callback<DeparturesByStopResponse>() {
             @Override
-            public void success(DeparturesByStopResponse departuresByStopResponse, Response response) {
-                Log.d(TAG, "Retrofit success!");
-                List<Departure> departures = departuresByStopResponse.getDepartures();
-                for (int i = 0; i < departures.size(); i++) {
-                    if(departures.get(i).getUniqueId() == mVehicleIdString){
-                        updateNotification(departures.get(i));
-                        break;
+            public void onResponse(Response<DeparturesByStopResponse> response) {
+                if(response.isSuccess()){
+                    Log.d(TAG, "Retrofit success!");
+                    List<Departure> departures = response.body().getDepartures();
+                    for (int i = 0; i < departures.size(); i++) {
+                        if(departures.get(i).getUniqueId() == mVehicleIdString){
+                            updateNotification(departures.get(i));
+                            break;
+                        }
                     }
+                } else{
+                    Log.d(TAG, "Retrofit Error: " + response.errorBody().toString());
+                    // If bus disappears off tracker, then cancel notification and post an error
+                    mNotificationManager.cancel(1);
+                    NotificationCompat.Builder builder = new NotificationCompat.Builder(NotificationService.this)
+                            .setSmallIcon(R.drawable.ic_notification)
+                            .setContentTitle("Network Error")
+                            .setDefaults(Notification.DEFAULT_ALL)
+                            .setContentText("Attempting to reconnect...")
+                            .setOngoing(true)
+                            .addAction(R.drawable.ic_close, "Dismiss now", getDismissIntent(2));;
+                    mNotificationManager.notify(2, builder.build());
                 }
             }
 
             @Override
-            public void failure(RetrofitError error) {
-                Log.d(TAG, "Retrofit Error: " + error.toString());
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "Retrofit Error: " + t.toString());
                 // If bus disappears off tracker, then cancel notification and post an error
                 mNotificationManager.cancel(1);
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(NotificationService.this)
@@ -233,7 +248,8 @@ public class NotificationService extends Service {
             mStopName = intent.getStringExtra("stop_name");
             mVehicleIdString = intent.getLongExtra("unique_id", 1);
             timeToRingAlarm = intent.getIntExtra("alarm_time", 5);
-            mRestClient.getDeparturesByStop(mStopIdString, mCallback);
+            Call<DeparturesByStopResponse> call = mApiClient.getDeparturesByStop(mStopIdString);
+            call.enqueue(mCallback);
 
             // Log metrics because I'm a sucker for data
             Answers.getInstance().logContentView(new ContentViewEvent()
@@ -247,7 +263,8 @@ public class NotificationService extends Service {
         public void run() {
             // A runnable task to refresh notification data at a predetermined interval
             // Makes a web call to Retrofit to pull latest info
-            mRestClient.getDeparturesByStop(mStopIdString, mCallback);
+            Call<DeparturesByStopResponse> call = mApiClient.getDeparturesByStop(mStopIdString);
+            call.enqueue(mCallback);
         }
     };
 

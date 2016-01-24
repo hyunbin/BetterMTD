@@ -17,15 +17,15 @@ import com.crashlytics.android.Crashlytics;
 
 import java.util.List;
 
+import me.hyunbin.transit.ApiClient;
 import me.hyunbin.transit.DetailItemDecoration;
 import me.hyunbin.transit.R;
-import me.hyunbin.transit.RestClient;
 import me.hyunbin.transit.adapters.RouteAdapter;
 import me.hyunbin.transit.models.StopTime;
 import me.hyunbin.transit.models.StopTimesByTripResponse;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Created by Hyunbin on 4/19/15.
@@ -43,7 +43,7 @@ public class RouteActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private RouteAdapter mAdapter;
 
-    private RestClient mRestClient;
+    private ApiClient mApiClient;
     private Callback<StopTimesByTripResponse> mCallback;
 
     @Override
@@ -111,32 +111,36 @@ public class RouteActivity extends AppCompatActivity {
         // Sets item decoration to show the train-like line
         mRecyclerView.addItemDecoration(new DetailItemDecoration(this,
                 Color.parseColor("#" + mRouteColorString) - 0x48000000));
+
+        mCallback = new Callback<StopTimesByTripResponse>() {
+            @Override
+            public void onResponse(Response<StopTimesByTripResponse> response) {
+                if(response.isSuccess()){
+                    Log.d(TAG, "Retrofit success!");
+                    List<StopTime> stopTimes = response.body().getStopTimes();
+                    refreshAdapter(stopTimes);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "Retrofit Error: " + t.toString());
+            }
+        };
     }
 
     @Override
     public void onStart(){
         super.onStart();
 
-        mRestClient = new RestClient();
-        mCallback = new Callback<StopTimesByTripResponse>() {
-            @Override
-            public void success(StopTimesByTripResponse stopTimesByTripResponse, Response response) {
-                Log.d(TAG, "Retrofit success!");
-                List<StopTime> stopTimes = stopTimesByTripResponse.getStopTimes();
-                refreshAdapter(stopTimes);
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d(TAG, "Retrofit Error: " + error.toString());
-            }
-        };
+        mApiClient = new ApiClient();
         sendDataRequest();
     }
 
     // Helper function to call Retrofit.
     private void sendDataRequest(){
-        mRestClient.getStopTimesByTrip(mTripIdString, mCallback);
+        Call<StopTimesByTripResponse> call = mApiClient.getStopTimesByTrip(mTripIdString);
+        call.enqueue(mCallback);
     }
 
     private void refreshAdapter(List<StopTime> data) {
@@ -147,7 +151,7 @@ public class RouteActivity extends AppCompatActivity {
             mRecyclerView.setAdapter(mAdapter);
             mAdapter.notifyItemRangeInserted(0, data.size() - 1);
         }
-        else if(mAdapter != null) {
+        else {
             mAdapter = new RouteAdapter(data);
             mRecyclerView.swapAdapter(mAdapter, false);
         }

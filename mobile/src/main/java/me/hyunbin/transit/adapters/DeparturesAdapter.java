@@ -121,6 +121,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Li
                     intent.putExtra("route_color", routeColor);
                     intent.putExtra("text_color", sRouteTextColor);
                     v.getContext().startActivity(intent);
+
                 }
                 else{
                     // Dismisses the Snackbar being shown, if any, and displays the new one
