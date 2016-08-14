@@ -33,6 +33,6 @@
             android:textColor="#FF000000"
             android:gravity="center_vertical"
             />
-g
+
     </RelativeLayout>
 </com.balysv.materialripple.MaterialRippleLayout>
