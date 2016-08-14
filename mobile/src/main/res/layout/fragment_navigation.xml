@@ -37,11 +37,11 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:ellipsize="end"
-          android:text="Choose start location"
+          android:singleLine="true"
+          android:text="Current location"
           android:textAppearance="@style/TextAppearance.AppCompat.Medium"
           android:textColor="@color/place_autocomplete_search_hint"
-          android:textSize="16sp"
-          android:singleLine="true"/>
+          android:textSize="16sp"/>
 
     </android.support.v7.widget.CardView>
 

@@ -24,7 +24,7 @@ import me.hyunbin.transit.R;
 import me.hyunbin.transit.adapters.FavoritesAdapter;
 
 /**
- * Created by Hyunbin on 3/9/15.
+ * This fragment shows the user-set favorite bus stops.
  */
 
 public class FavoritesFragment extends Fragment {
