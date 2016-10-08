@@ -43,8 +43,9 @@ public class Departure {
     public long getUniqueId(){
         long id = getHeadsign().hashCode() * 10000;
         String subId = getVehicleId();
-        if(subId != null)
+        if(subId != null && !subId.contentEquals("null")) {
             id = id + Long.parseLong(subId);
+        }
         return id;
     }
 

@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +23,8 @@ import com.google.android.gms.maps.model.LatLngBounds;
 
 import me.hyunbin.transit.ApiClient;
 import me.hyunbin.transit.R;
+import me.hyunbin.transit.adapters.DeparturesAdapter;
+import me.hyunbin.transit.adapters.NavigationAdapter;
 import me.hyunbin.transit.models.GetPlannedTripsByLatLonParams;
 import me.hyunbin.transit.models.GetPlannedTripsByLatLonResponse;
 import retrofit2.Call;
@@ -33,15 +38,21 @@ import retrofit2.Response;
 public class NavigationFragment extends Fragment {
 
   private final static String TAG = NavigationFragment.class.getSimpleName();
+
   private final static int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
 
   private ApiClient mApiClient;
   private Callback<GetPlannedTripsByLatLonResponse> mCallback;
   private GetPlannedTripsByLatLonParams mParams;
 
-  private TextView mStartLocation;
-  private TextView mEndLocation;
+  private CardView mEndCard;
+  private CardView mStartCard;
+
   private TextView mCallbackView;
+  private TextView mEndLocation;
+  private TextView mStartLocation;
+
+  private RecyclerView mDirectionsList;
 
   private LatLngBounds mServiceRegion;
 
@@ -63,27 +74,35 @@ public class NavigationFragment extends Fragment {
       Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_navigation, container, false);
 
-    mStartLocation = (TextView) view.findViewById(R.id.start_location);
-    mEndLocation = (TextView) view.findViewById(R.id.end_location);
+    mEndCard = (CardView) view.findViewById(R.id.end_card);
+    mStartCard = (CardView) view.findViewById(R.id.start_card);
 
-    mStartLocation.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        showPlaceAutoComplete(mStartLocation);
-      }
-    });
-    mEndLocation.setOnClickListener(new View.OnClickListener() {
+    mEndCard.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View view) {
         showPlaceAutoComplete(mEndLocation);
       }
     });
+    mStartCard.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        showPlaceAutoComplete(mStartLocation);
+      }
+    });
+
+    mEndLocation = (TextView) view.findViewById(R.id.end_location);
+    mStartLocation = (TextView) view.findViewById(R.id.start_location);
+
+    mDirectionsList = (RecyclerView) view.findViewById(R.id.directions_list);
+    mDirectionsList.setLayoutManager(new LinearLayoutManager(getContext()));
 
     mCallback = new Callback<GetPlannedTripsByLatLonResponse>() {
       @Override
       public void onResponse(Response<GetPlannedTripsByLatLonResponse> response) {
         // TODO: do something pretty with the response here
         Log.e(TAG, response.body().toString());
+
+        mDirectionsList.setAdapter(new NavigationAdapter(response.body().getItineraries()));
       }
 
       @Override

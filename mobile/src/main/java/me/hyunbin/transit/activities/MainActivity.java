@@ -8,11 +8,14 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Point;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
@@ -36,6 +39,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,7 +57,8 @@ import java.util.HashMap;
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.ViewPagerAdapter;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+    implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
   private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -59,14 +68,20 @@ public class MainActivity extends AppCompatActivity {
   private static final String TAG_STOPNAME = "stop_name";
 
   private Context mContext;
-  private ArrayList<String> mStopName;
+
   private ArrayList<HashMap<String, String>> mHash;
+  private ArrayList<String> mStopName;
 
   private AutoCompleteTextView mTextView;
-  private LinearLayout mSearchContainer;
   private ImageView mSearchClearButton;
+  private LinearLayout mSearchContainer;
   private MenuItem mSearchItem;
   private Toolbar mToolbar;
+
+  private GoogleApiClient mGoogleApiClient;
+  private LocationRequest mLocationRequest;
+  private Location mLastLocation;
+  private Location mPrevLocation;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -333,6 +348,21 @@ public class MainActivity extends AppCompatActivity {
         imm.hideSoftInputFromWindow(mTextView.getWindowToken(), 0);
       }
     }
+  }
+
+  @Override
+  public void onConnected(@Nullable Bundle bundle) {
+
+  }
+
+  @Override
+  public void onConnectionSuspended(int i) {
+
+  }
+
+  @Override
+  public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
   }
 
   private class ParseBusStops extends AsyncTask<Void, Void, Void> {

@@ -47,26 +47,31 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
 
   private static final String TAG = NearMeFragment.class.getSimpleName();
 
-  private static int PERMISSIONS_REQUEST_LOC = 128;
+  private static final int ERROR_LOCATION = 2;
+  private static final int ERROR_NETWORK = 1;
+  private static final int NO_ERROR = 0;
+  private static final int PERMISSIONS_REQUEST_LOC = 128;
   private static final int REQUEST_RESOLVE_ERROR = 9000;
-  private boolean mResolvingError = false;
-  private static int NO_ERROR = 0;
-  private static int ERROR_NETWORK = 1;
-  private static int ERROR_LOCATION = 2;
 
-  private RecyclerView mRecyclerView;
-  private GoogleApiClient mGoogleApiClient;
-  private LocationRequest mLocationRequest;
-  private ApiClient mApiClient;
-  private Context mContext;
-  private Location mLastLocation;
-  private TextView mTextView;
-  private NearMeAdapter mAdapter;
-  private SwipeRefreshLayout mSwipeRefreshLayout;
-  private SwipeRefreshLayout mEmptySwipeRefreshLayout;
+  private boolean mResolvingError = false;
+
   private CoordinatorLayout mCoordinatorLayout;
+  private RecyclerView mRecyclerView;
+  private SwipeRefreshLayout mEmptySwipeRefreshLayout;
+  private SwipeRefreshLayout mSwipeRefreshLayout;
+  private TextView mTextView;
+
+  private GoogleApiClient mGoogleApiClient;
+  private Location mLastLocation;
   private Location mPrevLocation;
+  private LocationRequest mLocationRequest;
+
+  private ApiClient mApiClient;
   private Callback<StopsByLatLonResponse> mCallback;
+
+  private Context mContext;
+
+  private NearMeAdapter mAdapter;
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -177,8 +182,8 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
     if (ActivityCompat.checkSelfPermission(getActivity(),
         Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
       if (ActivityCompat.shouldShowRequestPermissionRationale(
-            getActivity(),
-            Manifest.permission.ACCESS_FINE_LOCATION)) {
+          getActivity(),
+          Manifest.permission.ACCESS_FINE_LOCATION)) {
         // This is where we should show further rationale, because the user
         // has previous denied a permission request.
         onErrorStatusChanged(ERROR_LOCATION);
@@ -216,17 +221,18 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
   }
 
   @Override
-  public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+  public void onRequestPermissionsResult(
+      int requestCode,
+      String[] permissions,
+      int[] grantResults) {
     for (int i = 0; i < permissions.length; i++) {
       if (permissions[i].equals(Manifest.permission.ACCESS_FINE_LOCATION)
           && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-        // Permission was granted!
         Log.e(TAG, "Location permission reported as GRANTED");
         if (!mResolvingError) {
           mGoogleApiClient.connect();
         }
       } else {
-        // Permission denied, alert user
         Log.e(TAG, "Location permission reported as DENIED");
         refreshLocationData();
       }
