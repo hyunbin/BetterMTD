@@ -2,56 +2,60 @@
 <manifest package="me.hyunbin.transit"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <uses-permission android:name="android.permission.INTERNET"/>
-  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-  <uses-permission android:name="android.permission.VIBRATE"/>
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+<uses-permission android:name="android.permission.VIBRATE"/>
 
-  <application
-      android:name="me.hyunbin.transit.TransitApplication"
-      android:allowBackup="true"
-      android:backupAgent="PreferenceBackupAgent"
-      android:icon="@mipmap/ic_launcher"
-      android:label="@string/app_name"
-      android:theme="@style/AppTheme">
+<application
+    android:name="me.hyunbin.transit.TransitApplication"
+    android:allowBackup="true"
+    android:backupAgent="PreferenceBackupAgent"
+    android:icon="@mipmap/ic_launcher"
+    android:label="@string/app_name"
+    android:theme="@style/AppTheme">
 
-    <activity
-        android:name=".activities.MainActivity">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN"/>
-        <category android:name="android.intent.category.LAUNCHER"/>
-      </intent-filter>
-    </activity>
+  <activity
+      android:name=".activities.DosMainActivity">
+    <intent-filter>
+      <action android:name="android.intent.action.MAIN"/>
+      <category android:name="android.intent.category.LAUNCHER"/>
+    </intent-filter>
+  </activity>
 
-    <activity
-        android:name=".activities.DeparturesActivity"
-        android:parentActivityName=".activities.MainActivity">
-      <meta-data
-          android:name="android.support.PARENT_ACTIVITY"
-          android:value=".activities.MainActivity"/>
-    </activity>
+  <activity
+      android:name=".activities.MainActivity">
+  </activity>
 
-    <activity
-        android:name=".activities.RouteActivity"
-        android:parentActivityName=".activities.DeparturesActivity">
-      <meta-data
-          android:name="android.support.PARENT_ACTIVITY"
-          android:value=".activities.DeparturesActivity"/>
-    </activity>
-
-    <service
-        android:name=".NotificationService"
-        android:exported="false"/>
-
+  <activity
+      android:name=".activities.DeparturesActivity"
+      android:parentActivityName=".activities.MainActivity">
     <meta-data
-        android:name="com.google.android.backup.api_key"
-        android:value="***REMOVED***"/>
+        android:name="android.support.PARENT_ACTIVITY"
+        android:value=".activities.MainActivity"/>
+  </activity>
 
+  <activity
+      android:name=".activities.RouteActivity"
+      android:parentActivityName=".activities.DeparturesActivity">
     <meta-data
-        android:name="io.fabric.ApiKey"
-        android:value="***REMOVED***"/>
+        android:name="android.support.PARENT_ACTIVITY"
+        android:value=".activities.DeparturesActivity"/>
+  </activity>
 
-    <meta-data
-        android:name="com.google.android.geo.API_KEY"
-        android:value="***REMOVED***"/>
-  </application>
+  <service
+      android:name=".NotificationService"
+      android:exported="false"/>
+
+  <meta-data
+      android:name="com.google.android.backup.api_key"
+      android:value="***REMOVED***"/>
+
+  <meta-data
+      android:name="io.fabric.ApiKey"
+      android:value="***REMOVED***"/>
+
+  <meta-data
+      android:name="com.google.android.geo.API_KEY"
+      android:value="***REMOVED***"/>
+</application>
 </manifest>
