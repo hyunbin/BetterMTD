@@ -15,8 +15,8 @@ public class PermissionsHelper {
     void onShowRationale();
   }
 
+  public static final int PERMISSIONS_REQUEST_LOC = 128;
   private static final String TAG = PermissionsHelper.class.getSimpleName();
-  private static final int PERMISSIONS_REQUEST_LOC = 128;
 
   private Activity mActivity;
   private Listener mListener;
@@ -29,7 +29,14 @@ public class PermissionsHelper {
     mListener = listener;
   }
 
-  public void checkForLocationPermission() {
+  /**
+   * Checks to see if location permission has been granted for this app. If not, then it will either
+   * ask for location permission on the first time or listeners will receive onShowRationale in
+   * subsequent attempts.
+   *
+   * @return true if permission has been granted, false if not
+   */
+  public boolean checkForLocationPermission() {
     if (ActivityCompat.checkSelfPermission(
         mActivity,
         Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -48,6 +55,10 @@ public class PermissionsHelper {
             new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
             PERMISSIONS_REQUEST_LOC);
       }
+
+      return false;
     }
+
+    return true;
   }
 }

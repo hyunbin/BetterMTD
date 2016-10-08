@@ -58,7 +58,10 @@ public class LocationHelper implements GoogleApiClient.ConnectionCallbacks,
   public void onConnected(@Nullable Bundle bundle) {
     Log.d(TAG, "Connected to Google Play Services");
 
-    mPermissionsHelper.checkForLocationPermission();
+    if (!mPermissionsHelper.checkForLocationPermission()) {
+      return;
+    }
+
     Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
     if (mListener != null) {

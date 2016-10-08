@@ -1,9 +1,13 @@
 package me.hyunbin.transit.activities;
 
+import android.Manifest;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -22,8 +26,12 @@ import me.hyunbin.transit.helpers.PermissionsHelper;
 public class DosMainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
   private static final String TAG = DosMainActivity.class.getSimpleName();
+
+  private static final double DEFAULT_LATITUDE = 40.1020;
+  private static final double DEFAULT_LONGITUDE = -88.2272;
   private static final float DEFAULT_ZOOM = 16.5f;
 
+  private View mFrame;
   private GoogleMap mMap;
 
   private LocationHelper mLocationHelper;
@@ -34,15 +42,14 @@ public class DosMainActivity extends AppCompatActivity implements OnMapReadyCall
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_dos_main);
 
+    mFrame = findViewById(R.id.frame_layout);
+
     MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
     mapFragment.getMapAsync(this);
 
     LocationHelper.Listener locationListener = new LocationHelper.Listener() {
       @Override
       public void onLocationChanged(Location location) {
-        // TODO: do something here with the new location update.
-        Log.e(TAG, "New location: " + location.getLatitude() + ", " + location.getLongitude());
-
         if (mMap != null) {
           mMap.moveCamera(CameraUpdateFactory.newLatLng(
               new LatLng(
@@ -58,7 +65,18 @@ public class DosMainActivity extends AppCompatActivity implements OnMapReadyCall
     PermissionsHelper.Listener permissionsListener = new PermissionsHelper.Listener() {
       @Override
       public void onShowRationale() {
-        // TODO: do something here to show rationale to the user before requesting permission again.
+        String message = "The location permission is disabled.";
+        Snackbar.make(mFrame, message, Snackbar.LENGTH_INDEFINITE)
+            .setAction("Enable", new View.OnClickListener() {
+              @Override
+              public void onClick(View view) {
+                ActivityCompat.requestPermissions(
+                    DosMainActivity.this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PermissionsHelper.PERMISSIONS_REQUEST_LOC);
+              }
+            })
+            .show();
       }
     };
 
@@ -69,9 +87,21 @@ public class DosMainActivity extends AppCompatActivity implements OnMapReadyCall
   @Override
   public void onMapReady(GoogleMap googleMap) {
     mMap = googleMap;
-    mPermissionsHelper.checkForLocationPermission();
-    mMap.setMyLocationEnabled(true);
     mMap.moveCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM));
+
+    if (!mPermissionsHelper.checkForLocationPermission()) {
+      // If the location permission is disabled, the map is set to the heart of campus.
+      mMap.moveCamera(CameraUpdateFactory.newLatLng(
+          new LatLng(
+              DEFAULT_LATITUDE,
+              DEFAULT_LONGITUDE)));
+      return;
+    }
+
+    mMap.setMyLocationEnabled(true);
+
+    // TODO: We should set padding here if map is obstructed by other views.
+    // mMap.setPadding();
   }
 
   @Override
