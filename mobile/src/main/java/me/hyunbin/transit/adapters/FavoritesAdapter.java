@@ -9,79 +9,79 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import me.hyunbin.transit.activities.MainActivity;
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.activities.DeparturesActivity;
 
 public class FavoritesAdapter extends RecyclerView.Adapter
-        <FavoritesAdapter.ListItemViewHolder> {
+    <FavoritesAdapter.ListItemViewHolder> {
 
-    ArrayList<HashMap<String, String>> mData;
+  List<HashMap<String, String>> mData;
 
-    public FavoritesAdapter(ArrayList<HashMap<String, String>> modelData) {
-        if (modelData == null) {
-            throw new IllegalArgumentException("modelData must not be null");
-        }
-        this.mData = modelData;
-        setHasStableIds(true);
+  public FavoritesAdapter(List<HashMap<String, String>> modelData) {
+    if (modelData == null) {
+      throw new IllegalArgumentException("modelData must not be null");
     }
+    this.mData = modelData;
+    setHasStableIds(true);
+  }
 
-    public void swapData(ArrayList<HashMap<String, String>> data){
-        mData = data;
+  public void swapData(List<HashMap<String, String>> data) {
+    mData = data;
+  }
+
+  @Override
+  public long getItemId(int position) {
+    long id = mData.get(position).get("stop_id").hashCode();
+    return id;
+  }
+
+  @Override
+  public ListItemViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    View itemView = LayoutInflater.from(viewGroup.getContext())
+        .inflate(R.layout.item_dos_stop, viewGroup, false);
+    return new ListItemViewHolder(itemView);
+  }
+
+  @Override
+  public void onBindViewHolder(
+      ListItemViewHolder viewHolder, int position) {
+    final HashMap<String, String> model = mData.get(position);
+    viewHolder.mStopName.setText(model.get("stop_name"));
+    viewHolder.mRoot.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Intent intent = new Intent(v.getContext(), DeparturesActivity.class);
+        intent.putExtra(MainActivity.ARG_STOPID, model.get("stop_id"));
+        intent.putExtra(MainActivity.ARG_STOPNAME, model.get("stop_name"));
+        v.getContext().startActivity(intent);
+      }
+    });
+  }
+
+  @Override
+  public int getItemCount() {
+    return mData.size();
+  }
+
+  public void removeAllItems() {
+    final int size = mData.size();
+    for (int i = size - 1; i >= 0; i--) {
+      mData.remove(i);
+      notifyItemRemoved(i);
     }
+  }
 
-    @Override
-    public long getItemId(int position){
-        long id = mData.get(position).get("stop_id").hashCode();
-        return id;
+  public final static class ListItemViewHolder extends RecyclerView.ViewHolder {
+    private TextView mStopName;
+    private View mRoot;
+
+    public ListItemViewHolder(View itemView) {
+      super(itemView);
+      mStopName = (TextView) itemView.findViewById(R.id.stop_name);
+      mRoot = itemView.findViewById(R.id.list_item);
     }
-
-    @Override
-    public ListItemViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        View itemView = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.item_favorite, viewGroup, false);
-        return new ListItemViewHolder(itemView);
-    }
-
-    @Override
-    public void onBindViewHolder(
-            ListItemViewHolder viewHolder, int position) {
-        final HashMap<String, String> model = mData.get(position);
-        viewHolder.mStopNameTextView.setText(model.get("stop_name"));
-        viewHolder.mRootView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), DeparturesActivity.class);
-                intent.putExtra(MainActivity.ARG_STOPID, model.get("stop_id"));
-                intent.putExtra(MainActivity.ARG_STOPNAME, model.get("stop_name"));
-                v.getContext().startActivity(intent);
-            }
-        });
-    }
-
-    @Override
-    public int getItemCount() {
-        return mData.size();
-    }
-
-    public void removeAllItems() {
-        final int size = mData.size();
-        for(int i = size-1; i >= 0 ; i--) {
-            mData.remove(i);
-            notifyItemRemoved(i);
-        }
-    }
-
-    public final static class ListItemViewHolder extends RecyclerView.ViewHolder {
-        TextView mStopNameTextView;
-        View mRootView;
-
-        public ListItemViewHolder(View itemView) {
-            super(itemView);
-            mStopNameTextView = (TextView) itemView.findViewById(R.id.stopName);
-            mRootView = itemView.findViewById(R.id.ripple);
-        }
-    }
-
+  }
 }
