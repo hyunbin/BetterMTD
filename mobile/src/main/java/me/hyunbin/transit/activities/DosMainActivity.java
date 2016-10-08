@@ -16,6 +16,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 
 import me.hyunbin.transit.R;
+import me.hyunbin.transit.fragments.DosStopsFragment;
 import me.hyunbin.transit.helpers.LocationHelper;
 import me.hyunbin.transit.helpers.PermissionsHelper;
 
@@ -31,8 +32,9 @@ public class DosMainActivity extends AppCompatActivity implements OnMapReadyCall
   private static final double DEFAULT_LONGITUDE = -88.2272;
   private static final float DEFAULT_ZOOM = 16.5f;
 
-  private View mFrame;
+  private DosStopsFragment mStopsFragment;
   private GoogleMap mMap;
+  private View mFrame;
 
   private LocationHelper mLocationHelper;
   private PermissionsHelper mPermissionsHelper;
@@ -42,10 +44,13 @@ public class DosMainActivity extends AppCompatActivity implements OnMapReadyCall
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_dos_main);
 
+    mStopsFragment = (DosStopsFragment) getFragmentManager().findFragmentById(R.id.stops_fragment);
     mFrame = findViewById(R.id.frame_layout);
 
-    MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map_fragment);
+    MapFragment mapFragment = (MapFragment) getFragmentManager()
+        .findFragmentById(R.id.map_fragment);
     mapFragment.getMapAsync(this);
+
 
     LocationHelper.Listener locationListener = new LocationHelper.Listener() {
       @Override
@@ -55,6 +60,7 @@ public class DosMainActivity extends AppCompatActivity implements OnMapReadyCall
               new LatLng(
                   location.getLatitude(),
                   location.getLongitude())));
+          mStopsFragment.setLocation(location);
         }
       }
     };

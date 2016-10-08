@@ -4,12 +4,12 @@ import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
 /**
@@ -24,6 +24,9 @@ public class LocationHelper implements GoogleApiClient.ConnectionCallbacks,
   }
 
   private static final String TAG = LocationHelper.class.getSimpleName();
+
+  private static final int UPDATE_INTERVAL = 90000;
+  private static final int MIN_UPDATE_INTERVAL = 30000;
 
   private Activity mActivity;
   private GoogleApiClient mGoogleApiClient;
@@ -55,7 +58,7 @@ public class LocationHelper implements GoogleApiClient.ConnectionCallbacks,
   }
 
   @Override
-  public void onConnected(@Nullable Bundle bundle) {
+  public void onConnected(Bundle bundle) {
     Log.d(TAG, "Connected to Google Play Services");
 
     if (!mPermissionsHelper.checkForLocationPermission()) {
@@ -63,10 +66,18 @@ public class LocationHelper implements GoogleApiClient.ConnectionCallbacks,
     }
 
     Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-
     if (mListener != null) {
       mListener.onLocationChanged(location);
     }
+
+    LocationRequest locationRequest = LocationRequest.create()
+        .setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
+        .setInterval(UPDATE_INTERVAL)
+        .setFastestInterval(MIN_UPDATE_INTERVAL);
+    LocationServices.FusedLocationApi.requestLocationUpdates(
+        mGoogleApiClient,
+        locationRequest,
+        this);
   }
 
   @Override

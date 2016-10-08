@@ -14,10 +14,6 @@ import me.hyunbin.transit.activities.MainActivity;
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.activities.DeparturesActivity;
 
-
-/**
- * Created by Hyunbin on 3/10/15.
- */
 public class FavoritesAdapter extends RecyclerView.Adapter
         <FavoritesAdapter.ListItemViewHolder> {
 

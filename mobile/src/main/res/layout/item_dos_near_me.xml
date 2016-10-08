@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:id="@+id/list_item"
+              xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="wrap_content"
+              android:layout_height="36dp"
+              android:background="@drawable/chip_background"
+              android:orientation="horizontal"
+              android:paddingBottom="6dp"
+              android:paddingLeft="12dp"
+              android:paddingRight="12dp"
+              android:paddingTop="8dp">
+
+  <TextView
+      android:id="@+id/stop_name"
+      android:layout_gravity="center_vertical"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:textColor="@android:color/primary_text_light"
+      android:textSize="14sp"/>
+
+  <TextView
+      android:id="@+id/distance"
+      android:layout_gravity="center_vertical"
+      android:layout_width="wrap_content"
+      android:layout_height="match_parent"
+      android:paddingLeft="8dp"
+      android:textColor="@android:color/secondary_text_light"
+      android:textSize="14sp"/>
+
+</LinearLayout>

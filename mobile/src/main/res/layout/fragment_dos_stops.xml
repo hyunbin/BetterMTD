@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    android:id="@+id/bottom_sheet"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:background="@android:color/background_light"
+    android:elevation="2dp"
+    android:orientation="vertical"
+    android:paddingBottom="24dp"
+    android:paddingTop="24dp">
+
+  <TextView
+      android:id="@+id/near_me_label"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:ellipsize="end"
+      android:maxLines="1"
+      android:paddingBottom="4dp"
+      android:paddingEnd="16dp"
+      android:paddingStart="16dp"
+      android:text="Near Me"
+      android:textAppearance="@style/TextAppearance.AppCompat.Caption"/>
+
+  <android.support.v7.widget.RecyclerView
+      android:id="@+id/near_me_list"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:scrollbars="none"/>
+
+  <TextView
+      android:id="@+id/favorites_label"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:ellipsize="end"
+      android:maxLines="1"
+      android:paddingBottom="4dp"
+      android:paddingTop="16dp"
+      android:paddingEnd="16dp"
+      android:paddingStart="16dp"
+      android:text="Favorites"
+      android:textAppearance="@style/TextAppearance.AppCompat.Caption"/>
+
+  <android.support.v7.widget.RecyclerView
+      android:id="@+id/favorites_list"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:scrollbars="none"/>
+
+</LinearLayout>
