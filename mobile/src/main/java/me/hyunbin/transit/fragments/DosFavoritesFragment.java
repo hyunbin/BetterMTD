@@ -30,56 +30,26 @@ import retrofit2.Response;
  * bottom of DosMainActivity.
  */
 
-public class DosStopsFragment extends Fragment {
+public class DosFavoritesFragment extends Fragment {
 
-  private static final String TAG = DosStopsFragment.class.getSimpleName();
+  private static final String TAG = DosFavoritesFragment.class.getSimpleName();
 
   private static final int ANIMATION_DURATION_MS = 400;
   private static final int FAVORITES_SPAN_COUNT = 2;
-  private static final int NEAR_ME_SPAN_COUNT = 1;
-
-  private ApiClient mApiClient;
-  private Callback<StopsByLatLonResponse> mNearMeStopsResponse;
-  private FavoritesHelper mFavoritesHelper;
 
   private FavoritesAdapter mFavoritesAdapter;
-  private NearMeAdapter mNearMeAdapter;
+  private FavoritesHelper mFavoritesHelper;
   private RecyclerView mFavoritesList;
-  private RecyclerView mNearMeList;
 
   @Override
   public View onCreateView(
       LayoutInflater inflater,
       ViewGroup container,
       Bundle savedInstanceState) {
-    View v = inflater.inflate(R.layout.fragment_dos_stops, container, false);
+    View v = inflater.inflate(R.layout.fragment_dos_favorites, container, false);
 
     mFavoritesList = (RecyclerView) v.findViewById(R.id.favorites_list);
     setupRecyclerView(mFavoritesList);
-
-    mNearMeList = (RecyclerView) v.findViewById(R.id.near_me_list);
-    setupRecyclerView(mNearMeList);
-
-    mApiClient = new ApiClient();
-    mNearMeStopsResponse = new Callback<StopsByLatLonResponse>() {
-      @Override
-      public void onResponse(Response<StopsByLatLonResponse> response) {
-        if (response.isSuccess()) {
-          Log.d(TAG, "Retrofit success!");
-          List<Stop> stopList = response.body().getStops();
-          updateNearMeData(stopList);
-        } else {
-          Log.d(TAG, "Retrofit Error: " + response.errorBody().toString());
-          // TODO: Show network error.
-        }
-      }
-
-      @Override
-      public void onFailure(Throwable t) {
-        Log.d(TAG, "Retrofit Error: " + t.toString());
-        // TODO: Show network error.
-      }
-    };
 
     mFavoritesHelper = new FavoritesHelper(getActivity());
     mFavoritesHelper.setListener(new FavoritesHelper.Listener() {
@@ -88,16 +58,14 @@ public class DosStopsFragment extends Fragment {
         updateFavoritesData(favoritesList);
       }
     });
-    mFavoritesHelper.parseFavorites();
 
     return v;
   }
 
-  public void setLocation(Location location) {
-    Call<StopsByLatLonResponse> call = mApiClient.getStopsByLatLon(
-        location.getLatitude(),
-        location.getLongitude());
-    call.enqueue(mNearMeStopsResponse);
+  @Override
+  public void onStart() {
+    super.onStart();
+    mFavoritesHelper.parseFavorites();
   }
 
   private void setupRecyclerView(RecyclerView view) {
@@ -105,17 +73,10 @@ public class DosStopsFragment extends Fragment {
     view.getItemAnimator().setRemoveDuration(ANIMATION_DURATION_MS);
 
     StaggeredGridLayoutManager layoutManager;
-    if (view == mNearMeList) {
-      view.addItemDecoration(new SpacesItemDecoration(2, NEAR_ME_SPAN_COUNT));
-      layoutManager = new StaggeredGridLayoutManager(
-          NEAR_ME_SPAN_COUNT,
-          StaggeredGridLayoutManager.HORIZONTAL);
-    } else {
-      view.addItemDecoration(new SpacesItemDecoration(2, FAVORITES_SPAN_COUNT));
-      layoutManager = new StaggeredGridLayoutManager(
-          FAVORITES_SPAN_COUNT,
-          StaggeredGridLayoutManager.HORIZONTAL);
-    }
+    view.addItemDecoration(new SpacesItemDecoration(2, FAVORITES_SPAN_COUNT));
+    layoutManager = new StaggeredGridLayoutManager(
+        FAVORITES_SPAN_COUNT,
+        StaggeredGridLayoutManager.HORIZONTAL);
 
     view.setLayoutManager(layoutManager);
   }
@@ -128,17 +89,6 @@ public class DosStopsFragment extends Fragment {
     } else {
       mFavoritesAdapter.swapData(data);
       mFavoritesAdapter.notifyDataSetChanged();
-    }
-  }
-
-  private void updateNearMeData(List<Stop> data) {
-    if (mNearMeAdapter == null) {
-      mNearMeAdapter = new NearMeAdapter(data);
-      mNearMeList.setAdapter(mNearMeAdapter);
-      mNearMeAdapter.notifyItemRangeInserted(0, data.size() - 1);
-    } else {
-      mNearMeAdapter.swapData(data);
-      mNearMeAdapter.notifyDataSetChanged();
     }
   }
 }

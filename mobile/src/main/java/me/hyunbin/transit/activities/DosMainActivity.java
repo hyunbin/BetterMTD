@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -16,7 +15,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 
 import me.hyunbin.transit.R;
-import me.hyunbin.transit.fragments.DosStopsFragment;
+import me.hyunbin.transit.fragments.DosFavoritesFragment;
+import me.hyunbin.transit.fragments.DosNearMeFragment;
 import me.hyunbin.transit.helpers.LocationHelper;
 import me.hyunbin.transit.helpers.PermissionsHelper;
 
@@ -32,7 +32,8 @@ public class DosMainActivity extends AppCompatActivity implements OnMapReadyCall
   private static final double DEFAULT_LONGITUDE = -88.2272;
   private static final float DEFAULT_ZOOM = 16.5f;
 
-  private DosStopsFragment mStopsFragment;
+  private DosFavoritesFragment mFavoritesFragment;
+  private DosNearMeFragment mNearMeFragment;
   private GoogleMap mMap;
   private View mFrame;
 
@@ -44,13 +45,15 @@ public class DosMainActivity extends AppCompatActivity implements OnMapReadyCall
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_dos_main);
 
-    mStopsFragment = (DosStopsFragment) getFragmentManager().findFragmentById(R.id.stops_fragment);
+    mFavoritesFragment = (DosFavoritesFragment) getFragmentManager()
+        .findFragmentById(R.id.favorites_fragment);
+    mNearMeFragment = (DosNearMeFragment) getFragmentManager()
+        .findFragmentById(R.id.near_me_fragment);
     mFrame = findViewById(R.id.frame_layout);
 
     MapFragment mapFragment = (MapFragment) getFragmentManager()
         .findFragmentById(R.id.map_fragment);
     mapFragment.getMapAsync(this);
-
 
     LocationHelper.Listener locationListener = new LocationHelper.Listener() {
       @Override
@@ -60,7 +63,7 @@ public class DosMainActivity extends AppCompatActivity implements OnMapReadyCall
               new LatLng(
                   location.getLatitude(),
                   location.getLongitude())));
-          mStopsFragment.setLocation(location);
+          mNearMeFragment.setLocation(location);
         }
       }
     };
@@ -107,7 +110,9 @@ public class DosMainActivity extends AppCompatActivity implements OnMapReadyCall
     mMap.setMyLocationEnabled(true);
 
     // TODO: We should set padding here if map is obstructed by other views.
-    // mMap.setPadding();
+//    int top = 0;
+//    int bottom =
+//    mMap.setPadding(0, top, 0, bottom);
   }
 
   @Override
