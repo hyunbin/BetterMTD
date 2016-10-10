@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="8dp"
+      android:layout_marginEnd="8dp"
+      android:layout_marginStart="8dp"
+      android:layout_marginTop="8dp"
+      android:background="@drawable/search_bar_background"
+      android:elevation="2dp"
+      android:paddingBottom="12dp"
+      android:paddingEnd="12dp"
+      android:paddingStart="12dp"
+      android:paddingTop="12dp">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:paddingEnd="24dp"
+        android:paddingRight="24dp"
+        android:src="@drawable/places_ic_search"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical"
+        android:background="@android:color/transparent"
+        android:hint="Search for bus stops"
+        android:inputType="text"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@android:color/primary_text_light"
+        android:textCursorDrawable="@null"
+        android:textSize="16sp"/>
+
+  </LinearLayout>
+
+</LinearLayout>

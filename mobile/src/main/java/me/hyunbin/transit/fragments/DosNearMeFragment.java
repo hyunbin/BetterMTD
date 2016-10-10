@@ -92,7 +92,7 @@ public class DosNearMeFragment extends Fragment {
 
     mIsCollapsed = mSharedPreferences.getBoolean(PREFERENCE_KEY, false);
     if (mIsCollapsed) {
-      mBottomSheet.setTranslationY(LayoutUtil.dpToPx(77));
+      mBottomSheet.setTranslationY(LayoutUtil.dpToPx(80));
       mToggle.setText("\u25B2");
     }
 

@@ -1,11 +1,9 @@
 package me.hyunbin.transit.fragments;
 
 import android.app.Fragment;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,17 +11,10 @@ import android.view.ViewGroup;
 import java.util.HashMap;
 import java.util.List;
 
-import me.hyunbin.transit.ApiClient;
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.SpacesItemDecoration;
 import me.hyunbin.transit.adapters.FavoritesAdapter;
-import me.hyunbin.transit.adapters.NearMeAdapter;
 import me.hyunbin.transit.helpers.FavoritesHelper;
-import me.hyunbin.transit.models.Stop;
-import me.hyunbin.transit.models.StopsByLatLonResponse;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * This fragment contains both the favorites and near me stops listed out as chips, placed at the
