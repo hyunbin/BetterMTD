@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -17,6 +18,8 @@ import com.google.android.gms.maps.model.LatLng;
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.fragments.DosFavoritesFragment;
 import me.hyunbin.transit.fragments.DosNearMeFragment;
+import me.hyunbin.transit.fragments.DosSearchFragment;
+import me.hyunbin.transit.helpers.LayoutUtil;
 import me.hyunbin.transit.helpers.LocationHelper;
 import me.hyunbin.transit.helpers.PermissionsHelper;
 
@@ -31,14 +34,20 @@ public class DosMainActivity extends AppCompatActivity implements OnMapReadyCall
   private static final double DEFAULT_LATITUDE = 40.1020;
   private static final double DEFAULT_LONGITUDE = -88.2272;
   private static final float DEFAULT_ZOOM = 16.5f;
+  private static final float MAX_ZOOM = 18.0f;
+  private static final float MIN_ZOOM = 16.0f;
 
   private DosFavoritesFragment mFavoritesFragment;
   private DosNearMeFragment mNearMeFragment;
+  private DosSearchFragment mSearchFragment;
   private GoogleMap mMap;
   private View mFrame;
 
   private LocationHelper mLocationHelper;
   private PermissionsHelper mPermissionsHelper;
+
+  private int mBottomHeightPx = 0;
+  private int mTopHeightPx = 0;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +58,8 @@ public class DosMainActivity extends AppCompatActivity implements OnMapReadyCall
         .findFragmentById(R.id.favorites_fragment);
     mNearMeFragment = (DosNearMeFragment) getFragmentManager()
         .findFragmentById(R.id.near_me_fragment);
+    mSearchFragment = (DosSearchFragment) getFragmentManager()
+        .findFragmentById(R.id.search_fragment);
     mFrame = findViewById(R.id.frame_layout);
 
     MapFragment mapFragment = (MapFragment) getFragmentManager()
@@ -94,30 +105,56 @@ public class DosMainActivity extends AppCompatActivity implements OnMapReadyCall
   }
 
   @Override
+  public void onBackPressed() {
+    if (!mSearchFragment.onBackPressed()) {
+      super.onBackPressed();
+    }
+  }
+
+  @Override
   public void onMapReady(GoogleMap googleMap) {
+    Log.e(TAG, "Map is ready!");
+
     mMap = googleMap;
     mMap.moveCamera(CameraUpdateFactory.zoomTo(DEFAULT_ZOOM));
+    mMap.setMaxZoomPreference(MAX_ZOOM);
+    mMap.setMinZoomPreference(MIN_ZOOM);
 
-    if (!mPermissionsHelper.checkForLocationPermission()) {
+    mTopHeightPx = LayoutUtil.dpToPx(64);
+    mBottomHeightPx = LayoutUtil.dpToPx(240);
+    if (mNearMeFragment.getIsCollapsed()) {
+      mBottomHeightPx -= LayoutUtil.dpToPx(80) + 2;
+    }
+    mMap.setPadding(0, mTopHeightPx, 0, mBottomHeightPx);
+
+    if (!mPermissionsHelper.checkForLocationPermission(false)) {
       // If the location permission is disabled, the map is set to the heart of campus.
       mMap.moveCamera(CameraUpdateFactory.newLatLng(
           new LatLng(
               DEFAULT_LATITUDE,
               DEFAULT_LONGITUDE)));
-      return;
+    } else {
+      mMap.setMyLocationEnabled(true);
     }
-
-    mMap.setMyLocationEnabled(true);
-
-    // TODO: We should set padding here if map is obstructed by other views.
-//    int top = 0;
-//    int bottom =
-//    mMap.setPadding(0, top, 0, bottom);
   }
 
   @Override
   public void onStart() {
     super.onStart();
+
+    mNearMeFragment.setListener(new DosNearMeFragment.Listener() {
+      @Override
+      public void onViewCollapsed(boolean isCollapsed) {
+        if (isCollapsed) {
+          mBottomHeightPx -= LayoutUtil.dpToPx(80) + 2;
+        } else {
+          mBottomHeightPx += LayoutUtil.dpToPx(80) + 2;
+        }
+        Log.e(TAG, "Listener: Bottom height = " + mBottomHeightPx);
+        mMap.setPadding(0, mTopHeightPx, 0, mBottomHeightPx);
+      }
+    });
+
     mLocationHelper.connect();
   }
 

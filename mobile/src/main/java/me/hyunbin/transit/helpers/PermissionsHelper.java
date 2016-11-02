@@ -30,17 +30,26 @@ public class PermissionsHelper {
   }
 
   /**
+   * Checks to see if location permission has been granted for this app.
+   *
+   * @return true if permission has been granted, false if not
+   */
+  private boolean isLocationPermissionGranted() {
+    return ActivityCompat.checkSelfPermission(
+        mActivity,
+        Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+  }
+
+  /**
    * Checks to see if location permission has been granted for this app. If not, then it will either
    * ask for location permission on the first time or listeners will receive onShowRationale in
    * subsequent attempts.
    *
+   * @param shouldRequest whether we should ask for the permission if it's not already granted
    * @return true if permission has been granted, false if not
    */
-  public boolean checkForLocationPermission() {
-    if (ActivityCompat.checkSelfPermission(
-        mActivity,
-        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
+  public boolean checkForLocationPermission(boolean shouldRequest) {
+    if (!isLocationPermissionGranted()) {
       if (ActivityCompat.shouldShowRequestPermissionRationale(
           mActivity,
           Manifest.permission.ACCESS_FINE_LOCATION)) {
@@ -48,17 +57,14 @@ public class PermissionsHelper {
         if (mListener != null) {
           mListener.onShowRationale();
         }
-      } else {
-        // This is the first time the user has seen the location dialogue.
+      } else if (shouldRequest) {
         ActivityCompat.requestPermissions(
             mActivity,
             new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
             PERMISSIONS_REQUEST_LOC);
       }
-
       return false;
     }
-
     return true;
   }
 }

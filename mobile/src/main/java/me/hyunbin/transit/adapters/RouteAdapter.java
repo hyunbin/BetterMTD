@@ -62,7 +62,7 @@ public class RouteAdapter extends RecyclerView.Adapter<RouteAdapter.ListItemView
             holder.mTimeTextView.setText(stopTime.getArrivalTime());
         }
         holder.mStopNameTextView.setText(stopTime.getStopPoint().getStopName().split("\\(", 2)[0]);
-        holder.mRootView.setOnClickListener(new View.OnClickListener() {
+        holder.mLinearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(v.getContext(), DeparturesActivity.class);
@@ -82,11 +82,9 @@ public class RouteAdapter extends RecyclerView.Adapter<RouteAdapter.ListItemView
         private TextView mStopNameTextView;
         private TextView mTimeTextView;
         private LinearLayout mLinearLayout;
-        private View mRootView;
 
         public ListItemViewHolder(View itemView) {
             super(itemView);
-            mRootView = itemView.findViewById(R.id.ripple);
             mLinearLayout = (LinearLayout) itemView.findViewById(R.id.listitem);
             mTimeTextView = (TextView) itemView.findViewById(R.id.timeView);
             mStopNameTextView = (TextView) itemView.findViewById(R.id.stopName);

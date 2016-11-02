@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import me.hyunbin.transit.ApiClient;
@@ -34,6 +35,10 @@ import retrofit2.Response;
 
 public class DosNearMeFragment extends Fragment {
 
+  public interface Listener {
+    void onViewCollapsed(boolean isCollapsed);
+  }
+
   private static final String TAG = DosNearMeFragment.class.getSimpleName();
   private static final String PREFERENCE_KEY = "collapse_near_me_fragment";
 
@@ -49,6 +54,7 @@ public class DosNearMeFragment extends Fragment {
   private TextView mNearMeLabel;
   private TextView mToggle;
 
+  private Listener mListener;
   private SharedPreferences mSharedPreferences;
 
   private boolean mIsCollapsed;
@@ -71,7 +77,6 @@ public class DosNearMeFragment extends Fragment {
       @Override
       public void onResponse(Response<StopsByLatLonResponse> response) {
         if (response.isSuccess()) {
-          Log.d(TAG, "Retrofit success!");
           List<Stop> stopList = response.body().getStops();
           updateNearMeData(stopList);
         } else {
@@ -92,7 +97,7 @@ public class DosNearMeFragment extends Fragment {
 
     mIsCollapsed = mSharedPreferences.getBoolean(PREFERENCE_KEY, false);
     if (mIsCollapsed) {
-      mBottomSheet.setTranslationY(LayoutUtil.dpToPx(80));
+      mBottomSheet.setTranslationY(LayoutUtil.dpToPx(80) + 2);
       mToggle.setText("\u25B2");
     }
 
@@ -107,15 +112,23 @@ public class DosNearMeFragment extends Fragment {
         if (mIsCollapsed) {
           view.animate()
                 .setInterpolator(new FastOutSlowInInterpolator())
-                .translationYBy(-DosNearMeFragment.this.getView().getHeight() + mToggle.getHeight());
+                .translationYBy(-DosNearMeFragment.this.getView().getHeight()
+                    //+ LayoutUtil.dpToPx(16)
+                    + mToggle.getHeight());
           mToggle.setText("\u25BC");
         } else {
           view.animate()
               .setInterpolator(new FastOutSlowInInterpolator())
-              .translationYBy(DosNearMeFragment.this.getView().getHeight() - mToggle.getHeight());
+              .translationYBy(DosNearMeFragment.this.getView().getHeight()
+                  //- LayoutUtil.dpToPx(16)
+                  - mToggle.getHeight());
           mToggle.setText("\u25B2");
         }
         mIsCollapsed = !mIsCollapsed;
+
+        if (mListener != null) {
+          mListener.onViewCollapsed(mIsCollapsed);
+        }
       }
     });
   }
@@ -124,6 +137,14 @@ public class DosNearMeFragment extends Fragment {
   public void onStop() {
     super.onStop();
     mSharedPreferences.edit().putBoolean(PREFERENCE_KEY, mIsCollapsed).apply();
+  }
+
+  public boolean getIsCollapsed() {
+    return mIsCollapsed;
+  }
+
+  public void setListener(Listener listener) {
+    mListener = listener;
   }
 
   public void setLocation(Location location) {

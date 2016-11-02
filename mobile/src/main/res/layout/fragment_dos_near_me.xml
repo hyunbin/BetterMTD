@@ -14,6 +14,7 @@
       android:id="@+id/toggle_text"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
+      android:background="?android:attr/selectableItemBackground"
       android:paddingBottom="4dp"
       android:paddingEnd="8dp"
       android:paddingStart="8dp"
@@ -38,7 +39,7 @@
       android:id="@+id/near_me_list"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:minHeight="40dp"
+      android:minHeight="44dp"
       android:scrollbars="none"/>
 
 </LinearLayout>

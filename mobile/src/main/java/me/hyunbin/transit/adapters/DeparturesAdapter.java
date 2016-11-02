@@ -110,7 +110,7 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Li
             holder.mIStopImageView.setVisibility(View.GONE);
         }
 
-        holder.mRootView.setOnClickListener(new View.OnClickListener() {
+        holder.mListItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(departure.getTrip() != null){
@@ -179,7 +179,6 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Li
         private TextView mMinsTextView;
         private RelativeLayout mListItem;
         private ImageView mIStopImageView;
-        private View mRootView;
 
         public ListItemViewHolder(View itemView) {
             super(itemView);
@@ -188,7 +187,6 @@ public class DeparturesAdapter extends RecyclerView.Adapter<DeparturesAdapter.Li
             mExpectedMinsTextView = (TextView) itemView.findViewById(R.id.expectedmins);
             mSubTextView = (TextView) itemView.findViewById(R.id.subtext);
             mMinsTextView = (TextView) itemView.findViewById(R.id.minslabel);
-            mRootView = itemView.findViewById(R.id.ripple);
             mIStopImageView = (ImageView) itemView.findViewById(R.id.iStopView);
         }
     }

@@ -1,89 +1,80 @@
 package me.hyunbin.transit.adapters;
 
-import android.content.Context;
+import android.content.Intent;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.Filter;
-import android.widget.Filterable;
 import android.widget.TextView;
 
-import java.util.ArrayList;
+import java.text.DecimalFormat;
 import java.util.List;
 
-import me.hyunbin.transit.AutoCompleteClient;
+import me.hyunbin.transit.activities.MainActivity;
 import me.hyunbin.transit.R;
+import me.hyunbin.transit.activities.DeparturesActivity;
 import me.hyunbin.transit.models.AutoCompleteItem;
+import me.hyunbin.transit.models.Stop;
 
-/**
- * Created by Hyunbin on 1/23/16.
- */
-public class AutoCompleteAdapter extends BaseAdapter implements Filterable {
+public class AutoCompleteAdapter extends RecyclerView.Adapter
+    <AutoCompleteAdapter.ListItemViewHolder> {
 
-    private static final int MAX_RESULTS = 10;
-    private Context mContext;
-    private List<AutoCompleteItem> resultList = new ArrayList<>();
-    private AutoCompleteClient mAutoCompleteClient;
+  List<AutoCompleteItem> mData;
 
-    public AutoCompleteAdapter(Context context) {
-        mContext = context;
-        mAutoCompleteClient = new AutoCompleteClient();
+  public AutoCompleteAdapter(List<AutoCompleteItem> data) {
+    if (data == null) {
+      throw new IllegalArgumentException("Adapter data must not be null");
     }
+    this.mData = data;
+    setHasStableIds(true);
+  }
 
-    @Override
-    public int getCount() {
-        return resultList.size();
+  public void swapData(List<AutoCompleteItem> data) {
+    mData = data;
+  }
+
+  @Override
+  public long getItemId(int position) {
+    long id = mData.get(position).getI().hashCode();
+    return id;
+  }
+
+  @Override
+  public ListItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    View itemView = LayoutInflater.from(parent.getContext())
+        .inflate(R.layout.item_dos_stop, parent, false);
+    return new ListItemViewHolder(itemView);
+  }
+
+  @Override
+  public void onBindViewHolder(ListItemViewHolder holder, int position) {
+    final AutoCompleteItem stop = mData.get(position);
+    holder.mStopName.setText(stop.getN());
+
+    holder.mRoot.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Intent intent = new Intent(v.getContext(), DeparturesActivity.class);
+        intent.putExtra(MainActivity.ARG_STOPID, stop.getI());
+        intent.putExtra(MainActivity.ARG_STOPNAME, stop.getN());
+        v.getContext().startActivity(intent);
+      }
+    });
+  }
+
+  @Override
+  public int getItemCount() {
+    return mData.size();
+  }
+
+  public final static class ListItemViewHolder extends RecyclerView.ViewHolder {
+    private TextView mStopName;
+    private View mRoot;
+
+    public ListItemViewHolder(View itemView) {
+      super(itemView);
+      mStopName = (TextView) itemView.findViewById(R.id.stop_name);
+      mRoot = itemView.findViewById(R.id.list_item);
     }
-
-    @Override
-    public AutoCompleteItem getItem(int index) {
-        return resultList.get(index);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return position;
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null) {
-            LayoutInflater inflater = (LayoutInflater) mContext
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.simple_dropdown_item, parent, false);
-        }
-        ((TextView) convertView.findViewById(android.R.id.text1)).setText(getItem(position).getN());
-        return convertView;
-    }
-
-    @Override
-    public Filter getFilter() {
-        Filter filter = new Filter() {
-            @Override
-            protected FilterResults performFiltering(CharSequence constraint) {
-                FilterResults filterResults = new FilterResults();
-                if (constraint != null) {
-                    //List<AutoCompleteItem> items = mAutoCompleteClient.getSuggestions(constraint.toString());
-
-                    // Assign the data to the FilterResults
-                    //filterResults.values = books;
-                    //filterResults.count = books.size();
-                }
-                return filterResults;
-            }
-
-            @Override
-            protected void publishResults(CharSequence constraint, FilterResults results) {
-                if (results != null && results.count > 0) {
-                    //resultList = (List<Books>) results.values;
-                    notifyDataSetChanged();
-                } else {
-                    notifyDataSetInvalidated();
-                }
-            }};
-        return filter;
-    }
-
-
+  }
 }
