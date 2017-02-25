@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="top"
-    android:clickable="true"
     android:orientation="vertical">
 
   <LinearLayout
@@ -23,15 +22,15 @@
         android:id="@+id/search_top_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingBottom="10dp"
-        android:paddingLeft="12dp"
-        android:paddingTop="10dp">
+        android:paddingLeft="12dp">
 
       <ImageView
           android:layout_width="wrap_content"
           android:layout_height="match_parent"
+          android:paddingBottom="10dp"
           android:paddingEnd="24dp"
           android:paddingRight="24dp"
+          android:paddingTop="10dp"
           android:src="@drawable/places_ic_search"/>
 
       <EditText
@@ -43,9 +42,13 @@
           android:background="@android:color/transparent"
           android:cursorVisible="false"
           android:focusable="false"
+          android:focusableInTouchMode="false"
           android:hint="Search for bus stops"
+          android:imeOptions="flagNoExtractUi"
           android:inputType="text"
           android:maxLines="1"
+          android:paddingBottom="10dp"
+          android:paddingTop="10dp"
           android:textAppearance="@style/TextAppearance.AppCompat.Medium"
           android:textColor="@android:color/primary_text_light"
           android:textCursorDrawable="@drawable/cursor"
@@ -55,8 +58,10 @@
           android:id="@+id/cancel_button"
           android:layout_width="wrap_content"
           android:layout_height="match_parent"
+          android:paddingBottom="10dp"
           android:paddingLeft="16dp"
           android:paddingRight="12dp"
+          android:paddingTop="10dp"
           android:src="@drawable/places_ic_clear"
           android:visibility="gone"/>
 

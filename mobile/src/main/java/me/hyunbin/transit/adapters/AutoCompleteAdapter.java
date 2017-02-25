@@ -42,7 +42,7 @@ public class AutoCompleteAdapter extends RecyclerView.Adapter
   @Override
   public ListItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     View itemView = LayoutInflater.from(parent.getContext())
-        .inflate(R.layout.item_dos_stop, parent, false);
+        .inflate(R.layout.item_favorite, parent, false);
     return new ListItemViewHolder(itemView);
   }
 

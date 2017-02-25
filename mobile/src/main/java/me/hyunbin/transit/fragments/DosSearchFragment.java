@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.Transformation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -33,11 +34,10 @@ import retrofit2.Response;
  */
 
 public class DosSearchFragment extends Fragment {
-
   private static final String TAG = DosSearchFragment.class.getSimpleName();
 
+  private static final int ANIMATION_QUICK_DURATION_MS = 300;
   private static final int ANIMATION_DURATION_MS = 400;
-  private static final int SEARCH_SPAN_COUNT = 2;
 
   private AutoCompleteClient mAutoCompleteClient;
   private Callback<List<AutoCompleteItem>> mAutoCompleteResponse;
@@ -45,10 +45,10 @@ public class DosSearchFragment extends Fragment {
 
   private AutoCompleteAdapter mAutoCompleteAdapter;
   private EditText mSearchText;
-  private RecyclerView mAutoCompleteList;
   private View mCancelButton;
   private View mSearchContainer;
   private View mSearchTopBar;
+  private RecyclerView mAutoCompleteList;
 
   private boolean mIsInSearchMode = false;
 
@@ -116,8 +116,6 @@ public class DosSearchFragment extends Fragment {
         suggestions.enqueue(mAutoCompleteResponse);
       }
     });
-    mSearchText.setFocusable(true);
-    mSearchText.setFocusableInTouchMode(true);
 
     mAutoCompleteList = (RecyclerView) v.findViewById(R.id.search_suggestions_list);
     setupRecyclerView(mAutoCompleteList);
@@ -140,21 +138,33 @@ public class DosSearchFragment extends Fragment {
 
   private void startSearchMode() {
     mIsInSearchMode = true;
+    mSearchText.setFocusable(true);
+    mSearchText.setFocusableInTouchMode(true);
     mSearchText.requestFocus();
     mSearchText.setCursorVisible(true);
     mCancelButton.setVisibility(View.VISIBLE);
+    animateView(mCancelButton, R.anim.fade_in);
+    mInputMethodManager.showSoftInput(mSearchText, 0);
 
-    setSearchContainerHeight(mSearchContainer, 5);
+    setSearchContainerHeight(mSearchContainer, 0);
   }
 
   private void cancelSearchMode() {
     mIsInSearchMode = false;
+    animateView(mCancelButton, R.anim.fade_out);
     mCancelButton.setVisibility(View.GONE);
     mSearchText.getText().clear();
     mSearchText.setCursorVisible(false);
+    mSearchText.setFocusable(false);
+    mSearchText.setFocusableInTouchMode(false);
     mInputMethodManager.hideSoftInputFromWindow(mCancelButton.getWindowToken(), 0);
 
     setSearchContainerHeight(mSearchContainer, 0);
+  }
+
+  private void animateView(View view, int animResource) {
+    Animation fadeInAnimation = AnimationUtils.loadAnimation(getActivity(), animResource);
+    view.startAnimation(fadeInAnimation);
   }
 
   private void setupRecyclerView(RecyclerView view) {
@@ -163,19 +173,21 @@ public class DosSearchFragment extends Fragment {
 
     LinearLayoutManager layoutManager;
     layoutManager = new LinearLayoutManager(getActivity());
-
     view.setLayoutManager(layoutManager);
 
     setSearchContainerHeight(view, 0);
   }
 
-  private void setSearchContainerHeight(final View view, final int itemCount) {
+  private void setSearchContainerHeight(final View view, int itemCount) {
     final int initialHeight = view.getMeasuredHeight();
     if (initialHeight == 0) {
       return;
     }
+    if (itemCount > 5) {
+      itemCount = 5;
+    }
     final int minimumHeight = mSearchTopBar.getMeasuredHeight() + LayoutUtil.dpToPx(6);
-    final int targetHeight = minimumHeight + itemCount * LayoutUtil.dpToPx(52); // TODO: number is completely arbitrary here
+    final int targetHeight = minimumHeight + itemCount * LayoutUtil.dpToPx(56); // TODO: change me
 
     Animation anim = new Animation() {
       @Override
@@ -191,7 +203,7 @@ public class DosSearchFragment extends Fragment {
       }
     };
 
-    anim.setDuration(ANIMATION_DURATION_MS);
+    anim.setDuration(ANIMATION_QUICK_DURATION_MS);
     anim.setInterpolator(new FastOutSlowInInterpolator());
 
     view.setPivotY(0f);
@@ -200,10 +212,12 @@ public class DosSearchFragment extends Fragment {
 
   private void updateAutoCompleteData(List<AutoCompleteItem> data) {
     if (mAutoCompleteAdapter == null) {
+      setSearchContainerHeight(mSearchContainer, data.size());
       mAutoCompleteAdapter = new AutoCompleteAdapter(data);
       mAutoCompleteList.setAdapter(mAutoCompleteAdapter);
       mAutoCompleteAdapter.notifyItemRangeInserted(0, data.size() - 1);
     } else {
+      setSearchContainerHeight(mSearchContainer, data.size());
       mAutoCompleteAdapter.swapData(data);
       mAutoCompleteAdapter.notifyDataSetChanged();
     }
