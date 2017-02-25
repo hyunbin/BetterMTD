@@ -53,6 +53,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.ViewPagerAdapter;
@@ -69,8 +70,8 @@ public class MainActivity extends AppCompatActivity
 
   private Context mContext;
 
-  private ArrayList<HashMap<String, String>> mHash;
-  private ArrayList<String> mStopName;
+  private List<HashMap<String, String>> mHash;
+  private List<String> mStopName;
 
   private AutoCompleteTextView mTextView;
   private ImageView mSearchClearButton;

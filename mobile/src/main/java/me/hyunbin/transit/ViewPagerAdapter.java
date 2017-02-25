@@ -12,13 +12,13 @@ import me.hyunbin.transit.fragments.NavigationFragment;
  */
 public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 
-  private static final CharSequence PAGE_TITLES[] = {"Favorites", "Near Me", "Navigation"};
+  private static final CharSequence PAGE_TITLES[] = {"Favorites", "Near Me"};
 
   private int mTabCount;
 
   public ViewPagerAdapter(FragmentManager fragmentManager) {
     super(fragmentManager);
-    mTabCount = 3;
+    mTabCount = 2;
   }
 
   @Override

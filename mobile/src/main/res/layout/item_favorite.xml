@@ -1,38 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.balysv.materialripple.MaterialRippleLayout
-    android:id="@+id/ripple"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="10dp"
-    android:paddingTop="16dp"
-    android:paddingBottom="16dp"
-    app:mrl_rippleDuration="360"
-    app:mrl_rippleFadeDuration="360"
-    app:mrl_rippleHover="true"
-    app:mrl_rippleRoundedCorners="14dp"
-    app:mrl_rippleColor="#8f000000"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<LinearLayout android:id="@+id/list_item"
+              xmlns:android="http://schemas.android.com/apk/res/android"
+              android:background="?android:attr/selectableItemBackground"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:gravity="center_vertical"
+              android:minHeight="56dp"
+              android:paddingLeft="16dp"
+              android:paddingRight="16dp"
+              android:orientation="horizontal">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/listitem"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:minHeight="40dp">
+  <TextView
+      android:id="@+id/stop_name"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:gravity="center_vertical"
+      android:textColor="#FF000000"
+      android:textSize="16sp"
+      />
 
-        <!-- STOP NAME label -->
-        <TextView
-            android:id="@+id/stopName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:paddingLeft="6dp"
-            android:textColor="#FF000000"
-            android:gravity="center_vertical"
-            />
-
-    </RelativeLayout>
-</com.balysv.materialripple.MaterialRippleLayout>
+</LinearLayout>

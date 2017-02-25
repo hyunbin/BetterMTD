@@ -18,13 +18,15 @@ import me.hyunbin.transit.activities.DeparturesActivity;
 public class FavoritesAdapter extends RecyclerView.Adapter
     <FavoritesAdapter.ListItemViewHolder> {
 
-  List<HashMap<String, String>> mData;
+  private List<HashMap<String, String>> mData;
+  private int mLayoutResource;
 
-  public FavoritesAdapter(List<HashMap<String, String>> modelData) {
+  public FavoritesAdapter(List<HashMap<String, String>> modelData, int layoutResource) {
     if (modelData == null) {
       throw new IllegalArgumentException("modelData must not be null");
     }
     this.mData = modelData;
+    mLayoutResource = layoutResource;
     setHasStableIds(true);
   }
 
@@ -41,7 +43,7 @@ public class FavoritesAdapter extends RecyclerView.Adapter
   @Override
   public ListItemViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
     View itemView = LayoutInflater.from(viewGroup.getContext())
-        .inflate(R.layout.item_dos_stop, viewGroup, false);
+        .inflate(mLayoutResource, viewGroup, false);
     return new ListItemViewHolder(itemView);
   }
 

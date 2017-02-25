@@ -13,9 +13,6 @@ import java.util.List;
 import me.hyunbin.transit.R;
 import me.hyunbin.transit.models.Itinerary;
 
-/**
- * Created by Hyunbin on 8/15/16.
- */
 public class NavigationAdapter extends RecyclerView.Adapter<NavigationAdapter.ListItemViewHolder> {
 
   private List<Itinerary> mItineraries;

@@ -344,7 +344,7 @@ public class NearMeFragment extends Fragment implements GoogleApiClient.Connecti
   private void refreshAdapter(List<Stop> data) {
     // Either sets an adapter if none has been initialized, or swaps existing adapter.
     if (mAdapter == null) {
-      mAdapter = new NearMeAdapter(data);
+      mAdapter = new NearMeAdapter(data, R.layout.item_nearme);
       mRecyclerView.setAdapter(mAdapter);
       mAdapter.notifyItemRangeInserted(0, data.size() - 1);
     } else {

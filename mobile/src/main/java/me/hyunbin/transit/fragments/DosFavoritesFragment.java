@@ -22,7 +22,6 @@ import me.hyunbin.transit.helpers.FavoritesHelper;
  */
 
 public class DosFavoritesFragment extends Fragment {
-
   private static final String TAG = DosFavoritesFragment.class.getSimpleName();
 
   private static final int ANIMATION_DURATION_MS = 400;
@@ -74,7 +73,7 @@ public class DosFavoritesFragment extends Fragment {
 
   private void updateFavoritesData(List<HashMap<String, String>> data) {
     if (mFavoritesAdapter == null) {
-      mFavoritesAdapter = new FavoritesAdapter(data);
+      mFavoritesAdapter = new FavoritesAdapter(data, R.layout.item_dos_stop);
       mFavoritesList.setAdapter(mFavoritesAdapter);
       mFavoritesAdapter.notifyItemRangeInserted(0, data.size() - 1);
     } else {

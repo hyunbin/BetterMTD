@@ -1,36 +1,50 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical">
+<FrameLayout android:id="@+id/frame_layout"
+             xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="vertical">
+
+  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:contentInsetStart="16dp"
-            android:contentInsetEnd="16dp"
-            android:background="@color/primary"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark"
-            app:titleTextAppearance="@style/ToolbarTitle" />
+      <android.support.v7.widget.Toolbar
+          android:id="@+id/toolbar"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:background="@color/primary"
+          android:contentInsetEnd="16dp"
+          android:contentInsetStart="16dp"
+          android:theme="@style/ThemeOverlay.AppCompat.Dark"
+          app:titleTextAppearance="@style/ToolbarTitle"/>
 
-        <android.support.design.widget.TabLayout
-            android:id="@+id/tabs"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:elevation="4dp" />
+      <android.support.design.widget.TabLayout
+          android:id="@+id/tabs"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:elevation="4dp"/>
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/viewpager"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" />
+        android:layout_height="fill_parent"/>
 
-</LinearLayout>
+  </LinearLayout>
+
+  <fragment
+      android:id="@+id/search_fragment"
+      class="me.hyunbin.transit.fragments.DosSearchFragment"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"/>
+
+</FrameLayout>

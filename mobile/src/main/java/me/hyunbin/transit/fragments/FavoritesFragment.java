@@ -75,7 +75,7 @@ public class FavoritesFragment extends Fragment {
     /* Either sets an adapter if none has been initialized, or makes appropriate calls to
     enable animations in the RecyclerView. */
     if (mAdapter == null) {
-      mAdapter = new FavoritesAdapter(mFavoritesList);
+      mAdapter = new FavoritesAdapter(mFavoritesList, R.layout.item_favorite);
       mRecyclerView.setAdapter(mAdapter);
     } else {
       mAdapter.swapData(mFavoritesList);
@@ -105,7 +105,7 @@ public class FavoritesFragment extends Fragment {
       // Grab shared preferences and data
       favorites = mContext.getSharedPreferences("favorites", 0);
       mFavoritesData = favorites.getAll();
-      mFavoritesList = new ArrayList<HashMap<String, String>>();
+      mFavoritesList = new ArrayList<>();
     }
 
     protected Void doInBackground(Void... arg0) {

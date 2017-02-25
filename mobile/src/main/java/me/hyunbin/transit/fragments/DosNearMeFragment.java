@@ -34,7 +34,6 @@ import retrofit2.Response;
  */
 
 public class DosNearMeFragment extends Fragment {
-
   public interface Listener {
     void onViewCollapsed(boolean isCollapsed);
   }
@@ -44,9 +43,6 @@ public class DosNearMeFragment extends Fragment {
 
   private static final int ANIMATION_DURATION_MS = 400;
   private static final int NEAR_ME_SPAN_COUNT = 1;
-
-  private ApiClient mApiClient;
-  private Callback<StopsByLatLonResponse> mNearMeStopsResponse;
 
   private NearMeAdapter mNearMeAdapter;
   private LinearLayout mBottomSheet;
@@ -71,26 +67,6 @@ public class DosNearMeFragment extends Fragment {
     setupRecyclerView(mNearMeList);
 
     mNearMeLabel = (TextView) v.findViewById(R.id.near_me_label);
-
-    mApiClient = new ApiClient();
-    mNearMeStopsResponse = new Callback<StopsByLatLonResponse>() {
-      @Override
-      public void onResponse(Response<StopsByLatLonResponse> response) {
-        if (response.isSuccess()) {
-          List<Stop> stopList = response.body().getStops();
-          updateNearMeData(stopList);
-        } else {
-          Log.d(TAG, "Retrofit Error: " + response.errorBody().toString());
-          // TODO: Show network error.
-        }
-      }
-
-      @Override
-      public void onFailure(Throwable t) {
-        Log.d(TAG, "Retrofit Error: " + t.toString());
-        // TODO: Show network error.
-      }
-    };
 
     mToggle = (TextView) v.findViewById(R.id.toggle_text);
     mSharedPreferences = getActivity().getSharedPreferences(PREFERENCE_KEY, 0);
@@ -147,11 +123,13 @@ public class DosNearMeFragment extends Fragment {
     mListener = listener;
   }
 
-  public void setLocation(Location location) {
-    Call<StopsByLatLonResponse> call = mApiClient.getStopsByLatLon(
-        location.getLatitude(),
-        location.getLongitude());
-    call.enqueue(mNearMeStopsResponse);
+  public void onStopsByLatLonResponse(StopsByLatLonResponse response) {
+    List<Stop> stopList = response.getStops();
+    updateNearMeData(stopList);
+  }
+
+  public void onStopsByLatLonResponseFailure(String errorMsg) {
+    // TODO: error handling here
   }
 
   private void setupRecyclerView(RecyclerView view) {
@@ -169,7 +147,7 @@ public class DosNearMeFragment extends Fragment {
 
   private void updateNearMeData(List<Stop> data) {
     if (mNearMeAdapter == null) {
-      mNearMeAdapter = new NearMeAdapter(data);
+      mNearMeAdapter = new NearMeAdapter(data, R.layout.item_dos_near_me);
       mNearMeList.setAdapter(mNearMeAdapter);
       mNearMeAdapter.notifyItemRangeInserted(0, data.size() - 1);
     } else {

@@ -18,13 +18,15 @@ import me.hyunbin.transit.models.Stop;
 public class NearMeAdapter extends RecyclerView.Adapter
     <NearMeAdapter.ListItemViewHolder> {
 
-  List<Stop> mData;
+  private List<Stop> mData;
+  private int mLayoutResource;
 
-  public NearMeAdapter(List<Stop> data) {
+  public NearMeAdapter(List<Stop> data, int layoutResource) {
     if (data == null) {
       throw new IllegalArgumentException("Adapter data must not be null");
     }
     this.mData = data;
+    mLayoutResource = layoutResource;
     setHasStableIds(true);
   }
 
@@ -41,7 +43,7 @@ public class NearMeAdapter extends RecyclerView.Adapter
   @Override
   public ListItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     View itemView = LayoutInflater.from(parent.getContext())
-        .inflate(R.layout.item_dos_stop, parent, false);
+        .inflate(mLayoutResource, parent, false);
     return new ListItemViewHolder(itemView);
   }
 

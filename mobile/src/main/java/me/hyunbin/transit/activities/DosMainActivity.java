@@ -21,14 +21,16 @@ import me.hyunbin.transit.fragments.DosNearMeFragment;
 import me.hyunbin.transit.fragments.DosSearchFragment;
 import me.hyunbin.transit.helpers.LayoutUtil;
 import me.hyunbin.transit.helpers.LocationHelper;
+import me.hyunbin.transit.helpers.MapHelper;
+import me.hyunbin.transit.helpers.StopsByLatLonHelper;
 import me.hyunbin.transit.helpers.PermissionsHelper;
+import me.hyunbin.transit.models.StopsByLatLonResponse;
 
 /**
  * The new main activity screen consolidates map, search bar, and favorites screens into one.
  */
 
 public class DosMainActivity extends AppCompatActivity implements OnMapReadyCallback {
-
   private static final String TAG = DosMainActivity.class.getSimpleName();
 
   private static final double DEFAULT_LATITUDE = 40.1020;
@@ -43,9 +45,11 @@ public class DosMainActivity extends AppCompatActivity implements OnMapReadyCall
   private GoogleMap mMap;
   private View mFrame;
 
+  private StopsByLatLonHelper mStopsByLatLonHelper;
   private LocationHelper mLocationHelper;
   private PermissionsHelper mPermissionsHelper;
 
+  private boolean mCameraMoving = false;
   private int mBottomHeightPx = 0;
   private int mTopHeightPx = 0;
 
@@ -66,15 +70,31 @@ public class DosMainActivity extends AppCompatActivity implements OnMapReadyCall
         .findFragmentById(R.id.map_fragment);
     mapFragment.getMapAsync(this);
 
+    mStopsByLatLonHelper = new StopsByLatLonHelper();
+    mStopsByLatLonHelper.addListener(new StopsByLatLonHelper.Listener() {
+      @Override
+      public void onResponse(StopsByLatLonResponse response) {
+        mNearMeFragment.onStopsByLatLonResponse(response);
+        MapHelper.populateMapWithStopMarkers(mMap, response.getStops());
+      }
+
+      @Override
+      public void onFailure(String errorMsg) {
+        mNearMeFragment.onStopsByLatLonResponseFailure(errorMsg);
+      }
+    });
+
     LocationHelper.Listener locationListener = new LocationHelper.Listener() {
       @Override
       public void onLocationChanged(Location location) {
         if (mMap != null) {
-          mMap.moveCamera(CameraUpdateFactory.newLatLng(
-              new LatLng(
-                  location.getLatitude(),
-                  location.getLongitude())));
-          mNearMeFragment.setLocation(location);
+          if (!mCameraMoving) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(
+                new LatLng(
+                    location.getLatitude(),
+                    location.getLongitude())));
+            mStopsByLatLonHelper.execute(location);
+          }
         }
       }
     };
@@ -136,6 +156,26 @@ public class DosMainActivity extends AppCompatActivity implements OnMapReadyCall
     } else {
       mMap.setMyLocationEnabled(true);
     }
+
+    mMap.setOnCameraMoveCanceledListener(new GoogleMap.OnCameraMoveCanceledListener() {
+      @Override
+      public void onCameraMoveCanceled() {
+        mCameraMoving = false;
+      }
+    });
+    mMap.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
+      @Override
+      public void onCameraMoveStarted(int i) {
+        mCameraMoving = true;
+      }
+    });
+    mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+      @Override
+      public void onCameraMove() {
+        LatLng location = mMap.getCameraPosition().target;
+        mStopsByLatLonHelper.execute(location);
+      }
+    });
   }
 
   @Override

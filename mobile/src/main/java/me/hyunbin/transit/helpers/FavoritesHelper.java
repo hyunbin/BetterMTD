@@ -17,7 +17,6 @@ import java.util.Map;
  * TODO: The implementation in this class and FavoritesAdapter is pretty terrible.
  */
 public class FavoritesHelper {
-
   public interface Listener {
     void onFavoritesParsed(List<HashMap<String, String>> favoritesList);
   }
