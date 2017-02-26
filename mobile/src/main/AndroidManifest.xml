@@ -49,14 +49,14 @@
 
   <meta-data
       android:name="com.google.android.backup.api_key"
-      android:value="***REMOVED***"/>
+      android:value="@string/android_backup_key"/>
 
   <meta-data
       android:name="io.fabric.ApiKey"
-      android:value="***REMOVED***"/>
+      android:value="d87db2f76016363edf3a3935deb9998378a33725"/>
 
   <meta-data
       android:name="com.google.android.geo.API_KEY"
-      android:value="***REMOVED***"/>
+      android:value="@string/android_geo_key"/>
 </application>
 </manifest>
