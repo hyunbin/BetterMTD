@@ -1,5 +1,5 @@
 # BetterMTD
-A work-in-progress, modern Android app for the Champaign-Urbana bus system. 
+A modern Android app for the Champaign-Urbana bus system. 
 
 ## Release Version
 A release version of the code can be found on the Play Store as [Transit for CUMTD](https://play.google.com/store/apps/details?id=me.hyunbin.transit).
